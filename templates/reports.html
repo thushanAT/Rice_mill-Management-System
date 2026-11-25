@@ -1,0 +1,1971 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .reports-page {
+            padding: 22px;
+            color: #173d20;
+        }
+        .reports-heading {
+            margin-bottom: 22px;
+        }
+        .reports-heading h2 {
+            margin: 0;
+            font-size: 25px;
+            color: #173d20;
+        }
+        .reports-heading p {
+            margin: 6px 0 0;
+            color: #64806a;
+            font-size: 13px;
+        }
+        .report-section {
+            background: white;
+            border: 1px solid #e2eedf;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 10px rgba(20,70,30,.04);
+        }
+        .report-section-title {
+            background: #f1f8e4;
+            border-left: 4px solid #45c936;
+            padding: 11px 14px;
+            color: #173d20;
+            font-weight: 700;
+            margin-bottom: 18px;
+            border-radius: 4px;
+        }
+        /* FILTER FORM */
+        .report-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+        .report-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .report-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #36583d;
+        }
+        .report-field input, .report-field select {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #d5e3d1;
+            background: white;
+            border-radius: 7px;
+            padding: 11px 12px;
+            font-size: 13px;
+            color: #263b2a;
+            outline: none;
+        }
+        .report-field input:focus, .report-field select:focus {
+            border-color: #45c936;
+            box-shadow: 0 0 0 3px rgba(69,201,54,.10);
+        }
+        .report-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .report-btn {
+            border: none;
+            border-radius: 7px;
+            padding: 11px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .report-btn-primary {
+            background: #278b32;
+            color: white;
+        }
+        .report-btn-primary:hover {
+            background: #1d7029;
+        }
+        .report-btn-secondary {
+            background: #edf4e9;
+            color: #315a36;
+        }
+        .report-btn-export {
+            background: #e3f2d9;
+            color: #236b2d;
+        }
+        /* REPORT PREVIEW */
+        .report-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .report-preview-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #173d20;
+        }
+        .report-meta {
+            font-size: 12px;
+            color: #718274;
+            margin-top: 5px;
+        }
+        .report-status {
+            background: #e8f4df;
+            color: #236b2d;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .report-generated-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 12px;
+            color: #718274;
+            margin-bottom: 14px;
+        }
+        .report-notice {
+            background: #fff8e6;
+            color: #876321;
+            border: 1px solid #f1dfb1;
+            border-radius: 7px;
+            padding: 12px;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        .report-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+        .report-table th {
+            background: #d9f5a8;
+            color: #234b28;
+            padding: 12px 10px;
+            font-size: 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .report-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #edf2e9;
+            font-size: 12px;
+            color: #405b45;
+            overflow-wrap: anywhere;
+        }
+        .report-table tr:hover td {
+            background: #f9fcf6;
+        }
+        .report-empty {
+            text-align: center;
+            padding: 40px 15px !important;
+            color: #829084 !important;
+        }
+        .report-total-box {
+            background: #f1f8e4;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .report-summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+            gap: 10px;
+            margin: 0 0 15px;
+        }
+        .report-summary-card {
+            min-width: 0;
+            padding: 13px 14px;
+            border: 1px solid #e2eedf;
+            border-radius: 8px;
+            background: #f8fcf4;
+        }
+        .report-summary-card span {
+            display: block;
+            color: #718274;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+        .report-summary-card strong {
+            display: block;
+            color: #236b2d;
+            font-size: 16px;
+            overflow-wrap: anywhere;
+        }
+        .report-pagination[hidden] {
+            display: none;
+        }
+        @media (max-width: 900px) {
+            .report-form-grid {
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .reports-page {
+                padding: 12px;
+            }
+            .report-form-grid {
+                grid-template-columns: 1fr;
+            }
+            .report-section {
+                padding: 13px;
+            }
+            .report-actions {
+                justify-content: stretch;
+            }
+            .report-actions button {
+                flex: 1;
+            }
+        }
+        /* PRINT / PDF REPORT - AGRICULTURE GREEN PALETTE & PAGE FORMATTING */
+        @page {
+            size: A4 landscape;
+            margin: 8mm 10mm;
+        }
+        @media print {
+            *, *::before, *::after {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                box-sizing: border-box !important;
+            }
+            /* Full reset of root containers to clean white paper and 100% width (all themes) */
+            html,
+            html body,
+            body,
+            body.app-body,
+            main,
+            main.page,
+            .page,
+            .dashboard-page,
+            .purchase-page,
+            .sales-page,
+            .reports-page {
+                margin: 0 !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                min-height: 0 !important;
+                height: auto !important;
+                background: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+                color: #173D20 !important;
+                box-shadow: none !important;
+                border: none !important;
+                overflow: visible !important;
+                position: static !important;
+                float: none !important;
+                transform: none !important;
+            }
+            /* Completely hide UI chrome from taking any layout space */
+            aside.sidebar,
+            .sidebar,
+            header.topbar,
+            .topbar,
+            .theme-toggle-btn,
+            .sidebar-footer,
+            .sales-top-buttons,
+            .purchase-actions,
+            .reports-heading,
+            .report-filters,
+            .reports-page > .report-section:not(#reportPrintArea),
+            #reportFilterForm,
+            #reportExportActions,
+            #reportPagination,
+            #reportNotice,
+            .report-status {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #reportPrintArea {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+                color: #173D20 !important;
+                box-sizing: border-box !important;
+            }
+            /* Header & Branding */
+            #reportPrintArea .report-preview-header {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                background: transparent !important;
+                background-color: transparent !important;
+                border-bottom: 2px solid #234B28 !important;
+                padding-bottom: 5px !important;
+                margin-bottom: 6px !important;
+            }
+            #reportPrintArea .report-preview-header h3, #reportPrintArea #previewTitle {
+                color: #0A4715 !important;
+                font-size: 18px !important;
+                font-weight: 800 !important;
+                margin: 0 0 2px 0 !important;
+                padding-left: 8px !important;
+                border-left: 4px solid #45C936 !important;
+                line-height: 1.2 !important;
+            }
+            #reportPrintArea .report-meta, #reportPrintArea #previewSubtitle {
+                color: #4A6B50 !important;
+                font-size: 10.5px !important;
+                padding-left: 12px !important;
+                margin-bottom: 2px !important;
+            }
+            #reportPrintArea .report-generated-info {
+                display: flex !important;
+                justify-content: space-between !important;
+                color: #2B4A30 !important;
+                font-size: 10px !important;
+                font-weight: 600 !important;
+                margin-bottom: 10px !important;
+                padding: 3px 0 !important;
+                border-bottom: 1px dashed #C9DDBB !important;
+            }
+            /* KPI Summary Cards */
+            #reportPrintArea .report-summary-cards {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: stretch !important;
+                gap: 8px !important;
+                width: 100% !important;
+                margin: 0 0 10px 0 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            #reportPrintArea .report-summary-card {
+                flex: 1 1 0 !important;
+                min-width: 0 !important;
+                padding: 6px 10px !important;
+                border: 1px solid #C9DDBB !important;
+                border-radius: 6px !important;
+                background: #F3FBEA !important;
+                background-color: #F3FBEA !important;
+                box-sizing: border-box !important;
+            }
+            #reportPrintArea .report-summary-card span {
+                display: block !important;
+                color: #55745A !important;
+                font-size: 8.5px !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.3px !important;
+                margin-bottom: 2px !important;
+            }
+            #reportPrintArea .report-summary-card strong {
+                display: block !important;
+                color: #0A4715 !important;
+                font-size: 13.5px !important;
+                font-weight: 800 !important;
+                line-height: 1.2 !important;
+            }
+            /* Multi-page Table with Repeating Headers */
+            #reportPrintArea .report-table-wrapper {
+                overflow: visible !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 0 10px 0 !important;
+                padding: 0 !important;
+                border: 1px solid #C9DDBB !important;
+                border-radius: 6px !important;
+                background: #FFFFFF !important;
+            }
+            #reportPrintArea .report-table {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                border-collapse: collapse !important;
+                page-break-inside: auto !important;
+                table-layout: auto !important;
+            }
+            #reportPrintArea thead {
+                display: table-header-group !important;
+            }
+            #reportPrintArea thead tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            #reportPrintArea thead th, #reportPrintArea .report-table th {
+                background: #D9F5A8 !important;
+                background-color: #D9F5A8 !important;
+                color: #173D20 !important;
+                border-top: 1px solid #B8DC98 !important;
+                border-bottom: 2px solid #82B366 !important;
+                font-size: 9.5px !important;
+                font-weight: 800 !important;
+                padding: 7px 6px !important;
+                line-height: 1.25 !important;
+                vertical-align: middle !important;
+            }
+            #reportPrintArea tbody tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            #reportPrintArea tbody tr:nth-child(even) td {
+                background: #F7FCF2 !important;
+                background-color: #F7FCF2 !important;
+            }
+            #reportPrintArea tbody tr:nth-child(odd) td {
+                background: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+            }
+            #reportPrintArea tbody td, #reportPrintArea .report-table td {
+                color: #1A3320 !important;
+                border-bottom: 1px solid #E2EEDB !important;
+                font-size: 9px !important;
+                padding: 6px 6px !important;
+                line-height: 1.3 !important;
+                vertical-align: middle !important;
+            }
+            /* Print Table Cell Alignment & Formatting */
+            #reportPrintArea .cell-identifier, #reportPrintArea .th-identifier {
+                white-space: nowrap !important;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+                font-size: 8px !important;
+                letter-spacing: -0.2px !important;
+                text-align: left !important;
+            }
+            #reportPrintArea .cell-date, #reportPrintArea .th-date {
+                white-space: nowrap !important;
+                font-size: 8.5px !important;
+                text-align: left !important;
+            }
+            #reportPrintArea .cell-amount, #reportPrintArea .th-amount {
+                white-space: nowrap !important;
+                text-align: right !important;
+                font-variant-numeric: tabular-nums !important;
+            }
+            #reportPrintArea .cell-amount {
+                font-weight: 600 !important;
+            }
+            #reportPrintArea .cell-quantity, #reportPrintArea .th-quantity {
+                white-space: nowrap !important;
+                text-align: right !important;
+                font-variant-numeric: tabular-nums !important;
+            }
+            #reportPrintArea .cell-status, #reportPrintArea .th-status {
+                white-space: nowrap !important;
+                text-align: center !important;
+            }
+            /* Totals Box */
+            #reportPrintArea .report-total-box {
+                background: #EDF7DF !important;
+                background-color: #EDF7DF !important;
+                border: 1px solid #C5E1A5 !important;
+                border-radius: 6px !important;
+                color: #0A4715 !important;
+                font-weight: 800 !important;
+                font-size: 11px !important;
+                padding: 8px 14px !important;
+                margin-top: 10px !important;
+                margin-bottom: 0 !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+            }
+            #reportPrintArea .report-total-box span, #reportPrintArea .report-total-box strong {
+                color: #0A4715 !important;
+                font-weight: 800 !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="reports-page">
+
+        <!-- PAGE HEADING -->
+
+        <div class="reports-heading">
+            <h2>📊 Reports & Analytics</h2>
+            <p>Monitor business performance and generate detailed reports.</p>
+        </div>
+
+        <!-- REPORT FILTERS -->
+
+        <div class="report-section">
+
+            <div class="report-section-title">
+                01. Report Filters
+            </div>
+
+            <form id="reportFilterForm">
+
+                <div class="report-form-grid">
+
+                    <div class="report-field">
+                        <label>Report Type *</label>
+
+                        <select id="reportType" required>
+                            <option value="sales">Sales Report</option>
+                            <option value="purchase">Paddy Purchase Report</option>
+                            <option value="inventory">Inventory Report</option>
+                            <option value="production">Production Report</option>
+                            <optgroup label="Financial Reports">
+                                <option value="invoice_reconciliation">Invoice Reconciliation</option>
+                                <option value="payment_allocation">Payment Allocation Reconciliation</option>
+                                <option value="payment_reversal">Payment Reversal Report</option>
+                                <option value="return">Return Settlement Report</option>
+                                <option value="customer">Customer Outstanding</option>
+                                <option value="payment">Payment Collection Report</option>
+                                <option value="financial_discrepancy">Financial Discrepancy Report</option>
+                            </optgroup>
+                            <option value="profit">Profit & Loss Report</option>
+                        </select>
+                    </div>
+
+                    <div class="report-field" id="dateRangeField">
+                        <label>Date Range *</label>
+
+                        <select id="reportDateRange" required>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="year">This Year</option>
+                            <option value="custom">Custom Date Range</option>
+                            <option value="all">All Dates</option>
+                        </select>
+                    </div>
+
+                    <div class="report-field" id="reportSearchField">
+                        <label id="reportSearchLabel" for="reportSearchInput">Search</label>
+                        <input id="reportSearchInput" type="search" maxlength="120"
+                           placeholder="Search invoices, customers or items">
+                    </div>
+
+                    <div class="report-field" id="reportFormatField">
+                        <label>Report Format</label>
+
+                        <select id="reportFormat">
+                            <option value="detailed">Detailed Report</option>
+                            <option value="summary">Summary Report</option>
+                        </select>
+                    </div>
+
+                    <div class="report-field" id="startDateField" style="display:none;">
+                        <label>Start Date *</label>
+                        <input type="date" id="reportStartDate">
+                    </div>
+
+                    <div class="report-field" id="endDateField" style="display:none;">
+                        <label>End Date *</label>
+                        <input type="date" id="reportEndDate">
+                    </div>
+
+                </div>
+
+                <div class="report-actions">
+
+                    <button type="button"
+                        class="report-btn report-btn-secondary"
+                        id="resetReportBtn">
+                        Reset
+                    </button>
+
+                    <button type="submit"
+                        class="report-btn report-btn-primary">
+                        📊 Generate Report
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <!-- REPORT PREVIEW -->
+
+        <div class="report-section" id="reportPrintArea">
+
+            <div class="report-preview-header">
+
+                <div>
+                    <h3 id="previewTitle">Sales Report</h3>
+
+                    <div class="report-meta" id="previewSubtitle">
+                        Detailed Sales Report
+                    </div>
+                </div>
+
+                <span class="report-status" id="reportStatus">
+                    Not Generated
+                </span>
+
+            </div>
+
+            <div class="report-generated-info">
+                <span id="previewDateRange">
+                    Date Range: Not selected
+                </span>
+
+                <span id="generatedDate">
+                    Generated: -
+                </span>
+            </div>
+
+            <div class="report-notice" id="reportNotice">
+                Select the report filters and click Generate Report to view the report.
+            </div>
+
+            <div class="report-summary-cards" id="reportSummaryCards" aria-live="polite">
+            </div>
+
+            <div class="report-table-wrapper">
+
+                <table class="report-table">
+
+                    <thead id="reportTableHead">
+                        <tr>
+                            <th>Reference</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="5" class="report-empty">
+                                📊
+                                <br>
+                                <br>
+                                Generate a report to view the results.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="report-total-box" id="reportTotals">
+                <span>Total Records: 0</span>
+                <span>Total Amount: Rs. 0.00</span>
+            </div>
+
+            <nav class="report-pagination" id="reportPagination" aria-label="Report pages" hidden>
+                <span id="reportPageText">Showing 0–0 of 0</span>
+            </nav>
+
+            <!-- EXPORT BUTTONS -->
+
+            <div class="report-actions" id="reportExportActions">
+
+                <button type="button"
+                    class="report-btn report-btn-secondary"
+                    id="printReportBtn">
+                    🖨 Print / Save PDF
+                </button>
+
+                <button type="button"
+                    class="report-btn report-btn-export"
+                    id="exportReportBtn">
+                    📥 Export Excel
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================
+        // REPORT DEFINITIONS
+        // ============================================
+
+        const reportDefinitions = {
+            sales: {
+                title: "Sales Report",
+                endpoint: "/api/reports/sales",
+                description: "Saved sales invoices with current paid and outstanding balances.",
+                orientation: "landscape",
+                columns: [
+                    "Invoice Number",
+                    "Date",
+                    "Customer",
+                    "Items",
+                    "Quantity",
+                    "Payment Type",
+                    "Payment Method",
+                    "Total",
+                    "Paid",
+                    "Due"
+                ]
+            },
+
+            purchase: {
+                title: "Paddy Purchase Report",
+                endpoint: "/api/reports/purchases",
+                description: "Saved purchases using the latest approved correction values.",
+                orientation: "landscape",
+                columns: [
+                    "Purchase ID",
+                    "Bill Reference",
+                    "Purchase Date",
+                    "Seller Name",
+                    "Paddy Type",
+                    "Paddy Variety",
+                    "Quantity (kg)",
+                    "Price per kg",
+                    "Total Purchase Amount"
+                ]
+            },
+
+            inventory: {
+                title: "Inventory Report",
+                endpoint: "/api/reports/inventory",
+                description: "Current stock snapshots and recorded movements; history is not reconstructed when no movement exists.",
+                orientation: "portrait",
+                columns: [
+                    "Product / Category",
+                    "Variety",
+                    "Current Stock / Available Balance",
+                    "Unit",
+                    "Opening Stock (recorded)",
+                    "Stock Received",
+                    "Stock Issued"
+                ]
+            },
+
+            production: {
+                title: "Production Report",
+                description: "Persisted drying, milling and packaging production records.",
+                orientation: "landscape",
+                columns: [
+                    "Production Reference",
+                    "Date",
+                    "Process",
+                    "Product / Variety",
+                    "Input (kg)",
+                    "Output (kg)",
+                    "Secondary Output (kg)",
+                    "Waste / Loss / Remaining (kg)"
+                ]
+            },
+
+            payment: {
+                title: "Payment Collection Report",
+                endpoint: "/api/reports/financial/payment-collections",
+                description: "Persisted customer collections with Cash and Bank Transfer totals.",
+                orientation: "portrait",
+                columns: [
+                    "Receipt Number",
+                    "Date",
+                    "Customer",
+                    "Payment Method",
+                    "Amount",
+                    "Bank Reference"
+                ]
+            },
+
+            customer: {
+                title: "Customer Outstanding Report",
+                endpoint: "/api/reports/financial/customer-outstanding",
+                description: "Current invoice outstanding and customer account balances from persisted records.",
+                orientation: "landscape",
+                columns: [
+                    "Customer Code",
+                    "Customer Name",
+                    "Status",
+                    "Total Invoiced",
+                    "Invoice Outstanding",
+                    "Adjustments Balance",
+                    "Customer Account Balance",
+                    "Calculated Account Balance",
+                    "Difference",
+                    "Reconciled"
+                ]
+            },
+
+            profit: {
+                title: "Profit & Loss Report",
+                endpoint: "/api/reports/profit-loss",
+                description: "Persisted sales revenue and purchase spend. Profit is unavailable because cost of goods sold and operating expenses are not recorded.",
+                orientation: "landscape",
+                columns: [
+                    "Date",
+                    "Entry Type",
+                    "Reference",
+                    "Description",
+                    "Revenue",
+                    "Purchase Costs",
+                    "Gross Profit",
+                    "Net Profit"
+                ]
+            },
+
+            return: {
+                title: "Return Settlement Report",
+                endpoint: "/api/reports/financial/return-settlements",
+                description: "Persisted return refund and exchange settlement records.",
+                orientation: "landscape",
+                columns: [
+                    "Return Reference",
+                    "Date",
+                    "Settlement Type",
+                    "Return Value",
+                    "Replacement Value",
+                    "Balance Applied",
+                    "Cash Refund",
+                    "Amount Collected",
+                    "Difference Refund",
+                    "Financial Entries",
+                    "Reconciled"
+                ]
+            },
+
+            invoice_reconciliation: {
+                title: "Invoice Reconciliation",
+                endpoint: "/api/reports/financial/invoice-reconciliation",
+                description: "Stored invoice paid and due balances compared with persisted payment, reversal and return events.",
+                orientation: "landscape",
+                columns: ["Invoice", "Date", "Customer ID", "Total", "Net Payments", "Return Balance Adjustments",
+                    "Expected Due", "Stored Due", "Due Difference", "Reconciled"]
+            },
+
+            payment_allocation: {
+                title: "Payment Allocation Reconciliation",
+                endpoint: "/api/reports/financial/payment-reconciliation",
+                description: "Payment amounts compared with their persisted invoice allocations.",
+                orientation: "landscape",
+                columns: ["Receipt", "Date", "Customer ID", "Method", "Payment Amount", "Allocated Amount",
+                    "Difference", "Duplicate Invoice Allocations", "Customer Mismatch Invoices", "Reconciled"]
+            },
+
+            payment_reversal: {
+                title: "Payment Reversal Report",
+                endpoint: "/api/reports/financial/payment-reversals",
+                description: "Full payment reversals compared with original payments and allocations.",
+                orientation: "landscape",
+                columns: ["Reversal", "Original Receipt", "Date", "Reversal Amount", "Original Amount",
+                    "Reversal Allocations", "Allocations Match", "Reconciled"]
+            },
+
+            financial_discrepancy: {
+                title: "Financial Discrepancy Report",
+                endpoint: "/api/reports/financial/discrepancies",
+                description: "Persisted financial differences flagged for Admin review. No balances are changed.",
+                orientation: "landscape",
+                columns: ["Discrepancy Type", "Reference", "Date", "Customer ID", "Field", "Difference", "Details"]
+            }
+        };
+
+        // ============================================
+        // CURRENT REPORT STATE
+        // ============================================
+
+        let currentReportType = "sales";
+        let currentReportRows = [];
+        let currentReportGenerated = false;
+        let currentReportPage = 1;
+        let currentReportPagination = null;
+
+        // ============================================
+        // COMMON FUNCTIONS
+        // ============================================
+
+        function reportMoney(value) {
+            const raw = String(value ?? "0").trim();
+            if (!/^-?\d+(?:\.\d+)?$/.test(raw)) return "Rs. 0.00";
+            const negative = raw.startsWith("-");
+            const unsigned = negative ? raw.slice(1) : raw;
+            let[whole, fraction = ""] = unsigned.split(".");
+            const cents = (fraction + "00").slice(0, 2);
+            if (fraction.length > 2 && Number(fraction[2]) >= 5) {
+                const rounded = BigInt(whole) * 100n + BigInt(cents) + 1n;
+                return reportCentsToMoney(negative ? -rounded : rounded);
+            }
+            whole = whole.replace(/^0+(?=\d)/, "");
+            return `Rs. ${negative && (BigInt(whole) !== 0n || BigInt(cents) !== 0n) ? "-" : ""}${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${cents}`;
+        }
+
+        function reportMoneyCents(value) {
+            const raw = String(value ?? "0").trim();
+            if (!/^-?\d+(?:\.\d+)?$/.test(raw)) return 0n;
+            const negative = raw.startsWith("-");
+            const unsigned = negative ? raw.slice(1) : raw;
+            const[whole, fraction = ""] = unsigned.split(".");
+            const cents = BigInt(whole) * 100n + BigInt((fraction + "00").slice(0, 2));
+            const rounded = fraction.length > 2 && Number(fraction[2]) >= 5 ? cents + 1n : cents;
+            return negative ? -rounded : rounded;
+        }
+
+        function reportCentsToMoney(cents) {
+            const negative = cents < 0n;
+            const absolute = negative ? -cents : cents;
+            const whole = (absolute / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const fraction = (absolute % 100n).toString().padStart(2, "0");
+            return `Rs. ${negative ? "-" : ""}${whole}.${fraction}`;
+        }
+
+        function sumReportMoney(records, property) {
+            return records.reduce((sum, record) => sum + reportMoneyCents(record[property]), 0n);
+        }
+
+        function renderReportSummaryCards(cards) {
+            const container = document.getElementById("reportSummaryCards");
+            container.innerHTML = (cards || []).map(card => `
+        <div class="report-summary-card">
+            <span>${reportEscape(card.label)}</span>
+            <strong>${reportEscape(card.value)}</strong>
+        </div>
+    `).join("");
+        }
+
+        function reportToday() {
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+
+            return new Date(now.getTime() - offset * 60000)
+                .toISOString().slice(0, 10);
+        }
+
+        function reportEscape(value) {
+            return String(value ?? "").replace(/[&<>"']/g, char => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            })[char]);
+        }
+
+        function applyReportPrintOrientation(orientation = "landscape") {
+            const isLandscape = orientation === "landscape";
+            let styleEl = document.getElementById("reportPrintOrientationStyle");
+            if (!styleEl) {
+                styleEl = document.createElement("style");
+                styleEl.id = "reportPrintOrientationStyle";
+                document.head.appendChild(styleEl);
+            }
+            const margin = isLandscape ? "8mm 10mm" : "10mm 10mm";
+            styleEl.textContent = `@page { size: A4 ${orientation} !important; margin: ${margin} !important; }`;
+        }
+
+        function renderReportTableHeader(columns, reportType) {
+            return `<tr>${columns.map((col, idx) => {
+        const text = String(col ?? "");
+        const lower = text.toLowerCase();
+        let cls = [];
+        if (["total", "paid", "due", "revenue", "cost", "amount", "rate", "price", "expected", "stored", "difference", "balance"].some(k => lower.includes(k))) {
+            cls.push("th-amount");
+        } else if (["quantity", "input", "output", "secondary", "waste", "loss", "stock"].some(k => lower.includes(k))) {
+            cls.push("th-quantity");
+        } else if (["date", "time"].some(k => lower.includes(k))) {
+            cls.push("th-date");
+        } else if (["status", "method", "type", "process", "active"].some(k => lower.includes(k))) {
+            cls.push("th-status");
+        } else if (["number", "reference", "id", "invoice", "receipt", "code", "reversal", "bill"].some(k => lower.includes(k))) {
+            cls.push("th-identifier");
+        }
+        const clsAttr = cls.length ? ` class="${cls.join(" ")}"` : "";
+        return `<th${clsAttr}>${reportEscape(text)}</th>`;
+    }).join("")}</tr>`;
+        }
+
+        function renderReportTableRow(row, reportType) {
+            return `<tr>${row.map((value, idx) => {
+        const text = String(value ?? "");
+        let cls = [];
+        if (/^(INV|PUR|PR|RET|REC|REV)-/i.test(text) || (idx === 0 && (reportType === "sales" || reportType === "purchase" || reportType === "production" || reportType === "return" || reportType === "invoice_reconciliation" || reportType === "customer"))) {
+            cls.push("cell-identifier");
+        } else if (/^\d{4}-\d{2}-\d{2}/.test(text)) {
+            cls.push("cell-date");
+        } else if (text.startsWith("Rs. ") || text.startsWith("-Rs. ") || /^-?Rs\./i.test(text)) {
+            cls.push("cell-amount");
+        } else if (/\b(kg|bags|units)\b/i.test(text) || (/^\d+(\.\d+)?$/.test(text) && idx >= 4)) {
+            cls.push("cell-quantity");
+        } else if (["Full", "Partial", "Credit", "Cash", "Bank Transfer", "Cheque", "Reconciled", "Review required", "Active", "Inactive"].includes(text)) {
+            cls.push("cell-status");
+        }
+        const clsAttr = cls.length ? ` class="${cls.join(" ")}"` : "";
+        return `<td${clsAttr}>${reportEscape(text)}</td>`;
+    }).join("")}</tr>`;
+        }
+
+        // ============================================
+        // REPORT TYPE
+        // ============================================
+
+        document.getElementById("reportType")
+            .addEventListener("change", function () {
+                currentReportType = this.value;
+                currentReportPage = 1;
+                updateReportTypeControls();
+
+                const definition = reportDefinitions[currentReportType];
+
+                document.getElementById("previewTitle").textContent =
+                    definition.title;
+
+                document.getElementById("previewSubtitle").textContent =
+                    definition.description;
+
+                clearReportPreview();
+            });
+
+        // ============================================
+        // DATE RANGE
+        // ============================================
+
+        function updateDateRange() {
+            const range = document.getElementById("reportDateRange").value;
+
+            const startField = document.getElementById("startDateField");
+            const endField = document.getElementById("endDateField");
+
+            const startInput = document.getElementById("reportStartDate");
+            const endInput = document.getElementById("reportEndDate");
+
+            if (range === "custom") {
+                startField.style.display = "flex";
+                endField.style.display = "flex";
+
+                startInput.required = true;
+                endInput.required = true;
+
+                if (!startInput.value) startInput.value = reportToday();
+                if (!endInput.value) endInput.value = reportToday();
+            } else {
+                startField.style.display = "none";
+                endField.style.display = "none";
+
+                startInput.required = false;
+                endInput.required = false;
+            }
+        }
+
+        function updateReportTypeControls() {
+            const snapshot = currentReportType === "customer";
+            const financial = Boolean(reportDefinitions[currentReportType]?.endpoint);
+            const dateRangeField = document.getElementById("dateRangeField");
+            const dateRange = document.getElementById("reportDateRange");
+            document.getElementById("reportFormatField").style.display = financial ? "none" : "flex";
+            const searchField = document.getElementById("reportSearchField");
+            const searchable = currentReportType === "sales" || currentReportType === "purchase" || currentReportType === "inventory" || currentReportType === "profit";
+            searchField.style.display = searchable ? "flex" : "none";
+            const searchLabel = document.getElementById("reportSearchLabel");
+            const searchInput = document.getElementById("reportSearchInput");
+            if (currentReportType === "purchase") {
+                searchLabel.textContent = "Search Purchases";
+                searchInput.placeholder = "Purchase ID, bill reference, seller, type or variety";
+            } else if (currentReportType === "inventory") {
+                searchLabel.textContent = "Search Inventory";
+                searchInput.placeholder = "Product, category, variety or package size";
+            } else if (currentReportType === "profit") {
+                searchLabel.textContent = "Search Financial Entries";
+                searchInput.placeholder = "Invoice, purchase reference, customer, seller or variety";
+            } else {
+                searchLabel.textContent = "Search Sales";
+                searchInput.placeholder = "Invoice, customer, item or payment type";
+            }
+            dateRangeField.style.display = snapshot ? "none" : "flex";
+            dateRange.disabled = snapshot;
+            document.getElementById("startDateField").style.display = snapshot ? "none" : "flex";
+            document.getElementById("endDateField").style.display = snapshot ? "none" : "flex";
+            if (!snapshot) updateDateRange();
+        }
+
+        document.getElementById("reportDateRange")
+            .addEventListener("change", updateDateRange);
+
+        // ============================================
+        // DATE RANGE TEXT
+        // ============================================
+
+        function getReportDateText() {
+            if (currentReportType === "customer") return "Current snapshot as of " + reportToday();
+
+            const range = document.getElementById("reportDateRange").value;
+
+            const today = new Date(reportToday());
+
+            if (range === "today") {
+                return reportToday() + " to " + reportToday();
+            }
+
+            if (range === "week") {
+                const start = new Date(today);
+                const day = start.getDay();
+
+                start.setDate(today.getDate() - (day === 0 ? 6 : day - 1));
+
+                const startText = [
+                    start.getFullYear(),
+                    String(start.getMonth() + 1).padStart(2, "0"),
+                    String(start.getDate()).padStart(2, "0")
+                ].join("-");
+
+                return startText + " to " + reportToday();
+            }
+
+            if (range === "month") {
+                const start = new Date(today.getFullYear(), today.getMonth(), 1);
+
+                const startText = [
+                    start.getFullYear(),
+                    String(start.getMonth() + 1).padStart(2, "0"),
+                    String(start.getDate()).padStart(2, "0")
+                ].join("-");
+
+                return startText + " to " + reportToday();
+            }
+
+            if (range === "year") {
+                return today.getFullYear() + "-01-01 to " + reportToday();
+            }
+
+            if (range === "custom") {
+                return document.getElementById("reportStartDate").value +
+                    " to " +
+                    document.getElementById("reportEndDate").value;
+            }
+
+            return "All Dates";
+        }
+
+        // ============================================
+        // CLEAR PREVIEW
+        // ============================================
+
+        function clearReportPreview() {
+            currentReportRows = [];
+            currentReportGenerated = false;
+            currentReportPagination = null;
+            renderReportSummaryCards([]);
+            document.getElementById("reportPagination").hidden = true;
+
+            document.getElementById("reportStatus").textContent = "Not Generated";
+
+            document.getElementById("reportTableHead").innerHTML =
+                "<tr><th>Report Preview</th></tr>";
+
+            document.getElementById("reportTableBody").innerHTML = `
+        <tr>
+            <td class="report-empty">
+                Select filters and generate the report.
+            </td>
+        </tr>
+    `;
+
+            document.getElementById("reportTotals").innerHTML = `
+        <span>Total Records: 0</span>
+        <span>Total Amount: Rs. 0.00</span>
+    `;
+
+            document.getElementById("reportNotice").textContent =
+                "Report preview cleared. Generate the report to view results.";
+        }
+
+        // ============================================
+        // GENERATE REPORT
+        // ============================================
+
+        document.getElementById("reportFilterForm")
+            .addEventListener("submit", function (event) {
+                event.preventDefault();
+
+                const range = document.getElementById("reportDateRange").value;
+
+                if (range === "custom") {
+                    const start = document.getElementById("reportStartDate").value;
+                    const end = document.getElementById("reportEndDate").value;
+
+                    if (!start || !end) {
+                        alert("Please select both Start Date and End Date.");
+                        return;
+                    }
+
+                    if (start > end) {
+                        alert("Start Date cannot be after End Date.");
+                        document.getElementById("reportStartDate").focus();
+                        return;
+                    }
+                }
+
+                currentReportPage = 1;
+                generateReport(1);
+            });
+
+        async function generateReport(page = currentReportPage) {
+            currentReportPage = page;
+
+            const definition = reportDefinitions[currentReportType];
+
+            const format = document.getElementById("reportFormat").value;
+
+            const columns = definition.columns;
+
+            const head = document.getElementById("reportTableHead");
+            const body = document.getElementById("reportTableBody");
+
+            if (currentReportType === "production") {
+                await generateProductionReport(definition, format, head, body);
+                return;
+            }
+
+            if (definition.endpoint) {
+                await generateFinancialReport(definition, page, head, body);
+                return;
+            }
+
+            head.innerHTML = `
+        <tr>
+            ${columns.map(column => `<th>${reportEscape(column)}</th>`).join("")}
+        </tr>
+    `;
+
+            // Preserve the existing placeholder behavior for unrelated report types.
+            currentReportRows = [];
+
+            body.innerHTML = `
+        <tr>
+            <td colspan="${columns.length}" class="report-empty">
+                📊
+                <br><br>
+                No report records available.
+                <br><br>
+                Actual report data will appear after database integration.
+            </td>
+        </tr>
+    `;
+
+            document.getElementById("previewTitle").textContent =
+                definition.title;
+
+            document.getElementById("previewSubtitle").textContent =
+                format === "summary" ? "Summary Report" : definition.description;
+
+            document.getElementById("previewDateRange").textContent =
+                "Date Range: " + getReportDateText();
+
+            document.getElementById("generatedDate").textContent =
+                "Generated: " + reportToday();
+
+            document.getElementById("reportStatus").textContent = "Generated";
+
+            document.getElementById("reportNotice").textContent =
+                "Report generated. Actual records are not connected yet.";
+
+            document.getElementById("reportTotals").innerHTML = `
+        <span>Total Records: 0</span>
+        <span>Total Amount: Rs. 0.00</span>
+    `;
+
+            currentReportGenerated = true;
+        }
+
+        async function generateProductionReport(definition, format, head, body) {
+            const notice = document.getElementById("reportNotice");
+            notice.textContent = "Loading saved production records…";
+            document.getElementById("reportStatus").textContent = "Loading";
+            currentReportGenerated = false;
+            applyReportPrintOrientation(definition.orientation || "landscape");
+            const params = new URLSearchParams();
+            const rangeText = getReportDateText();
+            if (rangeText !== "All Dates") {
+                const[dateFrom, dateTo] = rangeText.split(" to ");
+                if (dateFrom) params.set("dateFrom", dateFrom);
+                if (dateTo) params.set("dateTo", dateTo);
+            }
+            try {
+                const response = await window.csrfFetch(`/api/production?${params.toString()}`);
+                const data = await response.json();
+                if (response.status === 401) throw new Error("Your session is no longer active. Sign in again to view reports.");
+                if (response.status === 403) throw new Error("Administrator report access is required.");
+                if (!response.ok) throw new Error(data.message || "Production report could not be loaded.");
+                const records = data.records || [];
+                const reportRows = format === "summary" ? summarizeProduction(records) : records.map(record => {
+                    const displayDate = record.date ? String(record.date).replace("T", " ") : "";
+                    return [
+                        `PR-${record.id}`,
+                        displayDate,
+                        record.type.charAt(0).toUpperCase() + record.type.slice(1),
+                        record.type === "packaging" ? `${record.variety} Rice (${record.packageSize} kg)` : record.variety,
+                        record.inputKg,
+                        record.outputKg,
+                        record.secondaryOutputKg,
+                        record.type === "packaging" ? record.remainingKg : record.wasteKg
+                    ];
+                });
+                head.innerHTML = renderReportTableHeader(definition.columns, "production");
+                if (reportRows.length) {
+                    body.innerHTML = reportRows.map(row => renderReportTableRow(row, "production")).join("");
+                } else {
+                    body.innerHTML = `<tr><td colspan="${definition.columns.length}" class="report-empty">No saved production records match this date range.</td></tr>`;
+                }
+                currentReportRows = reportRows;
+                currentReportPagination = null;
+                document.getElementById("reportPagination").hidden = true;
+                document.getElementById("previewTitle").textContent = definition.title;
+                document.getElementById("previewSubtitle").textContent = format === "summary" ? "Production summary from saved records" : definition.description;
+                document.getElementById("previewDateRange").textContent = "Date Range: " + rangeText;
+                document.getElementById("generatedDate").textContent = "Generated: " + reportToday();
+                document.getElementById("reportStatus").textContent = "Generated";
+                const inputTotal = records.reduce((sum, record) => sum + Number(record.inputKg || 0), 0);
+                document.getElementById("reportTotals").innerHTML = `<span>Total Records: ${records.length}</span><span>Total Input: ${inputTotal.toFixed(3)} kg</span>`;
+                renderReportSummaryCards([{ label: "Persisted Production Records", value: String(records.length) }]);
+                notice.textContent = `Production report loaded from ${records.length} persisted record${records.length === 1 ? "" : "s"}.`;
+                currentReportGenerated = true;
+            } catch (error) {
+                currentReportRows = [];
+                renderReportSummaryCards([]);
+                head.innerHTML = `<tr><th>${reportEscape(definition.title)}</th></tr>`;
+                body.innerHTML = `<tr><td class="report-empty">${reportEscape(error.message)}</td></tr>`;
+                document.getElementById("reportStatus").textContent = "Error";
+                notice.textContent = error.message;
+            }
+        }
+
+        function buildReportQueryParams(isAll = false, page = 1) {
+            const params = new URLSearchParams();
+            if (isAll) {
+                params.set("all", "true");
+            } else {
+                params.set("page", String(page));
+                params.set("perPage", "5");
+            }
+            if (currentReportType === "sales" || currentReportType === "purchase" || currentReportType === "inventory" || currentReportType === "profit") {
+                const search = document.getElementById("reportSearchInput").value.trim();
+                if (search) params.set("q", search);
+            }
+            const rangeText = getReportDateText();
+            if (currentReportType !== "customer" && rangeText !== "All Dates" && !rangeText.startsWith("Current snapshot")) {
+                const[dateFrom, dateTo] = rangeText.split(" to ");
+                if (dateFrom) params.set("dateFrom", dateFrom);
+                if (dateTo) params.set("dateTo", dateTo);
+            }
+            return params;
+        }
+
+        async function fetchAllReportRecords(reportType) {
+            const definition = reportDefinitions[reportType];
+            const format = document.getElementById("reportFormat").value;
+            const params = buildReportQueryParams(true);
+
+            if (reportType === "production") {
+                const response = await window.csrfFetch(`/api/production?${params.toString()}`);
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (_) {
+                    data = {};
+                }
+                if (response.status === 401) throw new Error("Your session is no longer active. Sign in again to view reports.");
+                if (response.status === 403) throw new Error("Administrator report access is required.");
+                if (!response.ok) throw new Error(data.message || "Production report could not be loaded.");
+                const records = data.records || [];
+                const rows = format === "summary" ? summarizeProduction(records) : records.map(record => [
+                    `PR-${record.id}`,
+                    record.date,
+                    record.type.charAt(0).toUpperCase() + record.type.slice(1),
+                    record.type === "packaging" ? `${record.variety} Rice (${record.packageSize} kg)` : record.variety,
+                    record.inputKg,
+                    record.outputKg,
+                    record.secondaryOutputKg,
+                    record.type === "packaging" ? record.remainingKg : record.wasteKg
+                ]);
+                return { records, rows, data, definition };
+            }
+
+            if (definition && definition.endpoint) {
+                const response = await window.csrfFetch(`${definition.endpoint}?${params.toString()}`);
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (_) {
+                    data = {};
+                }
+                if (response.status === 401) throw new Error("Your session is no longer active. Sign in again to view reports.");
+                if (response.status === 403) throw new Error("Administrator report access is required.");
+                if (!response.ok) throw new Error(data.message || "Financial report could not be loaded.");
+                const records = Array.isArray(data.records) ? data.records : [];
+                const rows = records.map(record => financialReportRow(reportType, record));
+                return { records, rows, data, definition };
+            }
+
+            return { records: [], rows: [], data: {}, definition };
+        }
+
+        async function generateFinancialReport(definition, page, head, body) {
+            const notice = document.getElementById("reportNotice");
+            const status = document.getElementById("reportStatus");
+            const submitButton = document.querySelector('#reportFilterForm button[type="submit"]');
+            const pagination = document.getElementById("reportPagination");
+            const params = buildReportQueryParams(false, page);
+            const rangeText = getReportDateText();
+
+            currentReportGenerated = false;
+            currentReportPagination = null;
+            submitButton.disabled = true;
+            status.textContent = "Loading";
+            notice.textContent = "Loading persisted financial report…";
+            applyReportPrintOrientation(definition.orientation || "landscape");
+            renderReportSummaryCards([]);
+            pagination.hidden = true;
+            head.innerHTML = renderReportTableHeader(definition.columns, currentReportType);
+            body.innerHTML = `<tr><td class="report-empty" colspan="${definition.columns.length}">Loading report records…</td></tr>`;
+
+            try {
+                const response = await window.csrfFetch(`${definition.endpoint}?${params.toString()}`);
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (_) {
+                    data = {};
+                }
+                if (response.status === 401) throw new Error("Your session is no longer active. Sign in again to view reports.");
+                if (response.status === 403) throw new Error("Administrator report access is required.");
+                if (!response.ok) throw new Error(data.message || "The financial report could not be loaded.");
+
+                const records = Array.isArray(data.records) ? data.records : [];
+                const rows = records.map(record => financialReportRow(currentReportType, record));
+                currentReportRows = rows;
+                currentReportPagination = data.pagination || { page: 1, pages: 1, total: records.length };
+                head.innerHTML = renderReportTableHeader(definition.columns, currentReportType);
+                if (rows.length) {
+                    body.innerHTML = rows.map(row => renderReportTableRow(row, currentReportType)).join("");
+                } else {
+                    body.innerHTML = `<tr><td class="report-empty" colspan="${definition.columns.length}">No persisted records match this report and date range.</td></tr>`;
+                }
+
+                updateFinancialPagination(currentReportPagination);
+                renderFinancialSummary(currentReportType, records, data);
+                document.getElementById("previewTitle").textContent = definition.title;
+                document.getElementById("previewSubtitle").textContent = definition.description;
+                document.getElementById("previewDateRange").textContent = currentReportType === "customer"
+                    ? `Current snapshot as of ${data.asOf || reportToday()}`
+                    : `Date Range: ${rangeText}`;
+                document.getElementById("generatedDate").textContent = "Generated: " + reportToday();
+                status.textContent = records.length ? "Generated" : "No Records";
+                document.getElementById("reportTotals").innerHTML =
+                    `<span>Total Records: ${reportEscape(currentReportPagination.total)}</span>` +
+                    `<span>Showing page ${reportEscape(currentReportPagination.page)} of ${reportEscape(currentReportPagination.pages || 1)}</span>`;
+                notice.textContent = financialReportNotice(currentReportType, records.length, currentReportPagination);
+                currentReportGenerated = true;
+            } catch (error) {
+                currentReportRows = [];
+                currentReportPagination = null;
+                head.innerHTML = `<tr><th>${reportEscape(definition.title)}</th></tr>`;
+                body.innerHTML = `<tr><td class="report-empty">${reportEscape(error.message || "Report request failed.")}</td></tr>`;
+                status.textContent = "Error";
+                notice.textContent = error.message || "The financial report could not be loaded.";
+                document.getElementById("reportTotals").textContent = "Report data is unavailable.";
+                renderReportSummaryCards([]);
+                pagination.hidden = true;
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        function financialReportRow(type, row) {
+            const money = value => reportMoney(value);
+            const status = value => value ? "Reconciled" : "Review required";
+            const cleanDate = dateStr => dateStr ? String(dateStr).replace("T", " ") : "—";
+            switch (type) {
+                case "sales": {
+                    const items = Array.isArray(row.items) ? row.items : [];
+                    const itemNames = items.map(item => `${item.product||item.category}${item.variety?` (${item.variety})`:""}${item.packageSize?` · ${item.packageSize} kg bags`:""}`).join("; ");
+                    const quantities = items.map(item => item.unit === "bags"
+                        ? `${Number(item.quantity).toLocaleString("en-LK",{maximumFractionDigits:3})} bags${item.packageSize?` (${item.packageSize} kg each)`:""}`
+                        : `${Number(item.quantity).toLocaleString("en-LK",{maximumFractionDigits:3})} ${item.unit||"units"}`).join("; ");
+                    const paymentType = String(row.paymentType || "").replace(/^./, character => character.toUpperCase());
+                    return [row.invoiceNo, cleanDate(row.date), window.RiceCustomerDisplay.format(row), itemNames, quantities, paymentType,
+                        row.paymentMethod || "—", money(row.total), money(row.paid), money(row.due)];
+                }
+                case "purchase": return [row.id, row.purchaseNo, cleanDate(row.date), row.seller, row.type, row.variety,
+                    Number(row.quantity).toLocaleString("en-LK", { minimumFractionDigits: 3, maximumFractionDigits: 3 }),
+                    money(row.rate), money(row.total)];
+                case "inventory": {
+                    const categoryLabels = { wet_paddy: "Wet Paddy", dry_paddy: "Dry Paddy", rice: "Rice", packed: "Packed Rice", bran: "Bran", other: "Other" };
+                    const product = row.packageSize ? `${row.item} (${row.packageSize} kg bags)` : row.item;
+                    const quantity = value => Number(value || 0).toLocaleString("en-LK", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+                    return [`${product} · ${categoryLabels[row.category]||row.category}`, row.variety || "—",
+                        quantity(row.currentStock), row.unit, row.openingStock === null ? "Not recorded" : quantity(row.openingStock),
+                        quantity(row.stockReceived), quantity(row.stockIssued)];
+                }
+                case "profit": return [cleanDate(row.date), row.entryType, row.reference, row.description, money(row.revenue),
+                    money(row.purchaseCost), "Unavailable", "Unavailable"];
+                case "invoice_reconciliation": return [row.invoiceNo, cleanDate(row.date), row.customerId,
+                    money(row.total), money(row.netAllocatedPayments), money(row.returnOutstandingAdjustments),
+                    money(row.expectedDue), money(row.storedDue), money(row.dueDifference), status(row.reconciled)];
+                case "payment_allocation": return [row.receiptNo, cleanDate(row.date), row.customerId, row.method,
+                    money(row.paymentAmount), money(row.allocatedAmount), money(row.difference),
+                    (row.duplicateInvoiceAllocations || []).join(", "), (row.customerMismatchInvoiceIds || []).join(", "),
+                    status(row.reconciled)];
+                case "payment_reversal": return [row.reversalNo, row.originalReceiptNo, cleanDate(row.date),
+                    money(row.reversalAmount), money(row.originalPaymentAmount), money(row.reversalAllocationsTotal),
+                    status(row.allocationsMatch), status(row.reconciled)];
+                case "return": {
+                    const entries = (row.financialEntries || []).map(entry => `${entry.type}: ${money(entry.amount)}`).join("; ");
+                    return [row.returnNo, cleanDate(row.date), row.settlementType, money(row.returnValue),
+                        money(row.replacementValue), money(row.balanceApplied), money(row.cashRefund),
+                        money(row.amountCollected), money(row.differenceRefund), entries, status(row.reconciled)];
+                }
+                case "customer": return [row.customerCode, window.RiceCustomerDisplay.format(row), row.active ? "Active" : "Inactive",
+                    money(row.totalInvoiced), money(row.invoiceOutstanding), money(row.adjustmentsBalance),
+                    money(row.customerAccountBalance), money(row.calculatedAccountBalance), money(row.difference),
+                    status(row.reconciled)];
+                case "payment": return [row.receiptNo, cleanDate(row.date), window.RiceCustomerDisplay.format(row), row.method,
+                    money(row.amount), row.bankReference];
+                case "financial_discrepancy": return [row.type, row.reference, cleanDate(row.date), row.customerId,
+                    row.field, money(row.difference), discrepancyDetails(row)];
+                default: return [];
+            }
+        }
+
+        function discrepancyDetails(row) {
+            const parts = [];
+            if (row.duplicateInvoiceAllocations?.length) parts.push(`Duplicate invoice allocations: ${row.duplicateInvoiceAllocations.join(", ")}`);
+            if (row.customerMismatchInvoiceIds?.length) parts.push(`Customer mismatch invoices: ${row.customerMismatchInvoiceIds.join(", ")}`);
+            if (row.invalidAllocationIds?.length) parts.push(`Invalid allocation IDs: ${row.invalidAllocationIds.join(", ")}`);
+            if (row.allocationsMatch === false) parts.push("Reversal allocation links do not match original allocations.");
+            if (row.positiveAmounts === false) parts.push("One or more amounts are not positive.");
+            return parts.join("; ");
+        }
+
+        function renderFinancialSummary(type, records, data) {
+            const cards = [];
+            const add = (label, value) => cards.push({ label, value });
+            const pageCount = records.length;
+            const totalCount = data.pagination?.total ?? pageCount;
+            add("Records in report", String(totalCount));
+            if (type === "inventory") {
+                const summary = data.summary || {};
+                const pair = (kg, bags) => `${Number(kg||0).toLocaleString("en-LK",{minimumFractionDigits:3,maximumFractionDigits:3})} kg / ${Number(bags||0).toLocaleString("en-LK",{minimumFractionDigits:3,maximumFractionDigits:3})} bags`;
+                add("Current available stock", pair(summary.currentKg, summary.currentBags));
+                add("Recorded opening stock", pair(summary.openingKg, summary.openingBags));
+                add("Stock received", pair(summary.receivedKg, summary.receivedBags));
+                add("Stock issued", pair(summary.issuedKg, summary.issuedBags));
+            } else if (type === "purchase") {
+                add("Total quantity", `${Number(data.summary?.totalQuantityKg||0).toLocaleString("en-LK",{minimumFractionDigits:3,maximumFractionDigits:3})} kg`);
+                add("Total purchase value", reportMoney(data.summary?.totalPurchaseValue));
+            } else if (type === "sales") {
+                add("Total sales", reportMoney(data.summary?.totalSales));
+                add("Total collected", reportMoney(data.summary?.totalCollected));
+                add("Total outstanding", reportMoney(data.summary?.totalOutstanding));
+            } else if (type === "profit") {
+                add("Recorded sales revenue", reportMoney(data.summary?.salesRevenue));
+                add("Recorded purchase costs", reportMoney(data.summary?.purchaseCosts));
+                add("Gross profit", "Unavailable");
+                add("Net profit", "Unavailable");
+            } else if (type === "invoice_reconciliation") {
+                add("Page invoice total", reportCentsToMoney(sumReportMoney(records, "total")));
+                add("Page expected due", reportCentsToMoney(sumReportMoney(records, "expectedDue")));
+                add("Review on this page", String(records.filter(row => !row.reconciled).length));
+            } else if (type === "payment_allocation") {
+                add("Payments on this page", reportCentsToMoney(sumReportMoney(records, "paymentAmount")));
+                add("Allocations on this page", reportCentsToMoney(sumReportMoney(records, "allocatedAmount")));
+                add("Review on this page", String(records.filter(row => !row.reconciled).length));
+            } else if (type === "payment_reversal") {
+                add("Reversals on this page", reportCentsToMoney(sumReportMoney(records, "reversalAmount")));
+                add("Review on this page", String(records.filter(row => !row.reconciled).length));
+            } else if (type === "return") {
+                add("Return value on this page", reportCentsToMoney(sumReportMoney(records, "returnValue")));
+                add("Balance applied", reportCentsToMoney(sumReportMoney(records, "balanceApplied")));
+                add("Cash refunds", reportCentsToMoney(sumReportMoney(records, "cashRefund")));
+                add("Exchange collected", reportCentsToMoney(sumReportMoney(records, "amountCollected")));
+                add("Exchange difference refunds", reportCentsToMoney(sumReportMoney(records, "differenceRefund")));
+                add("Review on this page", String(records.filter(row => !row.reconciled).length));
+            } else if (type === "customer") {
+                add("Invoice outstanding on this page", reportCentsToMoney(sumReportMoney(records, "invoiceOutstanding")));
+                add("Adjustments on this page", reportCentsToMoney(sumReportMoney(records, "adjustmentsBalance")));
+                add("Account balance on this page", reportCentsToMoney(sumReportMoney(records, "customerAccountBalance")));
+                add("Review on this page", String(records.filter(row => !row.reconciled).length));
+            } else if (type === "payment") {
+                add("Gross collections", reportMoney(data.grossCollections));
+                add("Cash", reportMoney(data.totalsByMethod?.Cash));
+                add("Bank Transfer", reportMoney(data.totalsByMethod?.["Bank Transfer"]));
+                add("Other methods", reportMoney(data.totalsByMethod?.other));
+            } else if (type === "financial_discrepancy") {
+                add("Discrepancies in report", String(data.discrepancyCount ?? totalCount));
+                add("Shown on this page", String(pageCount));
+            }
+            renderReportSummaryCards(cards);
+        }
+
+        function financialReportNotice(type, rowCount, pagination) {
+            if (type === "inventory") {
+                if (!rowCount) return "No current stock rows match the selected search.";
+                return `Current balances are saved stock snapshots. Movement totals and recorded opening stock use the selected date range; opening stock is shown as Not recorded when no opening movement exists. Showing ${pagination.total} matching stock rows.`;
+            }
+            if (type === "purchase") {
+                if (!rowCount) return "No saved purchases match the selected dates and search.";
+                return `Showing page ${pagination.page} of ${pagination.pages || 1}; summaries cover all ${pagination.total} matching purchases and use the latest approved correction values.`;
+            }
+            if (type === "sales") {
+                if (!rowCount) return "No saved sales invoices match the selected dates and search.";
+                return `Showing page ${pagination.page} of ${pagination.pages || 1}; totals cover all ${pagination.total} matching invoices. Paid and due use the current stored invoice balances. Return settlements and cash refunds remain in the Return Settlement Report.`;
+            }
+            if (type === "profit") {
+                if (!rowCount) return "No confirmed sales or saved purchases match the selected dates and search. Gross profit is unavailable without recorded cost of goods sold; net profit is unavailable without recorded operating and production expenses. Return settlement adjustments are not included in sales revenue.";
+                return `Showing page ${pagination.page} of ${pagination.pages || 1}; revenue and purchase cost summaries cover all ${pagination.total} matching entries. Gross profit is unavailable without recorded cost of goods sold; net profit is unavailable without recorded operating and production expenses. Return settlement adjustments are reported separately.`;
+            }
+            if (!rowCount) return "No persisted financial records match the selected filters.";
+            if (type === "financial_discrepancy") return `${pagination.total} persisted discrepancies require review. No financial records were changed.`;
+            if (type === "customer") return "Current snapshot. Invoice outstanding and signed customer adjustments are shown separately; account balance is not allocated to invoices.";
+            if (type === "payment") return "Gross persisted collections by method. Payment reversals are listed separately and are not silently netted here.";
+            if (type === "return") return "Settlement header values are shown once. Financial entries are details used for reconciliation, not additional totals.";
+            return `Showing page ${pagination.page} of ${pagination.pages || 1}; ${pagination.total} persisted financial record${pagination.total === 1 ? "" : "s"} match the filters. Print and export include the current page. Differences are for review only; balances are never corrected automatically.`;
+        }
+
+        function updateFinancialPagination(pagination) {
+            const container = document.getElementById("reportPagination");
+            container.hidden = !Number(pagination.total || 0);
+            window.RicePagination.render(container, pagination, "data-report-page", "report-btn report-btn-secondary");
+        }
+
+        document.getElementById("reportPagination").addEventListener("click", function (event) {
+            const button = event.target.closest("[data-report-page]");
+            if (button && !button.disabled) generateReport(Number(button.dataset.reportPage));
+        });
+
+        function summarizeProduction(records) {
+            const byType = new Map();
+            records.forEach(record => {
+                const type = record.type;
+                const row = byType.get(type) || { input: 0, output: 0, secondary: 0, loss: 0 };
+                row.input += Number(record.inputKg || 0);
+                row.output += Number(record.outputKg || 0);
+                row.secondary += Number(record.secondaryOutputKg || 0);
+                row.loss += Number(type === "packaging" ? record.remainingKg || 0 : record.wasteKg || 0);
+                byType.set(type, row);
+            });
+            return [...byType.entries()].map(([type, values]) => [
+                "Summary", "", type.charAt(0).toUpperCase() + type.slice(1), "All varieties",
+                values.input.toFixed(3), values.output.toFixed(3), values.secondary.toFixed(3), values.loss.toFixed(3)
+            ]);
+        }
+
+        // ============================================
+        // RESET
+        // ============================================
+
+        document.getElementById("resetReportBtn")
+            .addEventListener("click", function () {
+                document.getElementById("reportType").value = "sales";
+                document.getElementById("reportDateRange").value = "month";
+                document.getElementById("reportFormat").value = "detailed";
+                document.getElementById("reportSearchInput").value = "";
+
+                document.getElementById("reportStartDate").value = "";
+                document.getElementById("reportEndDate").value = "";
+
+                currentReportType = "sales";
+                currentReportPage = 1;
+
+                updateReportTypeControls();
+
+                document.getElementById("previewTitle").textContent =
+                    reportDefinitions.sales.title;
+
+                document.getElementById("previewSubtitle").textContent =
+                    reportDefinitions.sales.description;
+
+                clearReportPreview();
+
+                document.getElementById("reportType").focus();
+            });
+
+        // ============================================
+        // EXCEL EXPORT (CSV)
+        // ============================================
+
+        function csvEscape(value) {
+            const text = String(value ?? "");
+
+            return '"' + text.replace(/"/g, '""') + '"';
+        }
+
+        document.getElementById("exportReportBtn")
+            .addEventListener("click", async function () {
+                if (!currentReportGenerated) {
+                    alert("Please generate a report first.");
+                    return;
+                }
+
+                const exportBtn = document.getElementById("exportReportBtn");
+                const originalText = exportBtn.innerHTML;
+                exportBtn.disabled = true;
+                exportBtn.textContent = "⏳ Exporting All Records...";
+
+                try {
+                    const fullData = await fetchAllReportRecords(currentReportType);
+                    const definition = fullData.definition;
+
+                    const rows = [
+                        definition.columns,
+                        ...fullData.rows
+                    ];
+
+                    const csv = "\uFEFF" + rows.map(row =>
+                        row.map(csvEscape).join(",")
+                    ).join("\r\n");
+
+                    const blob = new Blob([csv], {
+                        type: "text/csv;charset=utf-8;"
+                    });
+
+                    const url = URL.createObjectURL(blob);
+
+                    const link = document.createElement("a");
+
+                    link.href = url;
+
+                    link.download =
+                        currentReportType + "_report_" + reportToday() + ".csv";
+
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    link.remove();
+
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error("Export error:", error);
+                    alert("Failed to export complete report: " + error.message);
+                } finally {
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = originalText;
+                }
+            });
+
+        // ============================================
+        // PRINT / SAVE PDF (FULL DATASET & AGRICULTURE GREEN DESIGN)
+        // ============================================
+
+        document.getElementById("printReportBtn")
+            .addEventListener("click", async function () {
+                if (!currentReportGenerated) {
+                    alert("Please generate a report first.");
+                    return;
+                }
+
+                const printBtn = document.getElementById("printReportBtn");
+                const originalText = printBtn.innerHTML;
+                printBtn.disabled = true;
+                printBtn.textContent = "⏳ Preparing All Records for PDF...";
+
+                const head = document.getElementById("reportTableHead");
+                const body = document.getElementById("reportTableBody");
+                const totalsEl = document.getElementById("reportTotals");
+                const originalBodyHtml = body.innerHTML;
+                const originalTotalsHtml = totalsEl.innerHTML;
+
+                try {
+                    const fullData = await fetchAllReportRecords(currentReportType);
+                    const rows = fullData.rows;
+                    const definition = fullData.definition;
+                    const totalCount = fullData.records.length;
+
+                    applyReportPrintOrientation(definition.orientation || "landscape");
+                    head.innerHTML = renderReportTableHeader(definition.columns, currentReportType);
+
+                    if (rows.length) {
+                        body.innerHTML = rows.map(row => renderReportTableRow(row, currentReportType)).join("");
+                    } else {
+                        body.innerHTML = `<tr><td class="report-empty" colspan="${definition.columns.length}">No persisted records match this report.</td></tr>`;
+                    }
+
+                    // In printed PDF, show total records of the full dataset (no "Showing page 1 of 2")
+                    let totalsText = `<span>Total Records: ${totalCount}</span>`;
+                    if (currentReportType === "sales" && fullData.data?.summary?.totalSales) {
+                        totalsText += `<span>Total Sales: Rs. ${reportEscape(fullData.data.summary.totalSales)}</span>`;
+                    } else if (currentReportType === "purchase" && fullData.data?.summary?.totalPurchaseValue) {
+                        totalsText += `<span>Total Value: Rs. ${reportEscape(fullData.data.summary.totalPurchaseValue)}</span>`;
+                    } else if (currentReportType === "production") {
+                        const inputTotal = fullData.records.reduce((sum, record) => sum + Number(record.inputKg || 0), 0);
+                        totalsText += `<span>Total Input: ${inputTotal.toFixed(3)} kg</span>`;
+                    } else if (fullData.data?.summary) {
+                        totalsText = originalTotalsHtml.replace(/<span>Showing page [^<]+<\/span>/, "");
+                    }
+                    totalsEl.innerHTML = totalsText;
+
+                    // Trigger print / save PDF
+                    window.print();
+                } catch (error) {
+                    console.error("Print report preparation error:", error);
+                    alert("Failed to prepare complete report for PDF: " + error.message);
+                } finally {
+                    // Restore on-screen paginated table and totals
+                    body.innerHTML = originalBodyHtml;
+                    totalsEl.innerHTML = originalTotalsHtml;
+                    printBtn.disabled = false;
+                    printBtn.innerHTML = originalText;
+                }
+            });
+
+        // ============================================
+        // KEYBOARD NAVIGATION - REPORTS
+        // ============================================
+
+        function getReportFields() {
+            const form = document.getElementById("reportFilterForm");
+
+            return Array.from(
+                form.querySelectorAll("select, input")
+            ).filter(field => {
+                if (field.disabled || field.readOnly) return false;
+
+                if (field.offsetParent === null) return false;
+
+                return true;
+            });
+        }
+
+        function moveReportFocus(direction) {
+            const fields = getReportFields();
+
+            const currentIndex = fields.indexOf(document.activeElement);
+
+            if (currentIndex === -1) return;
+
+            const nextIndex = currentIndex + direction;
+
+            if (nextIndex >= 0 && nextIndex < fields.length) {
+                fields[nextIndex].focus();
+            } else if (direction > 0 && currentIndex === fields.length - 1) {
+                // Do not generate automatically.
+                // Focus the Generate Report button instead.
+                document.querySelector(
+                    '#reportFilterForm button[type="submit"]'
+                ).focus();
+            }
+        }
+
+        document.getElementById("reportFilterForm")
+            .addEventListener("keydown", function (event) {
+                const target = event.target;
+
+                // ENTER KEY
+
+                if (event.key === "Enter") {
+                    event.preventDefault();
+
+                    const fields = getReportFields();
+                    const currentIndex = fields.indexOf(target);
+
+                    if (target.type === "submit") {
+                        this.requestSubmit();
+                    } else if (currentIndex === fields.length - 1) {
+                        document.querySelector(
+                            '#reportFilterForm button[type="submit"]'
+                        ).focus();
+                    } else {
+                        moveReportFocus(1);
+                    }
+
+                    return;
+                }
+
+                // RIGHT ARROW
+                if (event.key === "ArrowRight") {
+                    // Text input: allow normal cursor movement first.
+                    if (
+                        target.tagName === "INPUT" &&
+                        target.type !== "date" &&
+                        target.selectionStart !== null &&
+                        target.selectionStart < target.value.length
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    moveReportFocus(1);
+
+                    return;
+                }
+
+                // LEFT ARROW
+                if (event.key === "ArrowLeft") {
+                    // Text input: allow normal cursor movement first.
+                    if (
+                        target.tagName === "INPUT" &&
+                        target.type !== "date" &&
+                        target.selectionStart !== null &&
+                        target.selectionStart > 0
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    moveReportFocus(-1);
+
+                    return;
+                }
+            });
+
+        // ============================================
+        // INITIAL AUTO FOCUS
+        // ============================================
+
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                document.getElementById("reportType").focus();
+            }, 150);
+        });
+
+        // ============================================
+        // INITIAL PAGE SETUP
+        // ============================================
+
+        document.addEventListener("DOMContentLoaded", function () {
+            currentReportType = "sales";
+            updateReportTypeControls();
+
+            document.getElementById("previewTitle").textContent =
+                reportDefinitions.sales.title;
+
+            document.getElementById("previewSubtitle").textContent =
+                reportDefinitions.sales.description;
+
+            setTimeout(function () {
+                document.getElementById("reportType").focus();
+            }, 150);
+        });
+    </script>
+
+{% endblock %}

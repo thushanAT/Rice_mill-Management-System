@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings | Rice Mill Management System{% endblock %}
+{% block page_subtitle %}Manage your account settings{% endblock %}
+{% block flash_messages %}{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .settings-page {
+            color: #173D20;
+        }
+        .settings-heading {
+            margin-bottom: 20px;
+        }
+        .settings-heading h2 {
+            margin: 0 0 6px;
+            color: #0A4715;
+            font-size: 25px;
+        }
+        .settings-heading p {
+            margin: 0;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .settings-layout {
+            display: grid;
+            grid-template-columns: 225px minmax(0,1fr);
+            gap: 18px;
+            align-items: start;
+        }
+        .settings-menu, .settings-content {
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(10,71,21,.07);
+        }
+        .settings-menu {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .settings-menu-item {
+            border: 0;
+            border-radius: 8px;
+            padding: 13px;
+            background: #FFFFFF;
+            text-align: left;
+            color: #173D20;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .settings-menu-item:hover, .settings-menu-item.active {
+            background: #EFFAEB;
+            color: #0A4715;
+        }
+        .settings-content {
+            padding: 24px;
+            min-width: 0;
+        }
+        .settings-panel {
+            display: none;
+        }
+        .settings-panel.active {
+            display: block;
+        }
+        .settings-panel-heading {
+            margin-bottom: 22px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #E5EDE0;
+        }
+        .settings-panel-heading h3 {
+            margin: 0 0 6px;
+            color: #0A4715;
+            font-size: 18px;
+        }
+        .settings-panel-heading p {
+            margin: 0;
+            color: #718273;
+            font-size: 13px;
+        }
+        .settings-fields {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 18px;
+        }
+        .settings-field-full {
+            grid-column: 1 / -1;
+        }
+        .settings-password-fields {
+            display: grid;
+            gap: 17px;
+            max-width: 550px;
+        }
+        .settings-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+        }
+        .settings-field label {
+            color: #173D20;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .settings-field input {
+            width: 100%;
+            min-height: 43px;
+            padding: 11px 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            outline: none;
+            color: #173D20;
+            background: #FFFFFF;
+        }
+        .settings-field input:focus {
+            border-color: #45C936;
+            box-shadow: 0 0 0 3px rgba(69,201,54,.12);
+        }
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+        .settings-save-btn {
+            border: 0;
+            border-radius: 8px;
+            background: #45C936;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .settings-save-btn:hover {
+            background: #0A4715;
+        }
+        .settings-save-btn:disabled, .settings-save-btn:disabled:hover {
+            background: #E1F5D8;
+            color: #55724C;
+            cursor: not-allowed;
+        }
+        .settings-message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .settings-message.success {
+            background: #DCFCE7;
+            color: #166534;
+        }
+        .settings-message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        @media (max-width: 800px) {
+            .settings-layout {
+                grid-template-columns: 1fr;
+            }
+            .settings-menu {
+                display: grid;
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+        }
+        @media (max-width: 550px) {
+            .settings-fields {
+                grid-template-columns: 1fr;
+            }
+            .settings-content {
+                padding: 16px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="settings-page">
+
+        <div class="settings-heading">
+            <h2>Account Settings</h2>
+            <p>Update your profile details and password.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="settings-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="settings-layout">
+
+            <aside class="settings-menu">
+                <button type="button" class="settings-menu-item active" data-setting="profile">
+                    👤 Edit My Profile
+                </button>
+
+                <button type="button" class="settings-menu-item" data-setting="password">
+                    🔒 Change Password
+                </button>
+            </aside>
+
+            <div class="settings-content">
+
+                <!-- EDIT PROFILE -->
+                <section class="settings-panel active" id="setting-profile">
+
+                    <div class="settings-panel-heading">
+                        <h3>Edit My Profile</h3>
+                        <p>Update your personal information.</p>
+                    </div>
+                    {% set form_values = form_values or {} %}
+                    <form method="POST" action="{{ url_for('update_my_profile') }}" id="profileForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="settings-fields">
+
+                            {% if session.get('role') == 'admin' %}
+                                <div class="settings-field settings-field-full">
+                                    <label for="mill_name">Rice Mill Name *</label>
+                                    <input type="text" id="mill_name" name="mill_name"
+                                   value="{{ form_values.get('mill_name', profile.mill_name) }}"
+                                   data-profile-field data-original-value="{{ profile.mill_name }}"
+                                   maxlength="120" required>
+                                </div>
+                            {% else %}
+                                <div class="settings-field settings-field-full">
+                                    <label for="mill_name_display">Rice Mill Name</label>
+                                    <input type="text" id="mill_name_display"
+                                   value="{{ profile.mill_name }}"
+                                   readonly disabled
+                                   style="background-color: #f3f4f6; cursor: not-allowed; color: #4b5563;">
+                                    <small style="display: block; margin-top: 4px; color: #718273; font-size: 12px;">Only administrators can change the Rice Mill Name.</small>
+                                </div>
+                            {% endif %}
+
+                            <div class="settings-field">
+                                <label for="first_name">First Name *</label>
+                                <input type="text" id="first_name" name="first_name"
+value="{{ form_values.get('first_name', profile.first_name) }}"
+data-profile-field data-original-value="{{ profile.first_name }}" required>
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="last_name">Last Name *</label>
+                                <input type="text" id="last_name" name="last_name"
+value="{{ form_values.get('last_name', profile.last_name) }}"
+data-profile-field data-original-value="{{ profile.last_name }}" required>
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email"
+value="{{ form_values.get('email', profile.email or '') }}"
+data-profile-field data-original-value="{{ profile.email or '' }}">
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="contact_number">Contact Number</label>
+                                <input type="tel" id="contact_number" name="contact_number"
+value="{{ form_values.get('contact_number', profile.contact_number or '') }}"
+data-profile-field data-original-value="{{ profile.contact_number or '' }}">
+                            </div>
+
+                        </div>
+
+                        <div class="settings-actions">
+                            <button type="submit" class="settings-save-btn" id="saveProfileChanges" disabled>
+                                Save Changes
+                            </button>
+                        </div>
+
+                    </form>
+
+                </section>
+
+                <!-- CHANGE PASSWORD -->
+                <section class="settings-panel" id="setting-password">
+
+                    <div class="settings-panel-heading">
+                        <h3>Change Password</h3>
+                        <p>Update your account password securely.</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('change_my_password') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="settings-password-fields">
+
+                            <div class="settings-field">
+                                <label for="current_password">Current Password *</label>
+                                <input type="password" id="current_password"
+name="current_password" required
+autocomplete="current-password">
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="new_password">New Password *</label>
+                                <input type="password" id="new_password"
+name="new_password" minlength="8" required
+autocomplete="new-password">
+                            </div>
+
+                            <div class="settings-field">
+                                <label for="confirm_password">Confirm New Password *</label>
+                                <input type="password" id="confirm_password"
+name="confirm_password" minlength="8" required
+autocomplete="new-password">
+                            </div>
+
+                        </div>
+
+                        <div class="settings-actions">
+                            <button type="submit" class="settings-save-btn">
+                                Update Password
+                            </button>
+                        </div>
+
+                    </form>
+
+                </section>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttons = document.querySelectorAll(".settings-menu-item");
+            const panels = document.querySelectorAll(".settings-panel");
+
+            buttons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    buttons.forEach(x => x.classList.remove("active"));
+                    panels.forEach(x => x.classList.remove("active"));
+
+                    this.classList.add("active");
+
+                    const panel = document.getElementById(
+                        "setting-" + this.dataset.setting
+                    );
+
+                    if (panel) {
+                        panel.classList.add("active");
+                    }
+                });
+            });
+
+            const profileForm = document.getElementById("profileForm");
+            const saveProfileButton = document.getElementById("saveProfileChanges");
+            if (profileForm && saveProfileButton) {
+                const profileFields = Array.from(profileForm.querySelectorAll("[data-profile-field]"));
+                const updateDirtyState = function () {
+                    const changed = profileFields.some(function (field) {
+                        return field.value !== field.dataset.originalValue;
+                    });
+                    saveProfileButton.disabled = !changed;
+                };
+
+                profileFields.forEach(function (field) {
+                    field.addEventListener("input", updateDirtyState);
+                    field.addEventListener("change", updateDirtyState);
+                });
+                updateDirtyState();
+
+                profileForm.addEventListener("submit", function (event) {
+                    updateDirtyState();
+                    if (saveProfileButton.disabled || !profileForm.checkValidity()) {
+                        event.preventDefault();
+                        return;
+                    }
+                    saveProfileButton.disabled = true;
+                    saveProfileButton.textContent = "Saving…";
+                    saveProfileButton.setAttribute("aria-busy", "true");
+                });
+            }
+        });
+    </script>
+{% endblock %}

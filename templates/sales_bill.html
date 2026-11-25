@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sales Invoice | Rice Mill Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 25px;
+            background: #D9F5A8;
+            color: #173D20;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .bill-page {
+            max-width: 950px;
+            margin: 0 auto;
+        }
+        .bill {
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            padding: 35px;
+            box-shadow: 0 5px 20px rgba(23,61,32,.06);
+        }
+        .bill-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #04851C;
+        }
+        .bill-header h1 {
+            margin: 0;
+            font-size: 26px;
+            color: #04851C;
+        }
+        .bill-header p {
+            margin: 7px 0 15px;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .bill-header h2 {
+            margin: 0;
+            font-size: 19px;
+            letter-spacing: 1px;
+            color: #173D20;
+        }
+        .bill-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 0;
+            border-bottom: 1px solid #D8E8C8;
+        }
+        .bill-meta p {
+            margin: 7px 0;
+            font-size: 12px;
+        }
+        .bill-meta strong {
+            color: #04851C;
+        }
+        .bill-customer {
+            margin-top: 18px;
+            padding: 15px;
+            background: #F3FBEA;
+            border-left: 4px solid #45C936;
+        }
+        .bill-customer h3, .details-title {
+            margin: 0 0 10px;
+            font-size: 13px;
+            color: #04851C;
+            letter-spacing: 1px;
+        }
+        .bill-customer p {
+            margin: 6px 0;
+            font-size: 12px;
+        }
+        .details-title {
+            margin-top: 25px;
+        }
+        .bill-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        th {
+            padding: 12px 8px;
+            background: #04851C;
+            color: #FFFFFF;
+            text-align: left;
+        }
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #D8E8C8;
+            color: #173D20;
+        }
+        .return-section {
+            margin-top: 25px;
+        }
+        .return-information {
+            padding: 15px;
+            background: #FFF8E8;
+            border-left: 4px solid #E5A323;
+            margin-bottom: 15px;
+        }
+        .return-information p {
+            margin: 7px 0;
+            font-size: 12px;
+        }
+        .return-table th {
+            background: #A86A16;
+        }
+        .bill-summary {
+            width: 340px;
+            max-width: 100%;
+            margin: 20px 0 0 auto;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #D8E8C8;
+            font-size: 12px;
+        }
+        .grand-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-top: 7px;
+            padding: 16px;
+            background: #EFFA8F;
+            border: 1px solid #D5E77D;
+            font-weight: 800;
+        }
+        .grand-total strong {
+            color: #04851C;
+            font-size: 20px;
+        }
+        .net-settlement {
+            margin-top: 12px;
+            padding: 17px;
+            background: #F3FBEA;
+            border: 1px solid #B8DDA7;
+        }
+        .net-settlement p {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .net-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #E5F6D9;
+            border: 1px solid #B8DDA7;
+            font-weight: 800;
+        }
+        .net-result strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 19px;
+            color: #04851C;
+        }
+        .refund-result {
+            background: #FFF1E8;
+            border-color: #EBC2A5;
+        }
+        .refund-result strong {
+            color: #B84A18;
+        }
+        .payment-details {
+            margin-top: 23px;
+            padding: 17px;
+            background: #F3FBEA;
+            border: 1px solid #D8E8C8;
+        }
+        .payment-details h3 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: #04851C;
+        }
+        .payment-details p {
+            margin: 8px 0;
+            font-size: 12px;
+        }
+        .bill-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #55745A;
+            font-size: 12px;
+        }
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            gap: 60px;
+            margin-top: 55px;
+        }
+        .signatures div {
+            width: 42%;
+        }
+        .signatures span {
+            display: block;
+            border-top: 1px solid #173D20;
+        }
+        .signatures p {
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        .bill-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #D8E8C8;
+        }
+        .bill-actions button {
+            border: 0;
+            border-radius: 7px;
+            padding: 12px 22px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .print-button {
+            background: #45C936;
+            color: #FFFFFF;
+        }
+        .finish-button {
+            background: #04851C;
+            color: #FFFFFF;
+        }
+        .previous-button {
+            background: #EFFA8F;
+            color: #173D20;
+            border: 1px solid #D5E77D !important;
+        }
+        .bill-error {
+            max-width: 700px;
+            margin: 80px auto;
+            padding: 30px;
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .bill-error h2 {
+            color: #173D20;
+        }
+        .bill-error a {
+            display: inline-block;
+            margin-top: 15px;
+            color: #04851C;
+            font-weight: 700;
+        }
+        [hidden] {
+            display: none !important;
+        }
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+        @media print {
+            html, body {
+                margin: 0;
+                padding: 0;
+                background: #FFFFFF;
+            }
+            .bill-page {
+                max-width: none;
+                width: 100%;
+                margin: 0;
+            }
+            .bill {
+                border: none;
+                box-shadow: none;
+                padding: 5mm;
+            }
+            .bill-actions, .bill-error {
+                display: none !important;
+            }
+            .bill-header,
+            .bill-meta,
+            .bill-customer,
+            .bill-table-wrapper,
+            .bill-summary,
+            .payment-details,
+            .bill-footer,
+            .return-section,
+            .return-information,
+            .net-settlement {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .bill {
+                padding: 18px;
+            }
+            .bill-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .signatures {
+                gap: 20px;
+            }
+            .bill-actions {
+                flex-direction: column;
+            }
+            .bill-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bill-page" id="billPage" hidden>
+
+        <div class="bill">
+
+            <header class="bill-header">
+                <h1 id="millName">RICE MILL NAME</h1>
+                <p>Rice Mill Management System</p>
+                <h2 id="billHeading">SALES INVOICE</h2>
+            </header>
+
+            <div class="bill-meta">
+
+                <div>
+                    <p>
+                        <strong>Invoice No:</strong>
+                        <span id="invoiceNumber"></span>
+                    </p>
+
+                    <p>
+                        <strong>Date:</strong>
+                        <span id="invoiceDate"></span>
+                    </p>
+
+                    <p id="returnReferenceRow" hidden>
+                        <strong>Return Reference:</strong>
+                        <span id="returnReference"></span>
+                    </p>
+
+                    <p id="originalInvoiceRow" hidden>
+                        <strong>Original Invoice:</strong>
+                        <span id="originalInvoice"></span>
+                    </p>
+                </div>
+
+                <div id="billPaymentMeta">
+                    <p>
+                        <strong>Payment Type:</strong>
+                        <span id="paymentType"></span>
+                    </p>
+
+                    <p>
+                        <strong>Payment Method:</strong>
+                        <span id="paymentMethod"></span>
+                    </p>
+                </div>
+
+            </div>
+
+            <section class="bill-customer">
+
+                <h3>CUSTOMER INFORMATION</h3>
+
+                <p>
+                    <strong>Customer:</strong>
+                    <span id="customerName"></span>
+                </p>
+
+            </section>
+
+            <!-- NEW PURCHASE ITEMS -->
+
+            <section id="newPurchaseSection">
+
+                <h3 class="details-title">NEW PURCHASE DETAILS</h3>
+
+                <div class="bill-table-wrapper">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Product</th>
+                                <th>Package</th>
+                                <th>Quantity</th>
+                                <th>Unit Price (Rs./kg)</th>
+                                <th>Total (Rs.)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="billItems">
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </section>
+
+            <!-- RETURN DETAILS -->
+
+            <section class="return-section" id="returnSection" hidden>
+
+                <h3 class="details-title">RETURN ITEM DETAILS</h3>
+
+                <div class="return-information">
+
+                    <p>
+                        <strong>Original Invoice:</strong>
+                        <span id="returnOriginalInvoice"></span>
+                    </p>
+
+                    <p>
+                        <strong>Return Reference:</strong>
+                        <span id="returnBillNumber"></span>
+                    </p>
+
+                    <p>
+                        <strong>Return Date:</strong>
+                        <span id="returnDate"></span>
+                    </p>
+
+                </div>
+
+                <div class="bill-table-wrapper">
+
+                    <table class="return-table">
+
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Product</th>
+                                <th>Package</th>
+                                <th>Return Quantity</th>
+                                <th>Unit Price (Rs./kg)</th>
+                                <th>Return Total (Rs.)</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="returnBillItems">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <!-- NORMAL BILL SUMMARY -->
+
+            <div class="bill-summary" id="normalBillSummary">
+
+                <div class="grand-total">
+                    <span>GRAND TOTAL</span>
+                    <strong id="billGrandTotal"></strong>
+                </div>
+
+            </div>
+
+            <!-- RETURN + PURCHASE SUMMARY -->
+
+            <div class="bill-summary" id="netSettlementSummary" hidden>
+
+                <div class="net-settlement">
+
+                    <p>
+                        <span>New Purchase Total</span>
+                        <strong id="newPurchaseTotal"></strong>
+                    </p>
+
+                    <p>
+                        <span>Return Amount</span>
+                        <strong id="returnAmount"></strong>
+                    </p>
+
+                    <p>
+                        <strong>Net Settlement</strong>
+                        <strong id="netSettlementAmount"></strong>
+                    </p>
+
+                    <div class="net-result" id="netResultBox">
+
+                        <span id="netResultLabel"></span>
+
+                        <strong id="netResultValue"></strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="bill-summary" id="returnExchangeSummary" hidden>
+                <div class="net-settlement">
+                    <p><span>Replacement Subtotal</span><strong id="exchangeReplacementSubtotal"></strong></p>
+                    <p id="exchangeNetPayableRow"><strong>Net Amount Payable</strong><strong id="exchangeNetPayable"></strong></p>
+                    <p id="exchangeRefundDueRow" hidden><strong>Refund Due to Customer</strong><strong id="exchangeRefundDue"></strong></p>
+                    <p id="exchangeReceivedRow"><span id="exchangeReceivedLabel">Cash Received</span><strong id="exchangeBillReceived"></strong></p>
+                    <p id="exchangeChangeReturnedRow" hidden><span>Change Returned</span><strong id="exchangeChangeReturned"></strong></p>
+                    <p id="exchangeNoBalanceRow" hidden><strong>Equal Exchange / No Balance</strong><strong>Rs. 0.00</strong></p>
+                </div>
+            </div>
+
+            <section class="payment-details" id="billPaymentDetails">
+
+                <h3>PAYMENT SUMMARY</h3>
+
+                <p>
+                    <strong>Payment Type:</strong>
+                    <span id="billPaymentType"></span>
+                </p>
+
+                <p>
+                    <strong>Payment Method:</strong>
+                    <span id="billPaymentMethod"></span>
+                </p>
+
+                <p>
+                    <strong>Amount Received:</strong>
+                    <span id="billReceived"></span>
+                </p>
+
+                <p>
+                    <strong>Customer Balance:</strong>
+                    <span id="billCustomerBalance"></span>
+                </p>
+
+                <p>
+                    <strong>Outstanding Balance:</strong>
+                    <span id="billDue"></span>
+                </p>
+
+            </section>
+
+            <section class="return-information" id="returnExchangeDetails" hidden>
+                <h3 class="details-title">Return Details</h3>
+                <p><strong>Return Bill:</strong> <span id="exchangeBillReturnReference"></span></p>
+                <p><strong>Original Invoice:</strong> <span id="exchangeBillOriginalInvoice"></span></p>
+                <p><strong>Approved Return Value:</strong> <span id="exchangeBillApprovedValue"></span></p>
+                <p><strong>Less: Return Value:</strong> <span id="exchangeBillAmountDeducted"></span></p>
+            </section>
+
+            <footer class="bill-footer">
+
+                <p>Thank you for your business!</p>
+
+                <div class="signatures">
+
+                    <div>
+                        <span></span>
+                        <p>Customer Signature</p>
+                    </div>
+
+                    <div>
+                        <span></span>
+                        <p>Authorized Signature</p>
+                    </div>
+
+                </div>
+
+            </footer>
+
+        </div>
+
+        <div class="bill-actions">
+
+            <button class="finish-button" id="finishBillBtn" type="button">
+                Finish
+            </button>
+
+            <button class="previous-button" id="previousBillBtn" type="button">
+                ← Previous
+            </button>
+
+            <button class="print-button" id="printBillBtn" type="button">
+                Print Bill
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="bill-error" id="billError" hidden>
+
+        <h2>Sales bill data not found</h2>
+
+        <p>Please return to the Sales page and confirm the sale again.</p>
+
+        <a href="{{ url_for('sales') }}">Back to Sales</a>
+
+    </div>
+
+    <script>
+        (async function () {
+            const STORAGE_KEY = "riceMillCurrentSalesBill";
+            const EDIT_STORAGE_KEY = "riceMillSalesEditData";
+
+            const salesUrl = {{ url_for('sales')|tojson }};
+            const millName = {{ session.get('mill_name', 'RICE MILL NAME')|tojson }};
+
+            const billParams = new URLSearchParams(window.location.search);
+            const saleId = billParams.get("saleId");
+            const exchangeDocument = billParams.get("returnExchangeDocument");
+            if (exchangeDocument && !/^[A-Za-z0-9-]{1,100}$/.test(exchangeDocument)) {
+                document.getElementById("billError").hidden = false;
+                return;
+            }
+            if (!exchangeDocument && (!saleId || !/^\d+$/.test(saleId))) {
+                document.getElementById("billError").hidden = false;
+                return;
+            }
+
+            let bill;
+            try {
+                // This standalone bill page does not extend base.html, so the shared
+                // csrfFetch helper is not installed here. GET needs no CSRF token; the
+                // same-origin session cookie authorizes the saved invoice lookup.
+                const endpoint = exchangeDocument
+                    ? `/api/returns/documents/${encodeURIComponent(exchangeDocument)}/sales-bill`
+                    : `/api/sales/${encodeURIComponent(saleId)}`;
+                const response = await fetch(endpoint, {
+                    credentials: "same-origin",
+                    headers: { "Accept": "application/json" }
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success || (exchangeDocument ? !result.bill?.returnExchange : !result.sale)) {
+                    throw new Error(result.message || "Saved sales bill could not be loaded.");
+                }
+                if (exchangeDocument) {
+                    const saved = result.bill;
+                    bill = { invoiceNumber: saved.invoiceNumber, invoiceDate: new Date(saved.invoiceDate).toLocaleString("en-LK", { timeZone: "Asia/Colombo" }),
+                        customerName: saved.customerName, paymentTypeLabel: saved.paymentTypeLabel,
+                        paymentMethodLabel: saved.paymentMethodLabel, items: (saved.items || []).map(item => ({
+                            category: item.category, product: item.product, package: item.package || "", quantity: item.quantity,
+                            unit: item.unit, price: item.price, lineTotal: item.lineTotal
+                        })), total: saved.total, received: saved.received, customerBalance: saved.customerBalance, due: saved.due,
+                        returnExchange: saved.returnExchange };
+                } else {
+                    const sale = result.sale;
+                    const paymentTypes = { full: "Full Payment", partial: "Partial Payment", credit: "Credit Sale" };
+                    bill = {
+                        invoiceNumber: sale.invoiceNo,
+                        invoiceDate: new Date(sale.date).toLocaleString("en-LK", { timeZone: "Asia/Colombo" }),
+                        customerName: sale.customerName,
+                        paymentTypeLabel: paymentTypes[sale.paymentType] || sale.paymentType,
+                        paymentMethodLabel: sale.paymentType === "credit"
+                            ? "Not Applicable - Credit Sale" : (sale.paymentMethod || "Cash"),
+                        items: (sale.items || []).map(item => ({
+                            category: item.category,
+                            product: item.product,
+                            package: item.packageSize || "",
+                            quantity: item.quantity,
+                            unit: item.unit,
+                            price: item.price
+                        })),
+                        total: sale.amount,
+                        received: sale.received ?? sale.paid,
+                        customerBalance: sale.customerBalance ?? Math.max(0, Number(sale.paid || 0) - Number(sale.amount || 0)),
+                        due: sale.due
+                    };
+                }
+            } catch (error) {
+                document.getElementById("billError").hidden = false;
+                return;
+            }
+
+            // ======================================
+            // COMMON FUNCTIONS
+            // ======================================
+
+            function money(value) {
+                return "Rs. " + Number(value || 0).toLocaleString("en-LK", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            function setText(id, value) {
+                document.getElementById(id).textContent = value ?? "";
+            }
+
+            const categoryNames = {
+                bulk: "Bulk Rice",
+                packed: "Packed Rice",
+                bran: "Rice Bran",
+                other: "Other Sellable Products"
+            };
+
+            function calculateItemTotal(item) {
+                const quantity = Number(item.quantity) || 0;
+                const price = Number(item.price) || 0;
+                const packageSize = Number(item.package) || 0;
+
+                const totalKg = item.category === "packed"
+                    ? quantity * packageSize
+                    : quantity;
+
+                return totalKg * price;
+            }
+
+            function calculateItemsTotal(items) {
+                return (items || []).reduce((sum, item) => {
+                    return sum + calculateItemTotal(item);
+                }, 0);
+            }
+
+            // ======================================
+            // MILL NAME
+            // ======================================
+
+            setText("millName", millName);
+
+            // ======================================
+            // INVOICE DETAILS
+            // ======================================
+
+            setText("invoiceNumber", bill.invoiceNumber);
+            setText("invoiceDate", bill.invoiceDate);
+            setText("paymentType", bill.paymentTypeLabel);
+            setText("paymentMethod", bill.paymentMethodLabel);
+            setText("customerName", bill.customerName);
+
+            setText("billPaymentType", bill.paymentTypeLabel);
+            setText("billPaymentMethod", bill.paymentMethodLabel);
+
+            // ======================================
+            // NEW PURCHASE ITEMS
+            // ======================================
+
+            const itemsBody = document.getElementById("billItems");
+
+            const newPurchaseItems = bill.items || [];
+
+            const newPurchaseTotal = calculateItemsTotal(newPurchaseItems);
+
+            newPurchaseItems.forEach(item => {
+                const quantity = Number(item.quantity) || 0;
+                const packageSize = Number(item.package) || 0;
+
+                const totalKg = item.category === "packed"
+                    ? quantity * packageSize
+                    : quantity;
+
+                const quantityLabel = item.category === "packed"
+                    ? quantity + " bags (" + totalKg + " kg)"
+                    : quantity + " kg";
+
+                const packageLabel = item.category === "packed"
+                    ? packageSize + " kg"
+                    : "—";
+
+                const row = document.createElement("tr");
+
+                const values = [
+                    categoryNames[item.category] || item.category,
+                    item.product,
+                    packageLabel,
+                    quantityLabel,
+                    money(item.price) + " / kg",
+                    bill.returnExchange ? money(item.lineTotal) : money(calculateItemTotal(item))
+                ];
+
+                values.forEach(value => {
+                    const cell = document.createElement("td");
+
+                    cell.textContent = value ?? "";
+
+                    row.appendChild(cell);
+                });
+
+                itemsBody.appendChild(row);
+            });
+
+            // ======================================
+            // RETURN DETAILS
+            // ======================================
+
+            const returnData = bill.returnData || null;
+
+            const hasReturn =
+                returnData &&
+                Array.isArray(returnData.items) &&
+                returnData.items.length > 0;
+
+            let returnTotal = 0;
+            const received = Number(bill.received) || 0;
+
+            if (bill.returnExchange) {
+                const exchange = bill.returnExchange;
+                const payable = Number(exchange.netAmountPayable) || 0;
+                const refund = Number(exchange.refundDue) || 0;
+                document.getElementById("billHeading").textContent = "SALES INVOICE";
+                document.getElementById("returnReferenceRow").hidden = true;
+                document.getElementById("originalInvoiceRow").hidden = true;
+                document.getElementById("billPaymentMeta").hidden = true;
+                document.getElementById("billPaymentDetails").hidden = true;
+                document.getElementById("returnSection").hidden = true;
+                document.getElementById("normalBillSummary").hidden = true;
+                document.getElementById("netSettlementSummary").hidden = true;
+                document.getElementById("returnExchangeSummary").hidden = false;
+                document.getElementById("exchangeReplacementSubtotal").textContent = money(exchange.replacementSubtotal);
+                document.getElementById("exchangeNetPayable").textContent = money(payable);
+                document.getElementById("exchangeRefundDue").textContent = money(refund);
+                document.getElementById("exchangeRefundDueRow").hidden = refund <= 0;
+                document.getElementById("exchangeReceivedLabel").textContent = exchange.paymentMethod === "Bank Transfer" ?
+                    "Bank Transfer Received" : "Cash Received";
+                document.getElementById("exchangeBillReceived").textContent = money(exchange.amountReceived);
+                document.getElementById("exchangeReceivedRow").hidden = Number(exchange.amountReceived) <= 0;
+                document.getElementById("exchangeChangeReturned").textContent = money(exchange.changeReturned);
+                document.getElementById("exchangeChangeReturnedRow").hidden = Number(exchange.changeReturned) <= 0;
+                document.getElementById("exchangeNoBalanceRow").hidden = payable !== 0 || refund !== 0;
+                document.getElementById("returnExchangeDetails").hidden = true;
+            } else if (hasReturn) {
+                document.getElementById("billHeading").textContent =
+                    "NET SETTLEMENT BILL";
+
+                document.getElementById("returnSection").hidden = false;
+
+                document.getElementById("normalBillSummary").hidden = true;
+
+                document.getElementById("netSettlementSummary").hidden = false;
+
+                document.getElementById("returnReferenceRow").hidden = false;
+
+                document.getElementById("originalInvoiceRow").hidden = false;
+
+                setText("returnReference", returnData.returnNumber);
+
+                setText("originalInvoice", returnData.originalInvoice);
+
+                setText("returnOriginalInvoice", returnData.originalInvoice);
+
+                setText("returnBillNumber", returnData.returnNumber);
+
+                setText("returnDate", returnData.returnDate);
+
+                const returnItemsBody =
+                    document.getElementById("returnBillItems");
+
+                returnData.items.forEach(item => {
+                    const quantity = Number(item.quantity) || 0;
+
+                    const packageSize = Number(item.package) || 0;
+
+                    const totalKg = item.category === "packed"
+                        ? quantity * packageSize
+                        : quantity;
+
+                    const lineTotal = calculateItemTotal(item);
+
+                    returnTotal += lineTotal;
+
+                    const quantityLabel = item.category === "packed"
+                        ? quantity + " bags (" + totalKg + " kg)"
+                        : quantity + " kg";
+
+                    const packageLabel = item.category === "packed"
+                        ? packageSize + " kg"
+                        : "—";
+
+                    const row = document.createElement("tr");
+
+                    const values = [
+                        categoryNames[item.category] || item.category,
+                        item.product,
+                        packageLabel,
+                        quantityLabel,
+                        money(item.price) + " / kg",
+                        money(lineTotal)
+                    ];
+
+                    values.forEach(value => {
+                        const cell = document.createElement("td");
+
+                        cell.textContent = value ?? "";
+
+                        row.appendChild(cell);
+                    });
+
+                    returnItemsBody.appendChild(row);
+                });
+
+                // ==================================
+                // NET SETTLEMENT CALCULATION
+                // ==================================
+
+                const netSettlement = newPurchaseTotal - returnTotal;
+
+                setText("newPurchaseTotal", money(newPurchaseTotal));
+
+                setText("returnAmount", money(returnTotal));
+
+                setText("netSettlementAmount", money(Math.abs(netSettlement)));
+
+                const resultBox = document.getElementById("netResultBox");
+
+                const resultLabel = document.getElementById("netResultLabel");
+
+                const resultValue = document.getElementById("netResultValue");
+
+                if (netSettlement > 0) {
+                    resultBox.classList.remove("refund-result");
+
+                    resultLabel.textContent =
+                        "CUSTOMER HAS TO PAY";
+
+                    resultValue.textContent =
+                        money(netSettlement);
+                } else if (netSettlement < 0) {
+                    resultBox.classList.add("refund-result");
+
+                    resultLabel.textContent =
+                        "MILL HAS TO REFUND CUSTOMER";
+
+                    resultValue.textContent =
+                        money(Math.abs(netSettlement));
+                } else {
+                    resultBox.classList.remove("refund-result");
+
+                    resultLabel.textContent =
+                        "SETTLEMENT COMPLETED";
+
+                    resultValue.textContent =
+                        "Rs. 0.00";
+                }
+
+                // Payment values for net settlement bill.
+                // These can be supplied by the Sales page later.
+
+                const balance = Math.max(0, netSettlement - received);
+
+                setText("billReceived", money(received));
+
+                setText("billCustomerBalance", money(bill.customerBalance));
+
+                setText("billDue", money(balance));
+            } else {
+                // ==================================
+                // NORMAL SALES INVOICE
+                // ==================================
+
+                document.getElementById("billHeading").textContent =
+                    "SALES INVOICE";
+
+                document.getElementById("returnSection").hidden = true;
+
+                document.getElementById("normalBillSummary").hidden = false;
+
+                document.getElementById("netSettlementSummary").hidden = true;
+
+                document.getElementById("returnReferenceRow").hidden = true;
+
+                document.getElementById("originalInvoiceRow").hidden = true;
+                document.getElementById("billPaymentMeta").hidden = false;
+                document.getElementById("billPaymentDetails").hidden = false;
+                document.getElementById("returnExchangeSummary").hidden = true;
+                document.getElementById("returnExchangeDetails").hidden = true;
+
+                setText("billGrandTotal", money(bill.total));
+
+                setText("billReceived", money(bill.received));
+
+                setText("billCustomerBalance", money(bill.customerBalance ?? 0));
+
+                setText("billDue", money(bill.due));
+            }
+
+            // ======================================
+            // SHOW BILL
+            // ======================================
+
+            document.getElementById("billPage").hidden = false;
+
+            // ======================================
+            // PRINT BILL
+            // ======================================
+
+            document.getElementById("printBillBtn").addEventListener(
+                "click",
+                function () {
+                    window.print();
+                }
+            );
+
+            // ======================================
+            // PREVIOUS
+            // ======================================
+
+            document.getElementById("previousBillBtn").addEventListener(
+                "click",
+                function () {
+                    const editData = sessionStorage.getItem(EDIT_STORAGE_KEY);
+
+                    if (!editData) {
+                        alert("Previous sale details are not available.");
+                        return;
+                    }
+
+                    window.location.href = salesUrl + "?edit=1";
+                }
+            );
+
+            // ======================================
+            // FINISH BILL
+            // ======================================
+
+            document.getElementById("finishBillBtn").addEventListener(
+                "click",
+                function () {
+                    sessionStorage.removeItem(STORAGE_KEY);
+                    sessionStorage.removeItem(EDIT_STORAGE_KEY);
+
+                    window.close();
+
+                    setTimeout(function () {
+                        if (!window.closed) {
+                            window.location.href = salesUrl;
+                        }
+                    }, 300);
+                }
+            );
+        })();
+    </script>
+
+</body>
+</html>

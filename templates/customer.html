@@ -1,0 +1,1618 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Management{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .customer-page {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            color: #173d20;
+        }
+        .customer-heading h2 {
+            margin: 0 0 5px;
+            font-size: 25px;
+            color: #173d20;
+        }
+        .customer-heading p {
+            margin: 0;
+            color: #718071;
+            font-size: 14px;
+        }
+        .customer-summary {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 15px;
+        }
+        .customer-stat {
+            background: #fff;
+            border: 1px solid #e3eddf;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 9px rgba(20,70,30,.05);
+        }
+        .customer-stat-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: #edf7e7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 19px;
+            margin-bottom: 12px;
+        }
+        .customer-stat-label {
+            color: #718071;
+            font-size: 13px;
+        }
+        .customer-stat-value {
+            color: #205b2b;
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 6px;
+            overflow-wrap: anywhere;
+        }
+        .customer-panel {
+            background: #fff;
+            border: 1px solid #e3eddf;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 9px rgba(20,70,30,.05);
+        }
+        .customer-section-title {
+            background: #f1f8e4;
+            border-left: 5px solid #45c936;
+            color: #173d20;
+            padding: 12px 15px;
+            border-radius: 5px;
+            font-size: 17px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin: 0 0 18px;
+        }
+        .customer-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 16px;
+        }
+        .customer-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .customer-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #344c38;
+        }
+        .customer-field label .optional {
+            color: #8a978a;
+            font-size: 11px;
+            font-weight: 400;
+        }
+        .customer-field input, .customer-field textarea {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #d5e2d2;
+            border-radius: 7px;
+            background: #fff;
+            color: #263b2b;
+            font-size: 14px;
+            outline: none;
+        }
+        .customer-field input:focus, .customer-field textarea:focus {
+            border-color: #45c936;
+            box-shadow: 0 0 0 2px rgba(69,201,54,.12);
+        }
+        .customer-field input[readonly] {
+            background: #f3f8ee;
+            color: #287333;
+            font-weight: 700;
+        }
+        .customer-field textarea {
+            resize: vertical;
+            min-height: 42px;
+        }
+        .customer-full {
+            grid-column: 1/-1;
+        }
+        .customer-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .customer-btn {
+            border: none;
+            padding: 11px 19px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .customer-btn-primary {
+            background: #218b35;
+            color: #fff;
+        }
+        .customer-btn-primary:hover {
+            background: #176d29;
+        }
+        .customer-btn-secondary {
+            background: #eaf3e6;
+            color: #285b30;
+        }
+        .customer-btn-small {
+            padding: 7px 11px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            background: #eaf3e6;
+            color: #285b30;
+        }
+        .customer-btn-small:hover {
+            background: #dcebd4;
+        }
+        .customer-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .customer-search {
+            display: flex;
+            gap: 9px;
+            flex: 1;
+            max-width: 600px;
+        }
+        .customer-search input {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 12px;
+            border: 1px solid #d5e2d2;
+            border-radius: 7px;
+            outline: none;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 1.4;
+            box-sizing: border-box;
+        }
+        .customer-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .customer-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        .customer-table th {
+            background: #d9f5a8;
+            color: #24452a;
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .customer-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9eee6;
+            color: #45564a;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+        .customer-table td strong {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+        .customer-table tbody tr:hover {
+            background: #f8fcf5;
+        }
+        .customer-empty {
+            text-align: center;
+            padding: 30px 12px !important;
+            color: #829083 !important;
+        }
+        .customer-row-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .customer-details {
+            display: none;
+        }
+        .customer-details.show {
+            display: block;
+        }
+        .customer-detail-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .customer-detail-name {
+            font-size: 21px;
+            font-weight: 700;
+            color: #205b2b;
+        }
+        .customer-detail-id {
+            font-size: 13px;
+            color: #788578;
+            margin-top: 5px;
+        }
+        .customer-detail-cards {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 13px;
+            margin-bottom: 20px;
+        }
+        .customer-detail-card {
+            background: #f5faef;
+            border: 1px solid #e1edd9;
+            border-radius: 9px;
+            padding: 15px;
+        }
+        .customer-detail-card small {
+            display: block;
+            color: #718071;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .customer-detail-card strong {
+            color: #205b2b;
+            font-size: 19px;
+        }
+        .customer-detail-info {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 13px;
+            margin-bottom: 20px;
+        }
+        .customer-info-item {
+            background: #fafcf8;
+            padding: 12px;
+            border-radius: 7px;
+            border: 1px solid #edf1e9;
+        }
+        .customer-info-item small {
+            display: block;
+            color: #788578;
+            margin-bottom: 5px;
+        }
+        .customer-info-item strong {
+            color: #344c38;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+        .customer-subheading {
+            font-size: 15px;
+            color: #205b2b;
+            margin: 20px 0 12px;
+            font-weight: 700;
+        }
+        .customer-detail-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e3eddf;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
+        .customer-tab {
+            border: none;
+            padding: 9px 14px;
+            background: #edf4e9;
+            color: #456348;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .customer-tab.active {
+            background: #218b35;
+            color: #fff;
+        }
+        .customer-tab-content {
+            display: none;
+        }
+        .customer-tab-content.active {
+            display: block;
+        }
+        .customer-detail-empty {
+            text-align: center;
+            padding: 22px;
+            color: #879386;
+            background: #fafcf8;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .customer-history-toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin: 10px 0 14px;
+        }
+        .customer-history-toolbar label {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            color: #536b57;
+            font-size: 12px;
+        }
+        .customer-history-toolbar input {
+            padding: 8px;
+            border: 1px solid #d5e2d2;
+            border-radius: 6px;
+            color: #263b2b;
+        }
+        .customer-history-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e6eee2;
+            border-radius: 8px;
+        }
+        .customer-history-table {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        .customer-history-table th {
+            background: #d9f5a8;
+            color: #24452a;
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .customer-history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #edf2e9;
+            color: #45564a;
+            font-size: 12px;
+            vertical-align: top;
+        }
+        .customer-history-summary {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .customer-history-summary span {
+            background: #f1f8e4;
+            border: 1px solid #e1edd9;
+            padding: 9px 12px;
+            border-radius: 7px;
+            color: #315a36;
+            font-size: 12px;
+        }
+        .customer-history-state {
+            padding: 22px;
+            text-align: center;
+            background: #fafcf8;
+            border-radius: 8px;
+            color: #718071;
+            font-size: 13px;
+        }
+        .customer-notice {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .customer-notice.success {
+            display: block;
+            background: #e8f7e5;
+            color: #246a30;
+        }
+        .customer-notice.error {
+            display: block;
+            background: #fff0ed;
+            color: #a9382c;
+        }
+        @media (max-width: 1000px) {
+            .customer-summary {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+            .customer-form-grid {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .customer-summary,
+            .customer-form-grid,
+            .customer-detail-cards,
+            .customer-detail-info {
+                grid-template-columns: 1fr;
+            }
+            .customer-panel {
+                padding: 14px;
+            }
+            .customer-actions {
+                flex-direction: column;
+            }
+            .customer-btn {
+                width: 100%;
+            }
+            .customer-toolbar {
+                align-items: stretch;
+            }
+            .customer-search {
+                max-width: none;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="customer-page">
+
+        <div class="customer-heading">
+            <h2>👥 Customer Management</h2>
+            <p>Register and manage wholesale customers, credit limits and customer accounts.</p>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="customer-summary">
+
+            <div class="customer-stat">
+                <div class="customer-stat-icon">👥</div>
+                <div class="customer-stat-label">Total Customers</div>
+                <div class="customer-stat-value" id="totalCustomers">0</div>
+            </div>
+
+            <div class="customer-stat">
+                <div class="customer-stat-icon">💰</div>
+                <div class="customer-stat-label">Total Outstanding</div>
+                <div class="customer-stat-value" id="totalOutstanding">Rs. 0.00</div>
+            </div>
+
+            <div class="customer-stat">
+                <div class="customer-stat-icon">💳</div>
+                <div class="customer-stat-label">Total Credit Limit</div>
+                <div class="customer-stat-value" id="totalCreditLimit">Rs. 0.00</div>
+            </div>
+
+            <div class="customer-stat">
+                <div class="customer-stat-icon">🟢</div>
+                <div class="customer-stat-label">Available Credit</div>
+                <div class="customer-stat-value" id="availableCredit">Rs. 0.00</div>
+            </div>
+
+        </div>
+
+        <div id="customerNotice" class="customer-notice">
+        </div>
+
+        <!-- CUSTOMER REGISTRATION / EDIT FORM -->
+        <section class="customer-panel" id="customerFormPanel">
+
+            <h3 class="customer-section-title" id="customerFormHeading">
+                ➕ Register New Customer
+            </h3>
+
+            <form id="customerForm">
+
+                <input type="hidden" id="editingCustomerId">
+
+                <div class="customer-form-grid">
+
+                    <div class="customer-field">
+                        <label>Customer ID</label>
+                        <input type="text" id="customerId" readonly>
+                    </div>
+
+                    <div class="customer-field">
+                        <label>First Name *</label>
+                        <input type="text" id="customerFirstName"
+                           placeholder="Enter first name" required>
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Last Name *</label>
+                        <input type="text" id="customerLastName"
+                           placeholder="Enter last name" required>
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Contact Number *</label>
+                        <input type="tel" id="customerPhone"
+                           placeholder="Enter contact number"
+                           maxlength="15" required>
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Shop Name <span class="optional">(Optional)</span></label>
+                        <input type="text" id="customerShopName"
+                           placeholder="Enter shop name">
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Credit Limit (Rs.) *</label>
+                        <input type="number" id="customerCreditLimit"
+                           min="0" step="0.01"
+                           placeholder="Enter credit limit" required>
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Address Line 1 <span class="optional">(Optional)</span></label>
+                        <input type="text" id="customerAddress1"
+                           placeholder="House / Building number and street">
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Address Line 2 <span class="optional">(Optional)</span></label>
+                        <input type="text" id="customerAddress2"
+                           placeholder="Additional address details">
+                    </div>
+
+                    <div class="customer-field">
+                        <label>City <span class="optional">(Optional)</span></label>
+                        <input type="text" id="customerCity"
+                           placeholder="Enter city">
+                    </div>
+
+                    <div class="customer-field">
+                        <label>Registration Date</label>
+                        <input type="date" id="customerRegDate" readonly>
+                    </div>
+
+                </div>
+
+                <div class="customer-actions">
+
+                    <button type="button"
+                        class="customer-btn customer-btn-secondary"
+                        id="clearCustomerBtn">
+                        Clear
+                    </button>
+
+                    <button type="submit"
+                        class="customer-btn customer-btn-primary"
+                        id="saveCustomerBtn">
+                        Save Customer
+                    </button>
+
+                </div>
+
+            </form>
+        </section>
+
+        <!-- CUSTOMER LIST -->
+        <section class="customer-panel">
+
+            <h3 class="customer-section-title">📋 Registered Customers</h3>
+
+            <div class="customer-toolbar">
+
+                <div class="customer-search">
+                    <input type="text" id="customerSearch"
+                       placeholder="Search ID, name, shop name or contact number..."
+                       autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                    <div id="customerSearchSuggestions" class="autocomplete-list" role="listbox" hidden>
+                    </div>
+                </div>
+
+                <button type="button"
+                    class="customer-btn customer-btn-secondary"
+                    id="refreshCustomerBtn">
+                    ↻ Refresh List
+                </button>
+
+            </div>
+
+            <div class="customer-table-wrap">
+
+                <table class="customer-table">
+
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Customer Name</th>
+                            <th>Shop Name</th>
+                            <th>Contact Number</th>
+                            <th>Credit Limit</th>
+                            <th>Outstanding</th>
+                            <th>Available Credit</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="customerTableBody">
+                        <tr>
+                            <td colspan="8" class="customer-empty">
+                                👥 No customers registered yet.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+            <div id="customerListPagination" class="inventory-pagination" aria-live="polite">
+            </div>
+        </section>
+
+        <!-- CUSTOMER ACCOUNT DETAILS -->
+        <section class="customer-panel customer-details" id="customerDetailsPanel">
+
+            <h3 class="customer-section-title">👤 Customer Account Details</h3>
+
+            <div class="customer-detail-top">
+
+                <div>
+                    <div class="customer-detail-name" id="detailCustomerName">
+                        Customer Name
+                    </div>
+                    <div class="customer-detail-id" id="detailCustomerId">
+                        Customer ID
+                    </div>
+                </div>
+
+                <button type="button"
+                    class="customer-btn customer-btn-secondary"
+                    id="closeCustomerDetails">
+                    ✕ Close Details
+                </button>
+
+            </div>
+
+            <div class="customer-detail-cards">
+
+                <div class="customer-detail-card">
+                    <small>Credit Limit</small>
+                    <strong id="detailCreditLimit">Rs. 0.00</strong>
+                </div>
+
+                <div class="customer-detail-card">
+                    <small>Outstanding Balance</small>
+                    <strong id="detailOutstanding">Rs. 0.00</strong>
+                </div>
+
+                <div class="customer-detail-card">
+                    <small>Available Credit</small>
+                    <strong id="detailAvailableCredit">Rs. 0.00</strong>
+                </div>
+
+            </div>
+
+            <div class="customer-subheading">Customer Information</div>
+
+            <div class="customer-detail-info">
+
+                <div class="customer-info-item">
+                    <small>First Name</small>
+                    <strong id="detailFirstName">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>Last Name</small>
+                    <strong id="detailLastName">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>Shop Name</small>
+                    <strong id="detailShopName">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>Contact Number</small>
+                    <strong id="detailPhone">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>Address Line 1</small>
+                    <strong id="detailAddress1">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>Address Line 2</small>
+                    <strong id="detailAddress2">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>City</small>
+                    <strong id="detailCity">-</strong>
+                </div>
+
+                <div class="customer-info-item">
+                    <small>Registration Date</small>
+                    <strong id="detailRegDate">-</strong>
+                </div>
+
+            </div>
+
+            <div class="customer-subheading">Customer Account History</div>
+
+            <div class="customer-detail-tabs">
+
+                <button type="button" class="customer-tab active"
+                    data-tab="invoiceHistory">
+                    🧾 Invoice History
+                </button>
+
+                <button type="button" class="customer-tab"
+                    data-tab="paymentHistory">
+                    💵 Payment History
+                </button>
+
+                <button type="button" class="customer-tab"
+                    data-tab="creditHistory">
+                    💳 Credit Transactions
+                </button>
+
+            </div>
+
+            <div class="customer-tab-content active" id="invoiceHistory">
+                <div class="customer-detail-empty">
+                    🧾 Invoice history will appear here after Sales & Invoicing is connected.
+                </div>
+            </div>
+
+            <div class="customer-tab-content" id="paymentHistory">
+                <div class="customer-detail-empty">
+                    💵 Payment history will appear here after Payments & Receivables is connected.
+                </div>
+            </div>
+
+            <div class="customer-tab-content" id="creditHistory">
+                <div class="customer-detail-empty">
+                    💳 Credit transaction history will appear here after backend integration.
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ==========================================
+            // DATABASE-BACKED CUSTOMER DATA
+            // ==========================================
+
+            let customers = [];
+            let selectedCustomerId = null;
+            let customerListPage = 1;
+
+            // ==========================================
+            // COMMON FUNCTIONS
+            // ==========================================
+
+            function money(value) {
+                return "Rs. " + Number(value || 0).toLocaleString("en-LK", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            function today() {
+                const date = new Date();
+                const offset = date.getTimezoneOffset();
+
+                return new Date(date.getTime() - offset * 60000)
+                    .toISOString()
+                    .split("T")[0];
+            }
+
+            function fullName(customer) {
+                return [customer.firstName, customer.lastName]
+                    .filter(Boolean)
+                    .join(" ");
+            }
+
+            function showNotice(message, type) {
+                const notice = document.getElementById("customerNotice");
+
+                notice.textContent = message;
+                notice.className = "customer-notice " + type;
+
+                window.setTimeout(function () {
+                    notice.className = "customer-notice";
+                    notice.textContent = "";
+                }, 3500);
+            }
+
+            function escapeHTML(value) {
+                return String(value ?? "").replace(/[&<>"']/g, function (character) {
+                    return {
+                        "&": "&amp;",
+                        "<": "&lt;",
+                        ">": "&gt;",
+                        '"': "&quot;",
+                        "'": "&#039;"
+                    }[character];
+                });
+            }
+
+            async function customerApi(path, options = {}) {
+                const response = await window.csrfFetch(path, {
+                    credentials: "same-origin",
+                    ...options,
+                    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+                });
+                const data = await response.json().catch (() => ({}));
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || "Unable to complete the customer request.");
+                }
+                return data;
+            }
+
+            function mapCustomer(customer) {
+                return {
+                    id: String(customer.id),
+                    customerCode: customer.customerId,
+                    firstName: customer.firstName,
+                    lastName: customer.lastName || "",
+                    phone: customer.phone,
+                    shopName: customer.shopName || "",
+                    address1: customer.address1 || "",
+                    address2: customer.address2 || "",
+                    city: customer.city || "",
+                    creditLimit: Number(customer.creditLimit || 0),
+                    outstanding: Number(customer.outstanding || 0),
+                    registrationDate: customer.regDate || "",
+                    active: customer.active !== false
+                };
+            }
+
+            async function loadCustomers(showRefreshNotice = false) {
+                try {
+                    const data = await customerApi("/api/customers");
+                    customers = (data.customers || []).map(mapCustomer);
+                    const searchInput = document.getElementById("customerSearch");
+                    if (window.RiceAutocomplete && !searchInput.dataset.autocompleteReady) {
+                        searchInput.dataset.autocompleteReady = "true";
+                        window.RiceAutocomplete.attach(searchInput, document.getElementById("customerSearchSuggestions"), {
+                            minChars: 1, getItems: () => customers.filter(customer => customer.active),
+                            searchText: customer => [customer.customerCode, customer.firstName, customer.lastName,
+                                customer.shopName, customer.phone].join(" "),
+                            label: customer => `${customer.customerCode} · ${fullName(customer)} · ${customer.phone}`,
+                            key: customer => customer.id,
+                            onSelect: customer => {
+                                searchInput.value = customer.customerCode;
+                                searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+                            }
+                        });
+                    }
+                    renderCustomerTable();
+                    updateCustomerSummary();
+                    if (selectedCustomerId) showCustomerDetails(selectedCustomerId);
+                    if (showRefreshNotice) showNotice("Customer list refreshed.", "success");
+                } catch (error) {
+                    showNotice(error.message, "error");
+                }
+            }
+
+            // ==========================================
+            // FIRST NAME AUTO FOCUS
+            // ==========================================
+
+            function focusFirstName() {
+                const firstNameField =
+                    document.getElementById("customerFirstName");
+
+                if (!firstNameField) return;
+
+                firstNameField.focus();
+            }
+
+            // ==========================================
+            // KEYBOARD NAVIGATION
+            // ==========================================
+
+            function setupCustomerKeyboardNavigation() {
+                const form = document.getElementById("customerForm");
+
+                function getEditableFields() {
+                    return Array.from(
+                        form.querySelectorAll("input, textarea, select")
+                    ).filter(function (field) {
+                        return (
+                            !field.disabled &&
+                            !field.readOnly &&
+                            field.type !== "hidden" &&
+                            field.type !== "button" &&
+                            field.type !== "submit"
+                        );
+                    });
+                }
+
+                form.addEventListener("keydown", function (event) {
+                    const field = event.target;
+
+                    if (!field.matches("input, textarea, select")) return;
+
+                    const fields = getEditableFields();
+
+                    const currentIndex = fields.indexOf(field);
+
+                    if (currentIndex === -1) return;
+
+                    // ENTER: NEXT FIELD / LAST FIELD SUBMIT
+
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+
+                        if (currentIndex < fields.length - 1) {
+                            const nextField = fields[currentIndex + 1];
+
+                            nextField.focus();
+
+                            if (
+                                nextField.tagName === "INPUT" &&
+                                nextField.type !== "date" &&
+                                nextField.type !== "number"
+                            ) {
+                                nextField.select();
+                            }
+                        } else {
+                            form.requestSubmit();
+                        }
+
+                        return;
+                    }
+
+                    // RIGHT ARROW: NEXT FIELD
+
+                    if (event.key === "ArrowRight") {
+                        // Allow normal cursor movement inside text inputs.
+
+                        if (
+                            (field.type === "text" || field.type === "tel") &&
+                            field.selectionStart !== field.value.length
+                        ) {
+                            return;
+                        }
+
+                        if (field.type === "number") return;
+
+                        if (currentIndex < fields.length - 1) {
+                            event.preventDefault();
+
+                            fields[currentIndex + 1].focus();
+                        }
+
+                        return;
+                    }
+
+                    // LEFT ARROW: PREVIOUS FIELD
+
+                    if (event.key === "ArrowLeft") {
+                        if (
+                            (field.type === "text" || field.type === "tel") &&
+                            field.selectionStart !== 0
+                        ) {
+                            return;
+                        }
+
+                        if (field.type === "number") return;
+
+                        if (currentIndex > 0) {
+                            event.preventDefault();
+
+                            fields[currentIndex - 1].focus();
+                        }
+                    }
+                });
+            }
+
+            // ==========================================
+            // FORM INITIALIZATION
+            // ==========================================
+
+            function prepareNewCustomerForm() {
+                document.getElementById("customerForm").reset();
+
+                document.getElementById("editingCustomerId").value = "";
+
+                document.getElementById("customerId").value = "Assigned when saved";
+
+                document.getElementById("customerRegDate").value = today();
+
+                document.getElementById("customerFormHeading").textContent =
+                    "➕ Register New Customer";
+
+                document.getElementById("saveCustomerBtn").textContent =
+                    "Save Customer";
+
+                if (window.RiceValidator) {
+                    window.RiceValidator.clearAllErrors(document.getElementById("customerForm"));
+                }
+
+                // Put cursor back in First Name after clearing/resetting.
+                focusFirstName();
+            }
+
+            // ==========================================
+            // CUSTOMER SUMMARY
+            // ==========================================
+
+            function updateCustomerSummary() {
+                const outstanding = customers.reduce(function (total, customer) {
+                    return total + customer.outstanding;
+                }, 0);
+
+                const creditLimit = customers.reduce(function (total, customer) {
+                    return total + customer.creditLimit;
+                }, 0);
+
+                const available = customers.reduce(function (total, customer) {
+                    return total + Math.max(0, customer.creditLimit - customer.outstanding);
+                }, 0);
+
+                document.getElementById("totalCustomers").textContent =
+                    customers.length;
+
+                document.getElementById("totalOutstanding").textContent =
+                    money(outstanding);
+
+                document.getElementById("totalCreditLimit").textContent =
+                    money(creditLimit);
+
+                document.getElementById("availableCredit").textContent =
+                    money(available);
+            }
+
+            // ==========================================
+            // CUSTOMER TABLE
+            // ==========================================
+
+            function renderCustomerTable() {
+                const searchText = document.getElementById("customerSearch")
+                    .value.trim().toLowerCase();
+
+                const filteredCustomers = customers.filter(function (customer) {
+                    const searchableText = [
+                        customer.customerCode,
+                        customer.firstName,
+                        customer.lastName,
+                        fullName(customer),
+                        customer.shopName,
+                        customer.phone,
+                        customer.address1,
+                        customer.address2,
+                        customer.city
+                    ].join(" ").toLowerCase();
+
+                    return searchableText.includes(searchText);
+                });
+
+                const pageCount = Math.max(1, Math.ceil(filteredCustomers.length / 5));
+                customerListPage = Math.min(customerListPage, pageCount);
+                const pageRows = filteredCustomers.slice((customerListPage - 1) * 5, customerListPage * 5);
+                const tableBody = document.getElementById("customerTableBody");
+
+                tableBody.innerHTML = "";
+                window.RicePagination.render(document.getElementById("customerListPagination"),
+                    { page: customerListPage, pages: pageCount, total: filteredCustomers.length, perPage: 5 }, "data-customer-page");
+
+                if (filteredCustomers.length === 0) {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                <td colspan="8" class="customer-empty">
+                    ${customers.length === 0
+                        ? "👥 No customers registered yet."
+                        : "No matching customers found."}
+                </td>
+            `;
+
+                    tableBody.appendChild(row);
+                    return;
+                }
+
+                pageRows.forEach(function (customer) {
+                    const availableCredit = Math.max(
+                        0,
+                        customer.creditLimit - customer.outstanding
+                    );
+
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                <td>${escapeHTML(customer.customerCode)}</td>
+                <td><strong>${escapeHTML(fullName(customer))}</strong></td>
+                <td>${escapeHTML(customer.shopName || "-")}</td>
+                <td>${escapeHTML(customer.phone)}</td>
+                <td>${money(customer.creditLimit)}</td>
+                <td>${money(customer.outstanding)}</td>
+                <td>${money(availableCredit)}</td>
+                <td>
+                    <div class="customer-row-actions">
+
+                        <button type="button"
+                                class="customer-btn-small"
+                                data-action="view"
+                                data-id="${escapeHTML(customer.id)}">
+                            View
+                        </button>
+
+                        <button type="button"
+                                class="customer-btn-small"
+                                data-action="edit"
+                                data-id="${escapeHTML(customer.id)}">
+                            Edit
+                        </button>
+
+                    </div>
+                </td>
+            `;
+
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // ==========================================
+            // CUSTOMER REGISTRATION / EDIT
+            // ==========================================
+
+            document.getElementById("customerForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+
+                const editingId =
+                    document.getElementById("editingCustomerId").value;
+
+                const firstName =
+                    document.getElementById("customerFirstName").value.trim();
+
+                const lastName =
+                    document.getElementById("customerLastName").value.trim();
+
+                const phone =
+                    document.getElementById("customerPhone").value.trim();
+
+                const shopName =
+                    document.getElementById("customerShopName").value.trim();
+
+                const address1 =
+                    document.getElementById("customerAddress1").value.trim();
+
+                const address2 =
+                    document.getElementById("customerAddress2").value.trim();
+
+                const city =
+                    document.getElementById("customerCity").value.trim();
+
+                const creditLimit = Number(
+                    document.getElementById("customerCreditLimit").value
+                );
+
+                const registrationDate =
+                    document.getElementById("customerRegDate").value;
+
+                if (!firstName || !lastName || !phone) {
+                    showNotice(
+                        "Please enter First Name, Last Name and Contact Number.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                if (!Number.isFinite(creditLimit) || creditLimit < 0) {
+                    showNotice("Please enter a valid Credit Limit.", "error");
+
+                    return;
+                }
+
+                const duplicatePhone = customers.find(customer =>
+                    customer.phone === phone && customer.id !== editingId && customer.active
+                );
+                if (duplicatePhone) {
+                    if (window.RiceValidator) {
+                        window.RiceValidator.showError(document.getElementById("customerPhone"), "This contact number is already registered.");
+                    }
+                    showNotice("This contact number is already registered.", "error");
+                    return;
+                }
+
+                const payload = {
+                    firstName, lastName, phone, shopName, address1, address2, city,
+                    creditLimit, regDate: registrationDate
+                };
+                const saveButton = document.getElementById("saveCustomerBtn");
+                saveButton.disabled = true;
+                try {
+                    let result;
+                    if (editingId) {
+                        const current = customers.find(item => item.id === editingId);
+                        if (current && creditLimit < current.outstanding) {
+                            if (window.RiceValidator) {
+                                window.RiceValidator.showError(document.getElementById("customerCreditLimit"), "Credit Limit cannot be lower than the current Outstanding Balance.");
+                            }
+                            throw new Error("Credit Limit cannot be lower than the current Outstanding Balance.");
+                        }
+                        result = await customerApi(`/api/customers/${encodeURIComponent(editingId)}`, {
+                            method: "PUT", body: JSON.stringify(payload)
+                        });
+                    } else {
+                        result = await customerApi("/api/customers", {
+                            method: "POST", body: JSON.stringify(payload)
+                        });
+                    }
+
+                    const saved = mapCustomer(result.customer);
+                    const savedId = saved.id;
+                    await loadCustomers();
+                    if (editingId) showCustomerDetails(savedId);
+                    prepareNewCustomerForm();
+                    showNotice(editingId ? "Customer details updated successfully." : "Customer registered successfully.", "success");
+                } catch (error) {
+                    if (window.RiceValidator) {
+                        const msg = error.message || "";
+                        if (msg.toLowerCase().includes("contact") || msg.toLowerCase().includes("phone")) {
+                            window.RiceValidator.showError(document.getElementById("customerPhone"), msg);
+                        } else if (msg.toLowerCase().includes("first name")) {
+                            window.RiceValidator.showError(document.getElementById("customerFirstName"), msg);
+                        } else if (msg.toLowerCase().includes("last name")) {
+                            window.RiceValidator.showError(document.getElementById("customerLastName"), msg);
+                        } else if (msg.toLowerCase().includes("credit")) {
+                            window.RiceValidator.showError(document.getElementById("customerCreditLimit"), msg);
+                        }
+                    }
+                    showNotice(error.message, "error");
+                } finally {
+                    saveButton.disabled = false;
+                }
+            });
+
+            // ==========================================
+            // VIEW / EDIT CUSTOMER
+            // ==========================================
+
+            document.getElementById("customerTableBody")
+                .addEventListener("click", function (event) {
+                    const button = event.target.closest("button[data-action]");
+
+                    if (!button) return;
+
+                    const action = button.dataset.action;
+
+                    const id = button.dataset.id;
+
+                    if (action === "view") {
+                        showCustomerDetails(id);
+                    }
+
+                    if (action === "edit") {
+                        editCustomer(id);
+                    }
+                });
+
+            function editCustomer(id) {
+                const customer = customers.find(item => item.id === String(id));
+
+                if (!customer) return;
+
+                document.getElementById("editingCustomerId").value = customer.id;
+                document.getElementById("customerId").value = customer.customerCode;
+                document.getElementById("customerFirstName").value = customer.firstName;
+                document.getElementById("customerLastName").value = customer.lastName;
+                document.getElementById("customerPhone").value = customer.phone;
+                document.getElementById("customerShopName").value = customer.shopName || "";
+                document.getElementById("customerAddress1").value = customer.address1 || "";
+                document.getElementById("customerAddress2").value = customer.address2 || "";
+                document.getElementById("customerCity").value = customer.city || "";
+                document.getElementById("customerCreditLimit").value = customer.creditLimit;
+                document.getElementById("customerRegDate").value = customer.registrationDate;
+
+                document.getElementById("customerFormHeading").textContent =
+                    "✏️ Edit Customer Details";
+
+                document.getElementById("saveCustomerBtn").textContent =
+                    "Update Customer";
+
+                document.getElementById("customerFormPanel").scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+                // Cursor starts at First Name when Edit form opens.
+                focusFirstName();
+            }
+
+            // ==========================================
+            // CUSTOMER ACCOUNT DETAILS
+            // ==========================================
+
+            function showCustomerDetails(id) {
+                const customer = customers.find(function (item) {
+                    return item.id === id;
+                });
+
+                if (!customer) return;
+
+                selectedCustomerId = id;
+
+                const availableCredit = Math.max(
+                    0,
+                    customer.creditLimit - customer.outstanding
+                );
+
+                document.getElementById("detailCustomerName").textContent =
+                    fullName(customer);
+
+                document.getElementById("detailCustomerId").textContent =
+                    customer.customerCode;
+
+                document.getElementById("detailCreditLimit").textContent =
+                    money(customer.creditLimit);
+
+                document.getElementById("detailOutstanding").textContent =
+                    money(customer.outstanding);
+
+                document.getElementById("detailAvailableCredit").textContent =
+                    money(availableCredit);
+
+                document.getElementById("detailFirstName").textContent =
+                    customer.firstName;
+
+                document.getElementById("detailLastName").textContent =
+                    customer.lastName;
+
+                document.getElementById("detailShopName").textContent =
+                    customer.shopName || "Not provided";
+
+                document.getElementById("detailPhone").textContent =
+                    customer.phone;
+
+                document.getElementById("detailAddress1").textContent =
+                    customer.address1 || "Not provided";
+
+                document.getElementById("detailAddress2").textContent =
+                    customer.address2 || "Not provided";
+
+                document.getElementById("detailCity").textContent =
+                    customer.city || "Not provided";
+
+                document.getElementById("detailRegDate").textContent =
+                    customer.registrationDate;
+
+                document.getElementById("customerDetailsPanel").classList.add("show");
+
+                document.getElementById("customerDetailsPanel").scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+                const activeTab = document.querySelector(".customer-tab.active")?.dataset.tab || "invoiceHistory";
+                loadCustomerHistory(activeTab, 1);
+            }
+
+            // ==========================================
+            // CUSTOMER DETAIL TABS
+            // ==========================================
+
+            const customerHistoryRoutes = {
+                invoiceHistory: "invoices",
+                paymentHistory: "payments",
+                creditHistory: "statement"
+            };
+            const customerHistoryFilters = {
+                invoiceHistory: { dateFrom: "", dateTo: "", page: 1 },
+                paymentHistory: { dateFrom: "", dateTo: "", page: 1 },
+                creditHistory: { dateFrom: "", dateTo: "", page: 1 }
+            };
+            const customerHistoryRequests = { invoiceHistory: 0, paymentHistory: 0, creditHistory: 0 };
+            const customerHistoryLabels = {
+                invoiceHistory: "invoice history",
+                paymentHistory: "payment history",
+                creditHistory: "credit statement"
+            };
+
+            function historyState(type, message, isError = false) {
+                const panel = document.getElementById(type);
+                panel.innerHTML = `<div class="customer-history-state" role="status">${escapeHTML(message)}${isError
+            ? ` <button type="button" class="customer-btn-small" data-history-action="retry" data-history-type="${escapeHTML(type)}">Retry</button>`
+            : ""}</div>`;
+            }
+
+            function historyToolbar(type, pagination) {
+                const filter = customerHistoryFilters[type];
+                const page = Number(pagination.page || 1), pages = Math.max(1, Number(pagination.pages || 1));
+                const perPage = Number(pagination.perPage || 5);
+                const total = Number(pagination.total || 0), from = total ? (page - 1) * perPage + 1 : 0, to = Math.min(page * perPage, total);
+                const pageButtons = Array.from({ length: Math.min(pages, 5) }, (_, index) => Math.max(1, Math.min(pages - 4, page - 2)) + index)
+                    .filter(number => number >= 1 && number <= pages).map(number => `<button type="button" class="rice-pagination-button" data-history-action="page" data-history-type="${type}" data-page="${number}" ${number===page?'aria-current="page"':''}>${number}</button>`).join("");
+                return `<div class="customer-history-toolbar">
+            <label>From <input type="date" data-history-from="${type}" value="${escapeHTML(filter.dateFrom)}"></label>
+            <label>To <input type="date" data-history-to="${type}" value="${escapeHTML(filter.dateTo)}"></label>
+            <button type="button" class="customer-btn-small" data-history-action="apply" data-history-type="${type}">Filter</button>
+        </div>
+        <div class="customer-history-pagination rice-pagination">
+            <span class="history-page-summary rice-pagination-summary">Showing ${from}–${to} of ${total}</span>
+            <div class="rice-pagination-controls">
+                <button type="button" class="rice-pagination-button" data-history-action="page" data-history-type="${type}" data-page="1" ${page <= 1 ? "disabled" : ""}>First</button>
+                <button type="button" class="rice-pagination-button" data-history-action="page" data-history-type="${type}" data-page="${page - 1}" ${page <= 1 ? "disabled" : ""}>Previous</button>
+                ${pageButtons}
+                <button type="button" class="rice-pagination-button" data-history-action="page" data-history-type="${type}" data-page="${page + 1}" ${page >= pages ? "disabled" : ""}>Next</button>
+                <button type="button" class="rice-pagination-button" data-history-action="page" data-history-type="${type}" data-page="${pages}" ${page >= pages ? "disabled" : ""}>Last</button>
+            </div>
+        </div>`;
+            }
+
+            function historyTable(headers, rows, emptyMessage) {
+                if (!rows.length) return `<div class="customer-detail-empty">${escapeHTML(emptyMessage)}</div>`;
+                return `<div class="customer-history-table-wrap"><table class="customer-history-table">
+            <thead><tr>${headers.map(header => `<th>${escapeHTML(header)}</th>`).join("")}</tr></thead>
+            <tbody>${rows.join("")}</tbody>
+        </table></div>`;
+            }
+
+            function renderCustomerHistory(type, data) {
+                const panel = document.getElementById(type);
+                const pagination = data.pagination || { page: 1, pages: 1 };
+                const prefix = historyToolbar(type, pagination);
+                let content = "";
+                if (type === "invoiceHistory") {
+                    const rows = (data.invoices || []).map(invoice => {
+                        const items = (invoice.items || []).map(item =>
+                            `${escapeHTML(item.product)}${item.variety ? ` (${escapeHTML(item.variety)})` : ""} · ${escapeHTML(item.quantity)} ${escapeHTML(item.unit)}`
+                        ).join("<br>");
+                        return `<tr><td>${escapeHTML(invoice.invoiceNo)}</td><td>${escapeHTML(invoice.date)}</td>
+                    <td>${money(invoice.total)}</td><td>${money(invoice.paid)}</td><td>${money(invoice.due)}</td>
+                    <td>${items || "-"}</td></tr>`;
+                    });
+                    content = historyTable(["Invoice", "Date", "Total", "Paid", "Outstanding", "Items"], rows, "No invoices found for this date range.");
+                } else if (type === "paymentHistory") {
+                    const rows = (data.payments || []).map(payment => {
+                        const allocations = (payment.allocations || []).map(item =>
+                            `${escapeHTML(item.invoiceNo)} · ${money(item.amount)}`
+                        ).join("<br>");
+                        return `<tr><td>${escapeHTML(payment.receiptNo || "-")}</td><td>${escapeHTML(payment.date)}</td>
+                    <td>${money(payment.amount)}</td><td>${escapeHTML(payment.method || "-")}</td>
+                    <td>${escapeHTML(payment.bankReference || "-")}</td><td>${allocations || "-"}</td></tr>`;
+                    });
+                    content = historyTable(["Receipt", "Date", "Amount", "Method", "Reference", "Invoice allocations"], rows, "No payments found for this date range.");
+                } else {
+                    const summary = `<div class="customer-history-summary">
+                <span>Current outstanding: <strong>${money(data.currentOutstanding)}</strong></span>
+                <span>Statement balance: <strong>${money(data.statementBalance)}</strong></span>
+                <span>Difference: <strong>${money(data.reconciliationDifference)}</strong></span>
+            </div>`;
+                    const rows = (data.records || []).map(record => `<tr><td>${escapeHTML(record.date)}</td>
+                <td>${escapeHTML(String(record.type || "").replaceAll("_", " "))}</td>
+                <td>${escapeHTML(record.reference || "-")}</td><td>${escapeHTML(record.invoiceNo || "-")}</td>
+                <td>${money(record.debit)}</td><td>${money(record.credit)}</td><td>${money(record.balanceAfter)}</td>
+                <td>${escapeHTML(record.method || "-")}</td></tr>`);
+                    content = summary + historyTable(["Date", "Entry", "Reference", "Invoice", "Debit", "Credit", "Balance", "Method"], rows, "No statement entries found for this date range.");
+                }
+                panel.innerHTML = prefix + content;
+            }
+
+            async function loadCustomerHistory(type, page) {
+                const customerId = selectedCustomerId;
+                const route = customerHistoryRoutes[type];
+                if (!customerId || !route) return;
+                const requestId = ++customerHistoryRequests[type];
+                const filter = customerHistoryFilters[type];
+                filter.page = page || 1;
+                const query = new URLSearchParams({ page: String(filter.page), perPage: "5" });
+                if (filter.dateFrom) query.set("dateFrom", filter.dateFrom);
+                if (filter.dateTo) query.set("dateTo", filter.dateTo);
+                historyState(type, `Loading ${customerHistoryLabels[type]}…`);
+                try {
+                    const data = await customerApi(`/api/customers/${encodeURIComponent(customerId)}/${route}?${query}`);
+                    if (selectedCustomerId !== customerId || requestId !== customerHistoryRequests[type]) return;
+                    renderCustomerHistory(type, data);
+                } catch (error) {
+                    if (selectedCustomerId === customerId && requestId === customerHistoryRequests[type]) {
+                        historyState(type, error.message || `Unable to load ${customerHistoryLabels[type]}.`, true);
+                    }
+                }
+            }
+
+            document.querySelectorAll(".customer-tab-content").forEach(panel => {
+                panel.addEventListener("click", event => {
+                    const button = event.target.closest("[data-history-action]");
+                    if (!button) return;
+                    const type = button.dataset.historyType;
+                    const filter = customerHistoryFilters[type];
+                    if (!filter) return;
+                    if (button.dataset.historyAction === "page") loadCustomerHistory(type, Number(button.dataset.page));
+                    else if (button.dataset.historyAction === "apply") {
+                        filter.dateFrom = panel.querySelector(`[data-history-from="${type}"]`)?.value || "";
+                        filter.dateTo = panel.querySelector(`[data-history-to="${type}"]`)?.value || "";
+                        loadCustomerHistory(type, 1);
+                    } else if (button.dataset.historyAction === "retry") loadCustomerHistory(type, filter.page);
+                });
+            });
+
+            document.querySelectorAll(".customer-tab").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    const targetId = button.dataset.tab;
+
+                    document.querySelectorAll(".customer-tab").forEach(function (tab) {
+                        tab.classList.remove("active");
+                    });
+
+                    document.querySelectorAll(".customer-tab-content").forEach(function (content) {
+                        content.classList.remove("active");
+                    });
+
+                    button.classList.add("active");
+
+                    document.getElementById(targetId).classList.add("active");
+                    if (selectedCustomerId) loadCustomerHistory(targetId, customerHistoryFilters[targetId].page);
+                });
+            });
+
+            // ==========================================
+            // CLOSE CUSTOMER DETAILS
+            // ==========================================
+
+            document.getElementById("closeCustomerDetails")
+                .addEventListener("click", function () {
+                    document.getElementById("customerDetailsPanel")
+                        .classList.remove("show");
+
+                    selectedCustomerId = null;
+                });
+
+            // ==========================================
+            // SEARCH
+            // ==========================================
+
+            document.getElementById("customerSearch")
+                .addEventListener("input", function () {
+                    customerListPage = 1;
+                    renderCustomerTable();
+                });
+            document.getElementById("customerListPagination").addEventListener("click", function (event) {
+                const button = event.target.closest("[data-customer-page]");
+                if (button && !button.disabled) {
+                    customerListPage = Number(button.dataset.customerPage);
+                    renderCustomerTable();
+                }
+            });
+
+            // ==========================================
+            // CLEAR FORM
+            // ==========================================
+
+            document.getElementById("clearCustomerBtn")
+                .addEventListener("click", function () {
+                    prepareNewCustomerForm();
+                });
+
+            // ==========================================
+            // REFRESH LIST
+            // ==========================================
+
+            document.getElementById("refreshCustomerBtn")
+                .addEventListener("click", function () {
+                    loadCustomers(true);
+                });
+
+            // ==========================================
+            // INITIAL PAGE SETUP
+            // ==========================================
+
+            setupCustomerKeyboardNavigation();
+
+            prepareNewCustomerForm();
+
+            loadCustomers();
+
+            // Focus First Name automatically when page first loads.
+            // Small delay allows the page layout to finish rendering.
+            window.setTimeout(function () {
+                focusFirstName();
+            }, 100);
+        });
+    </script>
+{% endblock %}

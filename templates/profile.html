@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile | Rice Mill Management System{% endblock %}
+{% block page_subtitle %}View your personal and account information{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .profile-page {
+            color: #173D20;
+        }
+        .profile-page-heading {
+            margin-bottom: 20px;
+        }
+        .profile-page-heading h2 {
+            margin: 0 0 6px;
+            color: #0A4715;
+            font-size: 25px;
+        }
+        .profile-page-heading p {
+            margin: 0;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .profile-main-card {
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 5px 18px rgba(10,71,21,.07);
+        }
+        .profile-banner {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 25px;
+            background: #F1F8E4;
+            border-bottom: 1px solid #D8E8C8;
+        }
+        .profile-avatar-large {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            background: #D9F5A8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            flex-shrink: 0;
+        }
+        .profile-banner h2 {
+            margin: 0 0 6px;
+            color: #0A4715;
+            font-size: 22px;
+        }
+        .profile-banner p {
+            margin: 0;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .profile-information-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 20px;
+            padding: 25px;
+        }
+        .profile-info-section {
+            border: 1px solid #E2EDD9;
+            border-radius: 11px;
+            padding: 18px;
+            min-width: 0;
+        }
+        .profile-section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #E5EDE0;
+        }
+        .profile-section-heading > span {
+            width: 40px;
+            height: 40px;
+            border-radius: 9px;
+            background: #EFFAEB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+        }
+        .profile-section-heading h3 {
+            margin: 0 0 4px;
+            color: #0A4715;
+            font-size: 15px;
+        }
+        .profile-section-heading p {
+            margin: 0;
+            color: #718273;
+            font-size: 11px;
+        }
+        .profile-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 13px 0;
+            border-bottom: 1px solid #F0F4ED;
+            font-size: 13px;
+        }
+        .profile-info-row:last-child {
+            border-bottom: 0;
+        }
+        .profile-info-row > span {
+            color: #718273;
+            flex-shrink: 0;
+        }
+        .profile-info-row strong {
+            color: #173D20;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+        .profile-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+        .profile-status.active {
+            background: #DCFCE7;
+            color: #166534;
+        }
+        .profile-status.inactive {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        .profile-footer {
+            padding: 17px 25px;
+            border-top: 1px solid #E5EDE0;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .profile-settings-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 16px;
+            border-radius: 8px;
+            background: #EFFAEB;
+            color: #0A4715;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .profile-settings-link:hover {
+            background: #D9F5A8;
+        }
+        .profile-link-arrow {
+            margin-left: 8px;
+        }
+        @media (max-width: 800px) {
+            .profile-information-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 500px) {
+            .profile-banner {
+                padding: 18px;
+            }
+            .profile-information-grid {
+                padding: 14px;
+            }
+            .profile-info-section {
+                padding: 13px;
+            }
+            .profile-info-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .profile-info-row strong {
+                text-align: left;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-page">
+
+        <div class="profile-page-heading">
+            <h2>My Profile</h2>
+            <p>View your personal details and account information.</p>
+        </div>
+
+        <div class="profile-main-card">
+
+            <div class="profile-banner">
+                <div class="profile-avatar-large">👤</div>
+
+                <div>
+                    <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
+                    <p>{{ profile.role }}</p>
+                </div>
+            </div>
+
+            <div class="profile-information-grid">
+
+                <section class="profile-info-section">
+
+                    <div class="profile-section-heading">
+                        <span>👤</span>
+                        <div>
+                            <h3>Personal Information</h3>
+                            <p>Your personal details</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>First Name</span>
+                        <strong>{{ profile.first_name or 'Not provided' }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Last Name</span>
+                        <strong>{{ profile.last_name or 'Not provided' }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Email Address</span>
+                        <strong>{{ profile.email or 'Not provided' }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Contact Number</span>
+                        <strong>{{ profile.contact_number or 'Not provided' }}</strong>
+                    </div>
+
+                </section>
+
+                <section class="profile-info-section">
+
+                    <div class="profile-section-heading">
+                        <span>🔐</span>
+                        <div>
+                            <h3>Account Information</h3>
+                            <p>Your system account details</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Username</span>
+                        <strong>{{ profile.username }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Role</span>
+                        <strong>{{ profile.role }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Rice Mill Name</span>
+                        <strong>{{ profile.mill_name or 'Not configured' }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Account Created Date</span>
+                        <strong>{{ profile.created_date or 'Not available' }}</strong>
+                    </div>
+
+                    <div class="profile-info-row">
+                        <span>Account Status</span>
+                        <strong>
+                            <span class="profile-status {{ 'active' if profile.active else 'inactive' }}">
+                                {{ 'Active' if profile.active else 'Inactive' }}
+                            </span>
+                        </strong>
+                    </div>
+
+                </section>
+
+            </div>
+
+            {% if profile.role == 'Admin / Mill Owner' or session.get('can_access_account_settings') %}
+                <div class="profile-footer">
+                    <a href="{{ url_for('account_settings') }}" class="profile-settings-link">
+                        <span>⚙️</span>
+                        Account Settings
+                        <span class="profile-link-arrow">→</span>
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+{% endblock %}

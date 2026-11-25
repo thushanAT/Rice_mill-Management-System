@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('rice_mill_theme') || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <title>Verify OTP | Rice Mill Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='dark_theme.css', v='agri-green-v9') }}">
+</head>
+
+<body class="auth-page">
+
+    <div class="auth-shell">
+
+        <!-- LEFT SIDE -->
+        <section class="visual">
+
+            <div class="brand">
+                <span class="brand-icon">🌾</span>
+                <span>RICE MILL MANAGEMENT</span>
+            </div>
+
+            <div class="visual-content">
+                <h1>
+                    One more step
+                    <br>
+                    to secure your account.
+                </h1>
+
+                <p>
+                    Verify your identity using the verification
+                    code sent to your registered email address.
+                </p>
+            </div>
+
+        </section>
+
+        <!-- RIGHT SIDE -->
+        <section class="form-side">
+
+            <div class="form-card">
+
+                <h2>Verify Your Email</h2>
+
+                <p class="form-subtitle">
+                    Enter the 6-digit code if recovery email delivery succeeds. If it doesn't arrive, check spam or request a new code after the resend cooldown.
+                </p>
+
+                <form id="verifyOtpForm" method="POST"
+                      action="{{ url_for('verify_otp') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="field" id="recoveryEmailField" hidden>
+                        <label>Email Address</label>
+                        <input type="email" name="recovery_email"
+                               placeholder="Enter the email used to request the code"
+                               autocomplete="email">
+                    </div>
+
+                    <div class="field">
+                        <label>Verification Code</label>
+
+                        <input type="text"
+                               name="otp"
+                               placeholder="Enter 6-digit code"
+                               maxlength="6"
+                               inputmode="numeric"
+                               pattern="[0-9]{6}"
+                               required>
+                    </div>
+
+                    <button id="verifyOtpSubmit" type="submit" class="btn">
+                        Verify Code
+                    </button>
+                </form>
+                <button id="resendOtpButton" type="button" class="btn recovery-secondary">
+                    Resend code
+                </button>
+                <p id="recoveryStatus" class="recovery-status" role="status" aria-live="polite"></p>
+
+                <div class="register-link">
+                    Didn't receive the code?
+                    <a href="{{ url_for('forgot_password') }}">Try Again</a>
+                </div>
+
+                <div class="register-link">
+                    <a href="{{ url_for('login') }}">Back to Login</a>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='password_recovery.js', v='recovery-nav-4') }}" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,701 @@
+{% extends "base.html" %}
+
+{% block title %}Production Management{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .production-page {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            color: #173d20;
+        }
+        .production-heading h2 {
+            margin: 0 0 5px;
+            font-size: 25px;
+            color: #173d20;
+        }
+        .production-heading p {
+            margin: 0;
+            color: #647568;
+            font-size: 14px;
+        }
+        .production-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+        }
+        .production-stat {
+            background: #fff;
+            border-radius: 12px;
+            padding: 19px;
+            box-shadow: 0 2px 9px rgba(20, 70, 30, 0.07);
+            border: 1px solid #e3eddf;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #657568;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 25px;
+            font-weight: 700;
+            color: #174b25;
+        }
+        .stat-unit {
+            font-size: 12px;
+            color: #778579;
+            margin-top: 5px;
+        }
+        .production-panel {
+            background: #fff;
+            border: 1px solid #e3eddf;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 9px rgba(20, 70, 30, 0.05);
+        }
+        .production-section-title {
+            background: #f1f8e4;
+            border-left: 5px solid #45c936;
+            color: #173d20;
+            padding: 12px 15px;
+            border-radius: 5px;
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 18px;
+        }
+        .production-section-title span {
+            margin-right: 8px;
+        }
+        .production-form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .production-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .production-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #344c38;
+        }
+        .production-field input, .production-field select, .production-field textarea {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid #d5e2d2;
+            border-radius: 7px;
+            background: #fff;
+            color: #263b2b;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .production-field input:focus,
+        .production-field select:focus,
+        .production-field textarea:focus {
+            border-color: #45c936;
+            box-shadow: 0 0 0 2px rgba(69, 201, 54, 0.12);
+        }
+        .production-field textarea {
+            min-height: 42px;
+            resize: vertical;
+        }
+        .production-field input[readonly] {
+            background: #f3f8ee;
+            color: #1d632d;
+            font-weight: 700;
+            cursor: default;
+        }
+        .production-full {
+            grid-column: 1 / -1;
+        }
+        .production-calculation {
+            background: #f5faef;
+            border: 1px solid #dcebd2;
+            border-radius: 9px;
+            padding: 14px 16px;
+            margin-top: 17px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .calculation-item small {
+            display: block;
+            color: #68796a;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .calculation-item strong {
+            color: #1d632d;
+            font-size: 18px;
+        }
+        .production-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .production-btn {
+            border: none;
+            padding: 11px 20px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .production-btn-primary {
+            background: #218b35;
+            color: white;
+        }
+        .production-btn-primary:hover {
+            background: #176d29;
+        }
+        .production-btn-secondary {
+            background: #eaf3e6;
+            color: #285b30;
+        }
+        .production-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .production-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+        .production-table th {
+            background: #d9f5a8;
+            color: #24452a;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .production-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9eee6;
+            color: #45564a;
+            font-size: 13px;
+        }
+        .production-table tbody tr:hover {
+            background: #f8fcf5;
+        }
+        .production-empty {
+            text-align: center;
+            padding: 28px 12px !important;
+            color: #829083 !important;
+        }
+        .production-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #e5f6df;
+            color: #287333;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .production-note {
+            color: #778579;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+        .production-stock-hint, .production-feedback {
+            color: #68796a;
+            font-size: 12px;
+            margin: 0;
+        }
+        .production-feedback:empty {
+            display: none;
+        }
+        .production-feedback[data-state="error"] {
+            color: #a32626;
+            background: #fff2f0;
+            border: 1px solid #f0c7c2;
+            border-radius: 7px;
+            padding: 10px 12px;
+        }
+        .production-feedback[data-state="success"] {
+            color: #1d632d;
+        }
+        .production-btn:disabled {
+            opacity: .65;
+            cursor: wait;
+        }
+        .production-filter-action {
+            justify-content: flex-end;
+        }
+        .production-history-filters {
+            margin-bottom: 12px;
+        }
+        @media (max-width: 1000px) {
+            .production-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .production-form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .production-summary, .production-form-grid, .production-calculation {
+                grid-template-columns: 1fr;
+            }
+            .production-panel {
+                padding: 14px;
+            }
+            .production-actions {
+                flex-direction: column;
+            }
+            .production-btn {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="production-page">
+
+        <!-- PAGE HEADING -->
+        <div class="production-heading">
+            <h2>🏭 Production Management</h2>
+            <p>Manage paddy drying, rice milling, packaging and production activities.</p>
+        </div>
+
+        <!-- PRODUCTION SUMMARY CARDS -->
+        <div class="production-summary">
+
+            <div class="production-stat">
+                <div class="stat-label">Total Wet Paddy Processed</div>
+                <div class="stat-value" id="totalWetProcessed">0.00</div>
+                <div class="stat-unit">Kilograms (kg)</div>
+            </div>
+
+            <div class="production-stat">
+                <div class="stat-label">Total Dry Paddy Produced</div>
+                <div class="stat-value" id="totalDryProduced">0.00</div>
+                <div class="stat-unit">Kilograms (kg)</div>
+            </div>
+
+            <div class="production-stat">
+                <div class="stat-label">Total Rice Produced</div>
+                <div class="stat-value" id="totalRiceProduced">0.00</div>
+                <div class="stat-unit">Kilograms (kg)</div>
+            </div>
+
+            <div class="production-stat">
+                <div class="stat-label">Total Packed Rice</div>
+                <div class="stat-value" id="totalPackedProduced">0</div>
+                <div class="stat-unit">Kilograms (kg)</div>
+            </div>
+
+        </div>
+
+        <!-- 01. DRYING MANAGEMENT -->
+        <section class="production-panel">
+
+            <h3 class="production-section-title">
+                <span>☀️</span>
+                01. Drying Management
+            </h3>
+
+            <form id="dryingForm">
+
+                <div class="production-form-grid">
+
+                    <div class="production-field">
+                        <label>Production Date</label>
+                        <input type="date" id="dryingDate" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Paddy Variety</label>
+                        <select id="dryingVariety" required>
+                            <option value="">Select Variety</option>
+                        </select>
+                        <small class="production-stock-hint" id="dryingStockHint" aria-live="polite">Loading wet paddy stock…</small>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Wet Paddy Input (kg)</label>
+                        <input type="number" id="wetInput" min="0.001" step="0.001"
+                           placeholder="Enter wet paddy weight" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Dry Paddy Output (kg)</label>
+                        <input type="number" id="dryOutput" min="0" step="0.001"
+                           placeholder="Enter actual dry weight" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Drying Location / Batch (Optional)</label>
+                        <input type="text" id="dryingBatch"
+                           placeholder="Enter location or batch">
+                    </div>
+
+                    <div class="production-field">
+                        <label>Responsible Person (Optional)</label>
+                        <input type="text" id="dryingPerson"
+                           placeholder="Enter employee name">
+                    </div>
+
+                    <div class="production-field production-full">
+                        <label>Notes (Optional)</label>
+                        <textarea id="dryingNotes"
+                              placeholder="Additional details (optional)"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="production-calculation">
+
+                    <div class="calculation-item">
+                        <small>Wet Paddy Input</small>
+                        <strong id="dryingInputPreview">0.00 kg</strong>
+                    </div>
+
+                    <div class="calculation-item">
+                        <small>Weight Loss</small>
+                        <strong id="dryingLossPreview">0.00 kg</strong>
+                    </div>
+
+                    <div class="calculation-item">
+                        <small>Drying Loss Percentage</small>
+                        <strong id="dryingLossPercent">0.00%</strong>
+                    </div>
+
+                </div>
+
+                <div class="production-actions">
+                    <button type="reset" class="production-btn production-btn-secondary">
+                        Clear
+                    </button>
+
+                    <button type="submit" class="production-btn production-btn-primary">
+                        Save Drying Record
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- 02. MILLING MANAGEMENT -->
+        <section class="production-panel">
+
+            <h3 class="production-section-title">
+                <span>⚙️</span>
+                02. Milling Management
+            </h3>
+
+            <form id="millingForm">
+
+                <div class="production-form-grid">
+
+                    <div class="production-field">
+                        <label>Production Date</label>
+                        <input type="date" id="millingDate" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Paddy Variety</label>
+                        <select id="millingVariety" required>
+                            <option value="">Select Variety</option>
+                        </select>
+                        <small class="production-stock-hint" id="millingStockHint" aria-live="polite">Loading dry paddy stock…</small>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Dry Paddy Input (kg)</label>
+                        <input type="number" id="millingInput" min="0.001" step="0.001"
+                           placeholder="Enter dry paddy weight" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Rice Output (kg)</label>
+                        <input type="number" id="riceOutput" min="0" step="0.001"
+                           placeholder="Enter rice output" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Bran Output (kg)</label>
+                        <input type="number" id="branOutput" min="0" step="0.001"
+                           placeholder="Enter bran output" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Other Waste / Loss (kg) - Auto Calculated</label>
+                        <input type="number" id="millingWaste" min="0" step="0.01" value="0" readonly>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Responsible Person (Optional)</label>
+                        <input type="text" id="millingPerson"
+                           placeholder="Enter employee name">
+                    </div>
+
+                    <div class="production-field">
+                        <label>Machine / Batch Reference (Optional)</label>
+                        <input type="text" id="millingBatch"
+                           placeholder="Enter machine or batch">
+                    </div>
+
+                    <div class="production-field production-full">
+                        <label>Notes (Optional)</label>
+                        <textarea id="millingNotes"
+                              placeholder="Additional details (optional)"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="production-calculation">
+
+                    <div class="calculation-item">
+                        <small>Total Paddy Input</small>
+                        <strong id="millingInputPreview">0.00 kg</strong>
+                    </div>
+
+                    <div class="calculation-item">
+                        <small>Total Recorded Output</small>
+                        <strong id="millingOutputPreview">0.00 kg</strong>
+                    </div>
+
+                    <div class="calculation-item">
+                        <small>Output Balance</small>
+                        <strong id="millingBalancePreview">0.00 kg</strong>
+                    </div>
+
+                </div>
+
+                <div class="production-actions">
+                    <button type="reset" class="production-btn production-btn-secondary">
+                        Clear
+                    </button>
+
+                    <button type="submit" class="production-btn production-btn-primary">
+                        Save Milling Record
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- 03. PACKAGING MANAGEMENT -->
+        <section class="production-panel">
+
+            <h3 class="production-section-title">
+                <span>📦</span>
+                03. Packaging Management
+            </h3>
+
+            <form id="packagingForm">
+
+                <div class="production-form-grid">
+
+                    <div class="production-field">
+                        <label>Packaging Date</label>
+                        <input type="date" id="packagingDate" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Rice Type</label>
+                        <select id="packagingRiceType" required>
+                            <option value="">Select Rice Type</option>
+                        </select>
+                        <small class="production-stock-hint" id="packagingStockHint" aria-live="polite">Loading bulk rice stock…</small>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Packet Size</label>
+                        <select id="packetSize" required>
+                            <option value="">Select Packet Size</option>
+                            <option value="10">10 kg</option>
+                            <option value="25">25 kg</option>
+                            <option value="50">50 kg</option>
+                        </select>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Bulk Rice Used (kg)</label>
+                        <input type="number" id="bulkRiceUsed" min="0.001" step="0.001"
+                           placeholder="Enter bulk rice quantity" required>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Number of Packets (Auto Calculated)</label>
+                        <input type="number" id="packetCount" value="0" readonly>
+                    </div>
+
+                    <div class="production-field">
+                        <label>Responsible Person (Optional)</label>
+                        <input type="text" id="packagingPerson"
+                           placeholder="Enter employee name">
+                    </div>
+
+                    <div class="production-field">
+                        <label>Machine / Batch Reference (Optional)</label>
+                        <input type="text" id="packagingBatch"
+                           placeholder="Enter machine or batch">
+                    </div>
+
+                    <div class="production-field production-full">
+                        <label>Notes (Optional)</label>
+                        <textarea id="packagingNotes"
+                              placeholder="Additional details (optional)"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="production-calculation">
+
+                    <div class="calculation-item">
+                        <small>Packet Size</small>
+                        <strong id="packetSizePreview">0 kg</strong>
+                    </div>
+
+                    <div class="calculation-item">
+                        <small>Total Packaged Weight</small>
+                        <strong id="packagedWeightPreview">0.00 kg</strong>
+                    </div>
+
+                    <div class="calculation-item">
+                        <small>Remaining Rice</small>
+                        <strong id="packagingBalancePreview">0.00 kg</strong>
+                    </div>
+
+                </div>
+
+                <div class="production-actions">
+                    <button type="reset" class="production-btn production-btn-secondary">
+                        Clear
+                    </button>
+
+                    <button type="submit" class="production-btn production-btn-primary">
+                        Save Packaging Record
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- 04. PRODUCTION HISTORY -->
+        <section class="production-panel">
+
+            <h3 class="production-section-title">
+                <span>📋</span>
+                04. Production History
+            </h3>
+
+            <div class="production-form-grid production-history-filters">
+                <div class="production-field">
+                    <label for="historyTypeFilter">Production Type</label>
+                    <select id="historyTypeFilter">
+                        <option value="">All types</option>
+                        <option value="drying">Drying</option>
+                        <option value="milling">Milling</option>
+                        <option value="packaging">Packaging</option>
+                    </select>
+                </div>
+                <div class="production-field">
+                    <label for="historyDateFrom">From</label>
+                    <input type="date" id="historyDateFrom">
+                </div>
+                <div class="production-field">
+                    <label for="historyDateTo">To</label>
+                    <input type="date" id="historyDateTo">
+                </div>
+                <div class="production-field production-filter-action">
+                    <button type="button" class="production-btn production-btn-secondary" id="clearHistoryFilters">Clear filters</button>
+                </div>
+            </div>
+
+            <p class="production-feedback" id="productionPageStatus" role="status" aria-live="polite">Loading production data…</p>
+            <p class="production-feedback" id="productionHistoryStatus" role="status" aria-live="polite"></p>
+
+            <div class="production-table-wrap">
+
+                <table class="production-table">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Production Type</th>
+                            <th>Product / Variety</th>
+                            <th>Input (kg)</th>
+                            <th>Output (kg)</th>
+                            <th>Secondary Output (kg)</th>
+                            <th>Loss / Waste / Remaining (kg)</th>
+                            <th>Operator</th>
+                            <th>Batch</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="productionHistoryBody">
+                        <tr id="productionHistoryEmpty">
+                            <td colspan="9" class="production-empty">
+                                📋 No production records available yet.
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
+                <div id="productionHistoryPagination" class="inventory-pagination" aria-live="polite">
+                </div>
+
+            </div>
+
+            <p class="production-note">
+                History is loaded from saved production records. Drying loss and milling waste are recorded values; packaging remainder stays in bulk stock.
+            </p>
+
+        </section>
+
+        <!-- 05. PRODUCTION SUMMARY -->
+        <section class="production-panel">
+
+            <h3 class="production-section-title">
+                <span>📊</span>
+                05. Production Summary
+            </h3>
+
+            <div class="production-summary">
+
+                <div class="production-stat">
+                    <div class="stat-label">Total Production Records</div>
+                    <div class="stat-value" id="summaryRecords">0</div>
+                    <div class="stat-unit">Records</div>
+                </div>
+
+                <div class="production-stat">
+                    <div class="stat-label">Total Drying Loss</div>
+                    <div class="stat-value" id="summaryDryingLoss">0.00</div>
+                    <div class="stat-unit">Kilograms (kg)</div>
+                </div>
+
+                <div class="production-stat">
+                    <div class="stat-label">Total Milling Waste</div>
+                    <div class="stat-value" id="summaryMillingWaste">0.00</div>
+                    <div class="stat-unit">Kilograms (kg)</div>
+                </div>
+
+                <div class="production-stat">
+                    <div class="stat-label">Total Packaging</div>
+                    <div class="stat-value" id="summaryPackets">0</div>
+                    <div class="stat-unit">Packets</div>
+                </div>
+
+            </div>
+
+            <p class="production-note">
+                Summary values are calculated from all persisted production records.
+            </p>
+
+        </section>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='production.js', v='page-size-5-v1') }}"></script>
+{% endblock %}

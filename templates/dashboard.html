@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Rice Mill Management System{% endblock %}
+
+{% block extra_js %}
+    <script>
+        async function loadDashboardSummary() {
+            const errorPanel = document.getElementById("dashboardLoadError");
+            const errorMessage = document.getElementById("dashboardLoadErrorMessage");
+            const retryButton = document.getElementById("dashboardRetry");
+            const fields = ["wetPaddyStock", "dryPaddyStock", "bulkRiceStock", "packedRiceStock",
+                "todaySales", "todayCollections", "customerOutstanding", "pendingInspection"];
+            const markUnavailable = () => fields.forEach(id => document.getElementById(id).textContent = "Unavailable");
+            retryButton.disabled = true;
+            errorPanel.hidden = true;
+            fields.forEach(id => document.getElementById(id).textContent = "Loading…");
+            const fmtMoney = value => "Rs. " + Number(value || 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const fmtKg = value => Number(value || 0).toLocaleString("en-LK", { maximumFractionDigits: 3 }) + " kg";
+            try {
+                const response = await fetch("/api/dashboard/summary", { credentials: "same-origin" });
+                const data = await response.json();
+                if (!response.ok || !data.success) throw new Error(data.message || "Dashboard data could not be loaded.");
+                const numericFields = ["wetPaddyKg", "dryPaddyKg", "bulkRiceKg", "packedBags", "salesToday",
+                    "collectionsToday", "customerOutstanding", "pendingInspection"];
+                if (numericFields.some(key => typeof data[key] !== "number" || !Number.isFinite(data[key])))
+                    throw new Error("Dashboard data is incomplete.");
+                document.getElementById("wetPaddyStock").textContent = fmtKg(data.wetPaddyKg);
+                document.getElementById("dryPaddyStock").textContent = fmtKg(data.dryPaddyKg);
+                document.getElementById("bulkRiceStock").textContent = fmtKg(data.bulkRiceKg);
+                document.getElementById("packedRiceStock").textContent = Number(data.packedBags || 0).toLocaleString("en-LK") + " Bags";
+                document.getElementById("todaySales").textContent = fmtMoney(data.salesToday);
+                document.getElementById("todayCollections").textContent = fmtMoney(data.collectionsToday);
+                document.getElementById("customerOutstanding").textContent = fmtMoney(data.customerOutstanding);
+                document.getElementById("pendingInspection").textContent = Number(data.pendingInspection || 0) + " Items";
+            } catch (error) {
+                markUnavailable();
+                errorMessage.textContent = "Dashboard data could not be loaded. Check your connection and try again.";
+                errorPanel.hidden = false;
+            } finally {
+                retryButton.disabled = false;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("dashboardRetry").addEventListener("click", loadDashboardSummary);
+            loadDashboardSummary();
+        });
+    </script>
+{% endblock %}
+
+{% block page_subtitle %}
+    Overview of your rice mill operations
+{% endblock %}
+
+{% block content %}
+
+    <div class="dashboard-heading">
+        <h2>Dashboard Overview</h2>
+        <p>Welcome back! Here's what's happening in your rice mill today.</p>
+    </div>
+    <div class="dashboard-load-error" id="dashboardLoadError" role="alert" aria-live="assertive" hidden>
+        <span id="dashboardLoadErrorMessage"></span>
+        <button type="button" id="dashboardRetry">Retry</button>
+    </div>
+
+    <!-- STOCK CARDS -->
+    <div class="dashboard-cards">
+
+        <div class="dashboard-card">
+            <h3>🌾 Wet Paddy Stock</h3>
+            <div class="value" id="wetPaddyStock">Loading…</div>
+            <p>Available wet paddy</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>🌾 Dry Paddy Stock</h3>
+            <div class="value" id="dryPaddyStock">Loading…</div>
+            <p>Available dry paddy</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>🍚 Bulk Rice Stock</h3>
+            <div class="value" id="bulkRiceStock">Loading…</div>
+            <p>Available bulk rice</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>📦 Packed Rice Stock</h3>
+            <div class="value" id="packedRiceStock">Loading…</div>
+            <p>Available packed rice</p>
+        </div>
+
+    </div>
+
+    <!-- BUSINESS SUMMARY -->
+    <div class="dashboard-cards">
+
+        <div class="dashboard-card">
+            <h3>💰 Today's Sales</h3>
+            <div class="value" id="todaySales">Loading…</div>
+            <p>Total sales today</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>💵 Today's Collections</h3>
+            <div class="value" id="todayCollections">Loading…</div>
+            <p>Payments received today</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>👥 Customer Outstanding</h3>
+            <div class="value" id="customerOutstanding">Loading…</div>
+            <p>Total customer balance</p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>🔍 Pending Inspection</h3>
+            <div class="value" id="pendingInspection">Loading…</div>
+            <p>Returned stock awaiting inspection</p>
+        </div>
+
+    </div>
+
+{% endblock %}

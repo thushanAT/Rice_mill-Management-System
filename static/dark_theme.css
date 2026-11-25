@@ -1,0 +1,2068 @@
+/* ==========================================================================
+   AGRICULTURE GREEN DESIGN SYSTEM - UNIFIED DARK MODE STYLESHEET
+
+   Palette (Strict Agriculture Green Specification):
+     Main Background:            #101B13
+     Sidebar:                    #09140C
+     Topbar Gradient Start:      #0A4715
+     Topbar Gradient End:        #176B25
+     Main Cards:                 #17291B
+     Inner Panels:               #203725
+     Section Headings:           #294B30
+     Table Headers:              #294B30
+     Normal Table Rows:          #1A2F20
+     Alternate Table Rows:       #223B28
+     Table Hover:                #2D4932
+     Inputs / Dropdowns:         #263D2C
+     Main Text:                  #F1F7EF
+     Secondary Text:             #B4C9B3
+     Muted Text:                 #8DA58D
+     Borders:                    #38543B
+     Primary Buttons:            #45C936 (Hover: #4DF527)
+     Primary Highlights:         #4DF527
+     Success Surface:            #183D25
+     Warning Surface:            #44391D
+     Danger Surface:             #482323
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Centralized CSS Custom Properties for Dark Mode
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+    color-scheme: dark;
+    --page-bg: #101B13;
+    --sidebar-bg: #09140C;
+    --topbar-start: #0A4715;
+    --topbar-end: #176B25;
+    --card-bg: #17291B;
+    --panel-bg: #203725;
+    --section-header-bg: #294B30;
+    --table-header-bg: #294B30;
+    --table-row-bg: #1A2F20;
+    --table-row-alt-bg: #223B28;
+    --table-hover-bg: #2D4932;
+    --input-bg: #263D2C;
+    --text-primary: #F1F7EF;
+    --text-secondary: #B4C9B3;
+    --text-muted: #8DA58D;
+    --border-color: #38543B;
+    --button-primary-bg: #45C936;
+    --button-primary-hover: #4DF527;
+    --primary-highlight: #4DF527;
+    --success-bg: #183D25;
+    --warning-bg: #44391D;
+    --danger-bg: #482323;
+
+    /* Semantic Compatibility Aliases */
+    --theme-main-bg: var(--page-bg);
+    --theme-sidebar-bg: var(--sidebar-bg);
+    --theme-topbar-gradient: linear-gradient(135deg, var(--topbar-start) 0%, var(--topbar-end) 100%);
+    --theme-card-bg: var(--card-bg);
+    --theme-inner-panel-bg: var(--panel-bg);
+    --theme-surface-secondary: var(--input-bg);
+    --theme-input-bg: var(--input-bg);
+    --theme-table-header-bg: var(--table-header-bg);
+    --theme-table-row-normal: var(--table-row-bg);
+    --theme-table-row-alt: var(--table-row-alt-bg);
+    --theme-table-row-hover: var(--table-hover-bg);
+    --theme-section-heading-bg: var(--section-header-bg);
+    --theme-text-main: var(--text-primary);
+    --theme-text-secondary: var(--text-secondary);
+    --theme-text-muted: var(--text-muted);
+    --theme-border: var(--border-color);
+    --theme-primary: var(--button-primary-bg);
+    --theme-primary-hover: var(--button-primary-hover);
+    --theme-success-bg: var(--success-bg);
+    --theme-warning-bg: var(--warning-bg);
+    --theme-danger-bg: var(--danger-bg);
+}
+
+/* --------------------------------------------------------------------------
+   2. Global Page Backgrounds & Typography (#101B13)
+   -------------------------------------------------------------------------- */
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+[data-theme="dark"] .app-body,
+[data-theme="dark"] .dashboard-body,
+[data-theme="dark"] .purchase-body,
+[data-theme="dark"] .sales-body,
+[data-theme="dark"] .auth-page,
+[data-theme="dark"] main.page,
+[data-theme="dark"] .page,
+[data-theme="dark"] .sales-page,
+[data-theme="dark"] .admin-page,
+[data-theme="dark"] .inventory-page,
+[data-theme="dark"] .production-page,
+[data-theme="dark"] .customer-page,
+[data-theme="dark"] .payment-page,
+[data-theme="dark"] .reports-page,
+[data-theme="dark"] .settings-page,
+[data-theme="dark"] .profile-page,
+[data-theme="dark"] .purchase-page,
+[data-theme="dark"] .dashboard-page {
+    background: #101B13 !important;
+    background-color: #101B13 !important;
+    color: #F1F7EF !important;
+}
+
+/* Headings and Base Text */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6,
+[data-theme="dark"] strong,
+[data-theme="dark"] b,
+[data-theme="dark"] .sales-heading h2,
+[data-theme="dark"] .admin-heading h2,
+[data-theme="dark"] .dashboard-heading h2,
+[data-theme="dark"] .reports-heading h2,
+[data-theme="dark"] .page-heading h2,
+[data-theme="dark"] .customer-heading h2,
+[data-theme="dark"] .inventory-heading h2,
+[data-theme="dark"] .production-heading h2,
+[data-theme="dark"] .settings-heading h2,
+[data-theme="dark"] .profile-heading h2,
+[data-theme="dark"] .value,
+[data-theme="dark"] .item-total {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] label,
+[data-theme="dark"] .sales-heading p,
+[data-theme="dark"] .admin-heading p,
+[data-theme="dark"] .dashboard-heading p,
+[data-theme="dark"] .reports-heading p,
+[data-theme="dark"] .page-heading p,
+[data-theme="dark"] .customer-heading p,
+[data-theme="dark"] .inventory-heading p,
+[data-theme="dark"] .production-heading p,
+[data-theme="dark"] .settings-heading p,
+[data-theme="dark"] .sales-field label,
+[data-theme="dark"] .admin-field label,
+[data-theme="dark"] .admin-field-label,
+[data-theme="dark"] .inventory-form-field label,
+[data-theme="dark"] .customer-field label,
+[data-theme="dark"] .payment-field label,
+[data-theme="dark"] .report-field label,
+[data-theme="dark"] .settings-field label {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] small,
+[data-theme="dark"] .muted,
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .stat-unit,
+[data-theme="dark"] .settings-help,
+[data-theme="dark"] .production-note,
+[data-theme="dark"] .inventory-note,
+[data-theme="dark"] .sales-note,
+[data-theme="dark"] .purchase-note,
+[data-theme="dark"] .production-stock-hint {
+    color: #8DA58D !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. Sidebar (#09140C) & Topbar (#0A4715 -> #176B25)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .sidebar {
+    background: #09140C !important;
+    background-color: #09140C !important;
+    border-right: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .sidebar .brand {
+    border-bottom: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .sidebar .brand h2 {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .sidebar .brand p {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .sidebar nav a {
+    color: #B4C9B3 !important;
+    background: transparent !important;
+}
+
+[data-theme="dark"] .sidebar nav a:hover {
+    background: #203725 !important;
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .sidebar nav a.active {
+    background: #45C936 !important;
+    background-color: #45C936 !important;
+    color: #09140C !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="dark"] .sidebar nav a.active .nav-icon {
+    filter: brightness(0.15) !important;
+}
+
+[data-theme="dark"] .sidebar-footer {
+    border-top: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .sidebar-logout-btn {
+    background: #203725 !important;
+    border: 1px solid #38543B !important;
+    color: #45C936 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .sidebar-logout-btn:hover {
+    background: #263D2C !important;
+    border-color: #45C936 !important;
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .sidebar-logout-btn:active {
+    background: #17291B !important;
+}
+
+[data-theme="dark"] .sidebar-logout-btn:focus-visible {
+    outline: 2px solid #45C936 !important;
+}
+
+/* Topbar Natural Agriculture Gradient */
+[data-theme="dark"] .topbar {
+    background: linear-gradient(135deg, #0A4715 0%, #176B25 100%) !important;
+    border-bottom: 1px solid #38543B !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="dark"] .topbar h1 {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .topbar p {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .topbar .profile-wrap .profile-pill {
+    background: rgba(9, 20, 12, 0.45) !important;
+    border: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .topbar .profile-wrap .profile-pill:hover {
+    background: rgba(9, 20, 12, 0.75) !important;
+    border-color: #45C936 !important;
+}
+
+[data-theme="dark"] .topbar .profile-wrap .avatar-badge {
+    background: #45C936 !important;
+    color: #09140C !important;
+}
+
+[data-theme="dark"] .theme-toggle-btn {
+    background: #263D2C !important;
+    border: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+    background: #203725 !important;
+    border-color: #45C936 !important;
+    color: #45C936 !important;
+}
+
+[data-theme="dark"] .auth-theme-toggle-wrap .theme-toggle-btn {
+    background: #263D2C !important;
+    border: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .auth-theme-toggle-wrap .theme-toggle-btn:hover {
+    background: #203725 !important;
+    border-color: #45C936 !important;
+    color: #45C936 !important;
+}
+
+/* Profile Menu Dropdown */
+[data-theme="dark"] .profile-menu {
+    background: #17291B !important;
+    border: 1px solid #38543B !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .profile-menu-header {
+    background: #203725 !important;
+    border-bottom: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .profile-large-avatar {
+    background: #45C936 !important;
+    color: #09140C !important;
+}
+
+[data-theme="dark"] .profile-menu-header h3 {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-menu-header p {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .profile-details {
+    border-bottom: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .profile-details span {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .profile-details strong {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-menu-item {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-menu-item:hover {
+    background: #263D2C !important;
+    color: #45C936 !important;
+}
+
+[data-theme="dark"] .profile-menu-item.logout-item:hover {
+    background: #482323 !important;
+    color: #F87171 !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Main Cards & Top-Level Surfaces (#17291B)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .card,
+[data-theme="dark"] .dashboard-card,
+[data-theme="dark"] .sales-card,
+[data-theme="dark"] .sales-summary-card,
+[data-theme="dark"] .sales-history,
+[data-theme="dark"] .admin-card,
+[data-theme="dark"] .admin-panel,
+[data-theme="dark"] .admin-user-form-card,
+[data-theme="dark"] .admin-user-list-card,
+[data-theme="dark"] .admin-config-content,
+[data-theme="dark"] .inventory-panel,
+[data-theme="dark"] .inventory-overview,
+[data-theme="dark"] .stock-card,
+[data-theme="dark"] .production-panel,
+[data-theme="dark"] .production-summary,
+[data-theme="dark"] .customer-panel,
+[data-theme="dark"] .customer-details,
+[data-theme="dark"] .payment-panel,
+[data-theme="dark"] .payment-section,
+[data-theme="dark"] .report-section,
+[data-theme="dark"] .settings-panel,
+[data-theme="dark"] .settings-content,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .profile-container,
+[data-theme="dark"] .profile-main-card,
+[data-theme="dark"] .purchase-container,
+[data-theme="dark"] .purchase-history,
+[data-theme="dark"] .purchase-card,
+[data-theme="dark"] .auth-shell .form-card,
+[data-theme="dark"] .auth-shell .register-card,
+[data-theme="dark"] .held-bills-panel,
+[data-theme="dark"] .held-preview-box,
+[data-theme="dark"] .return-modal-box,
+[data-theme="dark"] .admin-modal,
+[data-theme="dark"] .admin-password-modal,
+[data-theme="dark"] .payment-detail-box,
+[data-theme="dark"] .purchase-detail-box,
+[data-theme="dark"] .sales-detail-box,
+[data-theme="dark"] .logout-modal-card {
+    background: #17291B !important;
+    background-color: #17291B !important;
+    border: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Inner Panels & Secondary Containers (#203725)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .admin-config-menu,
+[data-theme="dark"] .settings-menu,
+[data-theme="dark"] .admin-add-form,
+[data-theme="dark"] .admin-permission-list,
+[data-theme="dark"] .admin-permission-section,
+[data-theme="dark"] .admin-summary-card,
+[data-theme="dark"] .inventory-form-panel,
+[data-theme="dark"] .customer-stat,
+[data-theme="dark"] .customer-detail-card,
+[data-theme="dark"] .customer-info-box,
+[data-theme="dark"] .customer-info-item,
+[data-theme="dark"] .production-calculation,
+[data-theme="dark"] .report-summary-card,
+[data-theme="dark"] .report-total-box,
+[data-theme="dark"] .sales-credit-panel,
+[data-theme="dark"] .sales-history-summary span,
+[data-theme="dark"] .customer-history-summary span,
+[data-theme="dark"] .held-bill-card,
+[data-theme="dark"] .return-exchange-banner,
+[data-theme="dark"] .return-settlement-modal-box,
+[data-theme="dark"] .return-detail-item,
+[data-theme="dark"] .return-refund-summary,
+[data-theme="dark"] .return-settlement-card,
+[data-theme="dark"] .return-notification-history,
+[data-theme="dark"] .return-notification-reason,
+[data-theme="dark"] .sales-return-settlement,
+[data-theme="dark"] .total-box,
+[data-theme="dark"] .receipt-area,
+[data-theme="dark"] .keyboard-hint,
+[data-theme="dark"] .sales-keyboard-help,
+[data-theme="dark"] .purchase-shortcuts,
+[data-theme="dark"] .legacy-price-note,
+[data-theme="dark"] .profile-banner,
+[data-theme="dark"] .outstanding-total,
+[data-theme="dark"] .sales-grand-total {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    border: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+}
+
+/* --------------------------------------------------------------------------
+   5b. Navigation Tabs: Administration, Payments, Customer (.admin-tabs, etc.)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .admin-tabs,
+[data-theme="dark"] .payment-tabs,
+[data-theme="dark"] .customer-detail-tabs {
+    border-bottom: 2px solid #38543B !important;
+}
+
+[data-theme="dark"] .admin-tab,
+[data-theme="dark"] .payment-tab {
+    background: transparent !important;
+    color: #B4C9B3 !important;
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .admin-tab:hover,
+[data-theme="dark"] .payment-tab:hover {
+    color: #F1F7EF !important;
+    border-bottom-color: rgba(69, 201, 54, 0.4) !important;
+}
+
+[data-theme="dark"] .admin-tab.active,
+[data-theme="dark"] .payment-tab.active {
+    color: #4DF527 !important;
+    border-bottom: 3px solid #45C936 !important;
+    border-bottom-color: #45C936 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 12px rgba(77, 245, 39, 0.25) !important;
+}
+
+[data-theme="dark"] .customer-tab {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #B4C9B3 !important;
+    border: 1px solid #38543B !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .customer-tab:hover {
+    background: #263D2C !important;
+    color: #F1F7EF !important;
+    border-color: #45C936 !important;
+}
+
+[data-theme="dark"] .customer-tab.active {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    color: #4DF527 !important;
+    border: 1px solid #2D6A42 !important;
+    font-weight: 700 !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. Section Headings & Table Headers (#294B30)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .sales-section-heading,
+[data-theme="dark"] .sales-items-heading,
+[data-theme="dark"] .sales-history h2,
+[data-theme="dark"] .admin-section-heading,
+[data-theme="dark"] .admin-config-title,
+[data-theme="dark"] .admin-form-heading,
+[data-theme="dark"] .admin-list-heading,
+[data-theme="dark"] .permission-admin-heading,
+[data-theme="dark"] .permission-header,
+[data-theme="dark"] .admin-permission-heading,
+[data-theme="dark"] .inventory-section-heading,
+[data-theme="dark"] .production-section-title,
+[data-theme="dark"] .customer-section-title,
+[data-theme="dark"] .customer-subheading,
+[data-theme="dark"] .customer-detail-top,
+[data-theme="dark"] .payment-section-title,
+[data-theme="dark"] .allocation-heading,
+[data-theme="dark"] .report-section-title,
+[data-theme="dark"] .report-preview-header,
+[data-theme="dark"] .settings-panel-heading,
+[data-theme="dark"] .held-panel-header,
+[data-theme="dark"] .held-preview-header,
+[data-theme="dark"] .return-modal-header,
+[data-theme="dark"] .return-settlement-modal-header,
+[data-theme="dark"] .payment-detail-head,
+[data-theme="dark"] #purchaseForm h3 {
+    background: #294B30 !important;
+    background-color: #294B30 !important;
+    border-bottom: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+    border-left: 4px solid #45C936 !important;
+}
+
+[data-theme="dark"] #purchaseForm h3 {
+    border-left: 5px solid #45C936 !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. Tables: Header (#294B30), Normal Row (#1A2F20), Alt (#223B28), Hover (#2D4932)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] table,
+[data-theme="dark"] .sales-table,
+[data-theme="dark"] .sales-history-table,
+[data-theme="dark"] .sales-detail-table,
+[data-theme="dark"] .inventory-table,
+[data-theme="dark"] .production-table,
+[data-theme="dark"] .customer-table,
+[data-theme="dark"] .customer-history-table,
+[data-theme="dark"] .payment-table,
+[data-theme="dark"] .report-table,
+[data-theme="dark"] .admin-table,
+[data-theme="dark"] .purchase-history-table,
+[data-theme="dark"] .held-preview-table,
+[data-theme="dark"] .return-table {
+    border-color: #38543B !important;
+    background: #1A2F20 !important;
+    color: #F1F7EF !important;
+}
+
+/* Headers */
+[data-theme="dark"] th,
+[data-theme="dark"] thead th,
+[data-theme="dark"] .sales-table th,
+[data-theme="dark"] .sales-history-table th,
+[data-theme="dark"] .sales-detail-table th,
+[data-theme="dark"] .inventory-table th,
+[data-theme="dark"] .production-table th,
+[data-theme="dark"] .customer-table th,
+[data-theme="dark"] .customer-history-table th,
+[data-theme="dark"] .payment-table th,
+[data-theme="dark"] .report-table th,
+[data-theme="dark"] .admin-table th,
+[data-theme="dark"] .purchase-history-table th,
+[data-theme="dark"] .held-preview-table th,
+[data-theme="dark"] .return-table th {
+    background: #294B30 !important;
+    background-color: #294B30 !important;
+    color: #F1F7EF !important;
+    border-color: #38543B !important;
+    border-bottom: 2px solid #38543B !important;
+}
+
+/* Normal Rows */
+[data-theme="dark"] tbody tr,
+[data-theme="dark"] .sales-table tbody tr,
+[data-theme="dark"] .sales-history-table tbody tr,
+[data-theme="dark"] .inventory-table tbody tr,
+[data-theme="dark"] .production-table tbody tr,
+[data-theme="dark"] .customer-table tbody tr,
+[data-theme="dark"] .customer-history-table tbody tr,
+[data-theme="dark"] .payment-table tbody tr,
+[data-theme="dark"] .report-table tbody tr,
+[data-theme="dark"] .admin-table tbody tr,
+[data-theme="dark"] .purchase-history-table tbody tr {
+    background: #1A2F20 !important;
+    background-color: #1A2F20 !important;
+    color: #F1F7EF !important;
+}
+
+/* Alternate Rows */
+[data-theme="dark"] tbody tr:nth-child(even),
+[data-theme="dark"] .sales-table tbody tr:nth-child(even),
+[data-theme="dark"] .sales-history-table tbody tr:nth-child(even),
+[data-theme="dark"] .inventory-table tbody tr:nth-child(even),
+[data-theme="dark"] .production-table tbody tr:nth-child(even),
+[data-theme="dark"] .customer-table tbody tr:nth-child(even),
+[data-theme="dark"] .payment-table tbody tr:nth-child(even),
+[data-theme="dark"] .report-table tbody tr:nth-child(even),
+[data-theme="dark"] .admin-table tbody tr:nth-child(even),
+[data-theme="dark"] .purchase-history-table tbody tr:nth-child(even),
+[data-theme="dark"] .held-preview-table tbody tr:nth-child(even),
+[data-theme="dark"] .return-table tbody tr:nth-child(even) {
+    background: #223B28 !important;
+    background-color: #223B28 !important;
+}
+
+/* Row Hover */
+[data-theme="dark"] tr:hover,
+[data-theme="dark"] tr:hover td,
+[data-theme="dark"] tr:hover th,
+[data-theme="dark"] tbody tr:hover,
+[data-theme="dark"] tbody tr:hover td,
+[data-theme="dark"] tbody tr:hover th,
+[data-theme="dark"] .sales-page tr:hover td,
+[data-theme="dark"] .sales-table tr:hover td,
+[data-theme="dark"] .sales-table tbody tr:hover,
+[data-theme="dark"] .sales-table tbody tr:hover td,
+[data-theme="dark"] .sales-history-table tr:hover td,
+[data-theme="dark"] .sales-history-table tbody tr:hover,
+[data-theme="dark"] .sales-history-table tbody tr:hover td,
+[data-theme="dark"] .sales-history-return-row:hover,
+[data-theme="dark"] .sales-history-return-row:hover td,
+[data-theme="dark"] .sales-detail-table tr:hover td,
+[data-theme="dark"] .sales-detail-table tbody tr:hover,
+[data-theme="dark"] .sales-detail-table tbody tr:hover td,
+[data-theme="dark"] .inventory-table tr:hover td,
+[data-theme="dark"] .inventory-table tbody tr:hover,
+[data-theme="dark"] .inventory-table tbody tr:hover td,
+[data-theme="dark"] .production-table tr:hover td,
+[data-theme="dark"] .production-table tbody tr:hover,
+[data-theme="dark"] .production-table tbody tr:hover td,
+[data-theme="dark"] .customer-table tr:hover td,
+[data-theme="dark"] .customer-table tbody tr:hover,
+[data-theme="dark"] .customer-table tbody tr:hover td,
+[data-theme="dark"] .customer-history-table tr:hover td,
+[data-theme="dark"] .customer-history-table tbody tr:hover,
+[data-theme="dark"] .customer-history-table tbody tr:hover td,
+[data-theme="dark"] .payment-table tr:hover td,
+[data-theme="dark"] .payment-table tbody tr:hover,
+[data-theme="dark"] .payment-table tbody tr:hover td,
+[data-theme="dark"] .report-table tr:hover td,
+[data-theme="dark"] .report-table tbody tr:hover,
+[data-theme="dark"] .report-table tbody tr:hover td,
+[data-theme="dark"] .admin-table tr:hover td,
+[data-theme="dark"] .admin-table tbody tr:hover,
+[data-theme="dark"] .admin-table tbody tr:hover td,
+[data-theme="dark"] .purchase-history-table tr:hover td,
+[data-theme="dark"] .purchase-history-table tbody tr:hover,
+[data-theme="dark"] .purchase-history-table tbody tr:hover td,
+[data-theme="dark"] .held-preview-table tr:hover td,
+[data-theme="dark"] .held-preview-table tbody tr:hover,
+[data-theme="dark"] .held-preview-table tbody tr:hover td,
+[data-theme="dark"] .return-table tr:hover td,
+[data-theme="dark"] .return-table tbody tr:hover,
+[data-theme="dark"] .return-table tbody tr:hover td {
+    background: #2D4932 !important;
+    background-color: #2D4932 !important;
+    color: #F1F7EF !important;
+}
+
+/* Ensure text inside hovered row is high-contrast and clear */
+[data-theme="dark"] tbody tr:hover td,
+[data-theme="dark"] tbody tr:hover td *,
+[data-theme="dark"] .sales-history-table tbody tr:hover td,
+[data-theme="dark"] .sales-history-table tbody tr:hover td *,
+[data-theme="dark"] .sales-history-table tbody tr:hover .sales-history-reference-detail,
+[data-theme="dark"] .sales-history-table tbody tr:hover .sales-history-amount-detail {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] tbody tr:hover .number,
+[data-theme="dark"] .sales-history-table tbody tr:hover .number {
+    color: #4DF527 !important;
+}
+
+/* Sales History Tags & Action Buttons in Dark Mode */
+[data-theme="dark"] .sales-history-return-tag {
+    background: #44391D !important;
+    background-color: #44391D !important;
+    color: #FBBF24 !important;
+    border: 1px solid #7A6229 !important;
+}
+
+[data-theme="dark"] .sales-history-sale-tag {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    color: #4DF527 !important;
+    border: 1px solid #2D6A42 !important;
+}
+
+[data-theme="dark"] .sales-history-return-row {
+    background: #1C3322 !important;
+    background-color: #1C3322 !important;
+}
+
+[data-theme="dark"] .sales-history-return-row:nth-child(even) {
+    background: #233D29 !important;
+    background-color: #233D29 !important;
+}
+
+/* Table Action Buttons (Paddy Purchase, Sales History, Customer, Payments, Administration, Inventory) */
+[data-theme="dark"] .purchase-row-actions button,
+[data-theme="dark"] .purchase-row-actions a,
+[data-theme="dark"] .sales-history-action,
+[data-theme="dark"] .customer-btn-small,
+[data-theme="dark"] .customer-row-actions button,
+[data-theme="dark"] .payment-btn-small,
+[data-theme="dark"] .admin-action-btn,
+[data-theme="dark"] .inventory-action-btn {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #B4C9B3 !important;
+    border: 1px solid #38543B !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Ensure that when row is hovered, action buttons maintain their dark surface and crisp text */
+[data-theme="dark"] tbody tr:hover .purchase-row-actions button,
+[data-theme="dark"] tbody tr:hover .purchase-row-actions a,
+[data-theme="dark"] tbody tr:hover .sales-history-action,
+[data-theme="dark"] tbody tr:hover .customer-btn-small,
+[data-theme="dark"] tbody tr:hover .customer-row-actions button,
+[data-theme="dark"] tbody tr:hover .payment-btn-small,
+[data-theme="dark"] tbody tr:hover .admin-action-btn,
+[data-theme="dark"] tbody tr:hover .inventory-action-btn {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #F1F7EF !important;
+    border: 1px solid #38543B !important;
+}
+
+/* Action Button Direct Hover */
+[data-theme="dark"] .purchase-row-actions button:hover,
+[data-theme="dark"] tbody tr:hover .purchase-row-actions button:hover,
+[data-theme="dark"] .sales-history-action:hover,
+[data-theme="dark"] tbody tr:hover .sales-history-action:hover,
+[data-theme="dark"] .customer-btn-small:hover,
+[data-theme="dark"] tbody tr:hover .customer-btn-small:hover,
+[data-theme="dark"] .customer-row-actions button:hover,
+[data-theme="dark"] tbody tr:hover .customer-row-actions button:hover,
+[data-theme="dark"] .payment-btn-small:hover,
+[data-theme="dark"] tbody tr:hover .payment-btn-small:hover,
+[data-theme="dark"] .admin-action-btn:hover,
+[data-theme="dark"] tbody tr:hover .admin-action-btn:hover,
+[data-theme="dark"] .inventory-action-btn:hover,
+[data-theme="dark"] tbody tr:hover .inventory-action-btn:hover {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #4DF527 !important;
+    border-color: #45C936 !important;
+}
+
+/* Reprint Bill / Action Accent (Paddy Purchase & Sales History) */
+[data-theme="dark"] .purchase-row-actions a,
+[data-theme="dark"] .sales-history-action.reprint {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    color: #45C936 !important;
+    border: 1px solid #2D6A42 !important;
+}
+
+[data-theme="dark"] tbody tr:hover .purchase-row-actions a,
+[data-theme="dark"] tbody tr:hover .sales-history-action.reprint {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    color: #4DF527 !important;
+    border-color: #2D6A42 !important;
+}
+
+[data-theme="dark"] .purchase-row-actions a:hover,
+[data-theme="dark"] tbody tr:hover .purchase-row-actions a:hover,
+[data-theme="dark"] .sales-history-action.reprint:hover,
+[data-theme="dark"] tbody tr:hover .sales-history-action.reprint:hover {
+    background: #204C2E !important;
+    background-color: #204C2E !important;
+    color: #4DF527 !important;
+    border-color: #4DF527 !important;
+}
+
+/* Sales Table Action Column & Trash / Remove Button */
+[data-theme="dark"] .sales-table th:nth-child(7),
+[data-theme="dark"] .sales-table td:nth-child(7) {
+    text-align: center !important;
+}
+
+[data-theme="dark"] .remove-item-btn {
+    background: #482323 !important;
+    background-color: #482323 !important;
+    color: #F87171 !important;
+    border: 1px solid #7E3535 !important;
+    border-radius: 7px !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    margin: 0 auto !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .remove-item-btn svg {
+    stroke: #F87171 !important;
+    color: #F87171 !important;
+}
+
+[data-theme="dark"] tbody tr:hover .remove-item-btn,
+[data-theme="dark"] .sales-table tbody tr:hover .remove-item-btn {
+    background: #482323 !important;
+    background-color: #482323 !important;
+    color: #F87171 !important;
+    border: 1px solid #7E3535 !important;
+}
+
+[data-theme="dark"] tbody tr:hover .remove-item-btn svg,
+[data-theme="dark"] .sales-table tbody tr:hover .remove-item-btn svg {
+    stroke: #F87171 !important;
+    color: #F87171 !important;
+}
+
+[data-theme="dark"] .remove-item-btn:hover,
+[data-theme="dark"] tbody tr:hover .remove-item-btn:hover,
+[data-theme="dark"] .sales-table tbody tr:hover .remove-item-btn:hover {
+    background: #5C2B2B !important;
+    background-color: #5C2B2B !important;
+    color: #FFA4A4 !important;
+    border-color: #F87171 !important;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.4) !important;
+    transform: scale(1.08) !important;
+}
+
+[data-theme="dark"] .remove-item-btn:hover svg,
+[data-theme="dark"] tbody tr:hover .remove-item-btn:hover svg,
+[data-theme="dark"] .sales-table tbody tr:hover .remove-item-btn:hover svg {
+    stroke: #FFA4A4 !important;
+    color: #FFA4A4 !important;
+}
+
+/* Delete / Danger Action Buttons */
+[data-theme="dark"] .admin-action-btn.danger {
+    color: #F87171 !important;
+    border-color: #6E2828 !important;
+}
+
+[data-theme="dark"] .admin-action-btn.danger:hover,
+[data-theme="dark"] tbody tr:hover .admin-action-btn.danger:hover {
+    background: #482323 !important;
+    background-color: #482323 !important;
+    color: #F87171 !important;
+    border-color: #F87171 !important;
+}
+
+/* Table Cells */
+[data-theme="dark"] td,
+[data-theme="dark"] .sales-table td,
+[data-theme="dark"] .inventory-table td,
+[data-theme="dark"] .production-table td,
+[data-theme="dark"] .customer-table td,
+[data-theme="dark"] .payment-table td,
+[data-theme="dark"] .report-table td,
+[data-theme="dark"] .admin-table td,
+[data-theme="dark"] .purchase-history-table td {
+    color: #F1F7EF !important;
+    border-color: #38543B !important;
+}
+
+/* Empty Table States */
+[data-theme="dark"] .empty-row,
+[data-theme="dark"] .production-empty,
+[data-theme="dark"] .inventory-empty,
+[data-theme="dark"] .payment-empty,
+[data-theme="dark"] .sales-empty,
+[data-theme="dark"] td[colspan] {
+    background: #1A2F20 !important;
+    color: #8DA58D !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. Form Controls: Inputs, Selects, Dropdowns (#263D2C) & Checkboxes
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .sales-field input,
+[data-theme="dark"] .sales-field select,
+[data-theme="dark"] .sales-table input,
+[data-theme="dark"] .sales-table select,
+[data-theme="dark"] .admin-field input,
+[data-theme="dark"] .admin-field select,
+[data-theme="dark"] .admin-field textarea,
+[data-theme="dark"] .inventory-form-field input,
+[data-theme="dark"] .inventory-form-field select,
+[data-theme="dark"] .inventory-search input,
+[data-theme="dark"] .production-field input,
+[data-theme="dark"] .production-field select,
+[data-theme="dark"] .production-field textarea,
+[data-theme="dark"] .customer-field input,
+[data-theme="dark"] .customer-field select,
+[data-theme="dark"] .customer-field textarea,
+[data-theme="dark"] .payment-field input,
+[data-theme="dark"] .payment-field select,
+[data-theme="dark"] .payment-field textarea,
+[data-theme="dark"] .report-field input,
+[data-theme="dark"] .report-field select,
+[data-theme="dark"] .settings-field input,
+[data-theme="dark"] .settings-field select,
+[data-theme="dark"] .settings-field textarea,
+[data-theme="dark"] .auth-shell input,
+[data-theme="dark"] .search-field input,
+[data-theme="dark"] .default-price-input,
+[data-theme="dark"] #purchaseForm input,
+[data-theme="dark"] #purchaseForm select,
+[data-theme="dark"] .sales-history-filters input,
+[data-theme="dark"] .sales-history-filters select,
+[data-theme="dark"] .purchase-history-filters input,
+[data-theme="dark"] .production-history-filters input,
+[data-theme="dark"] .production-history-filters select {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #F1F7EF !important;
+    border: 1px solid #38543B !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] input:active,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] .auth-shell input:focus,
+[data-theme="dark"] .auth-shell input:active,
+[data-theme="dark"] .auth-shell .field input:focus,
+[data-theme="dark"] .auth-shell .field input:active,
+[data-theme="dark"] .password-input-wrap input:focus,
+[data-theme="dark"] .password-input-wrap input:active,
+[data-theme="dark"] .sales-field input:focus,
+[data-theme="dark"] .sales-table input:focus,
+[data-theme="dark"] .admin-field input:focus,
+[data-theme="dark"] .inventory-form-field input:focus,
+[data-theme="dark"] .customer-field input:focus,
+[data-theme="dark"] .payment-field input:focus,
+[data-theme="dark"] .settings-field input:focus,
+[data-theme="dark"] #purchaseForm input:focus,
+[data-theme="dark"] #purchaseForm select:focus {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #F1F7EF !important;
+    caret-color: #45C936 !important;
+    border-color: #45C936 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(69, 201, 54, 0.25) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder,
+[data-theme="dark"] select::placeholder,
+[data-theme="dark"] .auth-shell input::placeholder,
+[data-theme="dark"] .auth-shell .field input::placeholder {
+    color: #8DA58D !important;
+    opacity: 1 !important;
+}
+
+/* --------------------------------------------------------------------------
+   8a. Browser Autofill Protection (Chrome/WebKit/Safari/Firefox/Edge)
+   Prevents browser autofill or typing suggestions from turning the inputs
+   white or light blue, enforcing Agriculture Green dark mode at all times.
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] input:-webkit-autofill:active,
+[data-theme="dark"] input:autofill,
+[data-theme="dark"] input:autofill:hover,
+[data-theme="dark"] input:autofill:focus,
+[data-theme="dark"] input:autofill:active,
+[data-theme="dark"] .auth-shell input:-webkit-autofill,
+[data-theme="dark"] .auth-shell input:-webkit-autofill:hover,
+[data-theme="dark"] .auth-shell input:-webkit-autofill:focus,
+[data-theme="dark"] .auth-shell input:-webkit-autofill:active,
+[data-theme="dark"] .auth-shell input:autofill,
+[data-theme="dark"] .auth-shell input:autofill:hover,
+[data-theme="dark"] .auth-shell input:autofill:focus,
+[data-theme="dark"] .auth-shell input:autofill:active,
+[data-theme="dark"] .auth-shell .field input:-webkit-autofill,
+[data-theme="dark"] .auth-shell .field input:-webkit-autofill:hover,
+[data-theme="dark"] .auth-shell .field input:-webkit-autofill:focus,
+[data-theme="dark"] .auth-shell .field input:-webkit-autofill:active,
+[data-theme="dark"] .auth-shell .field input:autofill,
+[data-theme="dark"] .auth-shell .field input:autofill:hover,
+[data-theme="dark"] .auth-shell .field input:autofill:focus,
+[data-theme="dark"] .auth-shell .field input:autofill:active,
+[data-theme="dark"] .password-input-wrap input:-webkit-autofill,
+[data-theme="dark"] .password-input-wrap input:-webkit-autofill:hover,
+[data-theme="dark"] .password-input-wrap input:-webkit-autofill:focus,
+[data-theme="dark"] .password-input-wrap input:-webkit-autofill:active,
+[data-theme="dark"] .password-input-wrap input:autofill,
+[data-theme="dark"] .password-input-wrap input:autofill:hover,
+[data-theme="dark"] .password-input-wrap input:autofill:focus,
+[data-theme="dark"] .password-input-wrap input:autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px #263D2C inset !important;
+    box-shadow: 0 0 0 1000px #263D2C inset !important;
+    -webkit-text-fill-color: #F1F7EF !important;
+    caret-color: #45C936 !important;
+    color: #F1F7EF !important;
+    border-color: #38543B !important;
+    transition: background-color 50000s ease-in-out 0s, color 50000s ease-in-out 0s !important;
+}
+
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] input:autofill:focus,
+[data-theme="dark"] .auth-shell input:-webkit-autofill:focus,
+[data-theme="dark"] .auth-shell input:autofill:focus,
+[data-theme="dark"] .auth-shell .field input:-webkit-autofill:focus,
+[data-theme="dark"] .auth-shell .field input:autofill:focus,
+[data-theme="dark"] .password-input-wrap input:-webkit-autofill:focus,
+[data-theme="dark"] .password-input-wrap input:autofill:focus {
+    border-color: #45C936 !important;
+    outline: none !important;
+    -webkit-box-shadow: 0 0 0 1000px #263D2C inset, 0 0 0 2px rgba(69, 201, 54, 0.25) !important;
+    box-shadow: 0 0 0 1000px #263D2C inset, 0 0 0 2px rgba(69, 201, 54, 0.25) !important;
+}
+
+/* --------------------------------------------------------------------------
+   8b. Invalid Input State in Dark Mode (prevents turning white #FFFDFD)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] input.is-invalid,
+[data-theme="dark"] select.is-invalid,
+[data-theme="dark"] textarea.is-invalid,
+[data-theme="dark"] .field input.is-invalid,
+[data-theme="dark"] .admin-field input.is-invalid,
+[data-theme="dark"] .settings-field input.is-invalid,
+[data-theme="dark"] .customer-field input.is-invalid,
+[data-theme="dark"] .auth-shell input.is-invalid,
+[data-theme="dark"] .auth-shell .field input.is-invalid,
+[data-theme="dark"] .password-input-wrap input.is-invalid {
+    border-color: #DC2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25) !important;
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #F1F7EF !important;
+    caret-color: #F1F7EF !important;
+}
+
+/* Readonly and Disabled Inputs */
+[data-theme="dark"] input[readonly],
+[data-theme="dark"] select:disabled,
+[data-theme="dark"] textarea[readonly],
+[data-theme="dark"] input:disabled,
+[data-theme="dark"] .sales-field input[readonly],
+[data-theme="dark"] .customer-field input[readonly],
+[data-theme="dark"] .payment-field input[readonly],
+[data-theme="dark"] .settings-field input[readonly],
+[data-theme="dark"] .settings-field input:disabled {
+    background: #1A2F20 !important;
+    background-color: #1A2F20 !important;
+    color: #8DA58D !important;
+    border-color: #38543B !important;
+    cursor: not-allowed !important;
+}
+
+/* Rice Varieties & Category Checkboxes */
+[data-theme="dark"] .admin-category-choice {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    border: 1px solid #38543B !important;
+    color: #F1F7EF !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .admin-category-choice:hover {
+    background: #2D4932 !important;
+    background-color: #2D4932 !important;
+    border-color: #45C936 !important;
+}
+
+[data-theme="dark"] .admin-category-choice span {
+    color: #F1F7EF !important;
+    font-weight: 500 !important;
+}
+
+[data-theme="dark"] input[type="radio"],
+[data-theme="dark"] input[type="checkbox"],
+[data-theme="dark"] .admin-category-choice input[type="checkbox"] {
+    accent-color: #45C936 !important;
+    cursor: pointer !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. Primary Buttons (#45C936 -> Hover #4DF527) & Secondary Buttons (#203725)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .primary-btn,
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .sales-confirm-btn,
+[data-theme="dark"] .sales-add-btn,
+[data-theme="dark"] .admin-primary-btn,
+[data-theme="dark"] .inventory-submit,
+[data-theme="dark"] .production-btn-primary,
+[data-theme="dark"] .customer-btn-primary,
+[data-theme="dark"] .payment-btn-primary,
+[data-theme="dark"] .report-btn-primary,
+[data-theme="dark"] .settings-save-btn,
+[data-theme="dark"] .auth-shell .btn,
+[data-theme="dark"] .sales-history-filters button,
+[data-theme="dark"] .purchase-actions .primary-btn,
+[data-theme="dark"] .return-confirm-btn {
+    background: #45C936 !important;
+    background-color: #45C936 !important;
+    color: #09140C !important;
+    border: 1px solid #4DF527 !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .primary-btn:hover,
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .sales-confirm-btn:hover,
+[data-theme="dark"] .sales-add-btn:hover,
+[data-theme="dark"] .admin-primary-btn:hover,
+[data-theme="dark"] .inventory-submit:hover,
+[data-theme="dark"] .production-btn-primary:hover,
+[data-theme="dark"] .customer-btn-primary:hover,
+[data-theme="dark"] .payment-btn-primary:hover,
+[data-theme="dark"] .report-btn-primary:hover,
+[data-theme="dark"] .settings-save-btn:hover,
+[data-theme="dark"] .auth-shell .btn:hover,
+[data-theme="dark"] .sales-history-filters button:hover,
+[data-theme="dark"] .purchase-actions .primary-btn:hover,
+[data-theme="dark"] .return-confirm-btn:hover {
+    background: #4DF527 !important;
+    background-color: #4DF527 !important;
+    color: #09140C !important;
+    border-color: #4DF527 !important;
+    box-shadow: 0 4px 12px rgba(69, 201, 54, 0.35) !important;
+}
+
+/* Secondary Buttons */
+[data-theme="dark"] .secondary-btn,
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .production-btn-secondary,
+[data-theme="dark"] .customer-btn-secondary,
+[data-theme="dark"] .admin-btn-secondary,
+[data-theme="dark"] .admin-action-btn,
+[data-theme="dark"] .held-bills-button,
+[data-theme="dark"] .return-bill-button,
+[data-theme="dark"] .sales-keyboard-btn,
+[data-theme="dark"] .logout-btn-cancel,
+[data-theme="dark"] .purchase-actions .secondary-btn,
+[data-theme="dark"] .purchase-detail-close,
+[data-theme="dark"] .sales-detail-close,
+[data-theme="dark"] .payment-detail-close,
+[data-theme="dark"] .held-panel-close,
+[data-theme="dark"] .return-modal-close,
+[data-theme="dark"] .admin-close-btn {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #F1F7EF !important;
+    border: 1px solid #38543B !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .secondary-btn:hover,
+[data-theme="dark"] .btn-secondary:hover,
+[data-theme="dark"] .production-btn-secondary:hover,
+[data-theme="dark"] .customer-btn-secondary:hover,
+[data-theme="dark"] .admin-btn-secondary:hover,
+[data-theme="dark"] .admin-action-btn:hover,
+[data-theme="dark"] .held-bills-button:hover,
+[data-theme="dark"] .return-bill-button:hover,
+[data-theme="dark"] .logout-btn-cancel:hover {
+    background: #263D2C !important;
+    border-color: #45C936 !important;
+    color: #4DF527 !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. Primary Highlights & KPIs (#4DF527)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .production-stat .stat-value,
+[data-theme="dark"] #totalWetProcessed,
+[data-theme="dark"] #totalDryProduced,
+[data-theme="dark"] #totalRiceProduced,
+[data-theme="dark"] #totalPackedProduced,
+[data-theme="dark"] #summaryRecords,
+[data-theme="dark"] #summaryDryingLoss,
+[data-theme="dark"] #summaryMillingWaste,
+[data-theme="dark"] #summaryPackets,
+[data-theme="dark"] .stat-number,
+[data-theme="dark"] .stat-num,
+[data-theme="dark"] .sales-grand-total strong,
+[data-theme="dark"] #grandTotal,
+[data-theme="dark"] .outstanding-total span,
+[data-theme="dark"] .outstanding-total strong,
+[data-theme="dark"] #customerTotalOutstanding,
+[data-theme="dark"] .summary-card h3,
+[data-theme="dark"] .calculation-item strong,
+[data-theme="dark"] .customer-info-box p,
+[data-theme="dark"] .customer-info-box strong,
+[data-theme="dark"] .stock-card-icon,
+[data-theme="dark"] .report-total-box strong,
+[data-theme="dark"] .sales-history-summary strong,
+[data-theme="dark"] .return-refund-summary strong,
+[data-theme="dark"] .return-total-summary strong,
+[data-theme="dark"] .customer-stat-value,
+[data-theme="dark"] #totalCustomers,
+[data-theme="dark"] #totalOutstanding,
+[data-theme="dark"] #totalCreditLimit,
+[data-theme="dark"] #availableCredit,
+[data-theme="dark"] .customer-detail-card strong {
+    color: #4DF527 !important;
+}
+
+/* KPI Cards */
+[data-theme="dark"] .production-stat {
+    background: #17291B !important;
+    background-color: #17291B !important;
+    border: 1px solid #38543B !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .stat-label {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .stat-unit {
+    color: #8DA58D !important;
+}
+
+/* Customer Management KPI Stat Cards */
+[data-theme="dark"] .customer-stat {
+    background: #17291B !important;
+    background-color: #17291B !important;
+    border: 1px solid #38543B !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .customer-stat-icon {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    border: 1px solid #38543B !important;
+    border-radius: 9px !important;
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .customer-stat-label {
+    color: #B4C9B3 !important;
+}
+
+/* Inventory Stock Card Icons */
+[data-theme="dark"] .stock-card-icon {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    border: 1px solid #38543B !important;
+    color: #4DF527 !important;
+}
+
+/* Summary Card in Payments */
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .payment-summary .summary-card {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    border: 1px solid #205B2B !important;
+}
+
+[data-theme="dark"] .summary-card p,
+[data-theme="dark"] .summary-card .summary-label,
+[data-theme="dark"] .summary-card small {
+    color: #B4C9B3 !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. Status Badges, Alerts, Flash Messages & Surfaces
+   -------------------------------------------------------------------------- */
+/* Common Badge Shape & Typography */
+[data-theme="dark"] .admin-status,
+[data-theme="dark"] .inventory-status,
+[data-theme="dark"] .status-badge,
+[data-theme="dark"] .production-badge {
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    display: inline-block !important;
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+}
+
+/* Success Surface (#183D25) */
+[data-theme="dark"] .status-paid,
+[data-theme="dark"] .status-active,
+[data-theme="dark"] .status-success,
+[data-theme="dark"] .badge-success,
+[data-theme="dark"] .admin-status.active,
+[data-theme="dark"] .admin-status.price-live-status.active,
+[data-theme="dark"] .inventory-status.status-available,
+[data-theme="dark"] .status-available,
+[data-theme="dark"] .status-approved,
+[data-theme="dark"] .inventory-status.status-approved,
+[data-theme="dark"] .production-badge,
+[data-theme="dark"] .flash-message.success,
+[data-theme="dark"] .flash-message.flash-success,
+[data-theme="dark"] .settings-message.success {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    color: #4DF527 !important;
+    border: 1px solid #2D6A42 !important;
+}
+
+/* Warning Surface (#44391D) */
+[data-theme="dark"] .status-partial,
+[data-theme="dark"] .status-pending,
+[data-theme="dark"] .status-warning,
+[data-theme="dark"] .status-low,
+[data-theme="dark"] .badge-warning,
+[data-theme="dark"] .admin-status.editable,
+[data-theme="dark"] .admin-status.price-live-status.editable,
+[data-theme="dark"] .inventory-status.status-low,
+[data-theme="dark"] .inventory-status.status-pending,
+[data-theme="dark"] .flash-message.warning,
+[data-theme="dark"] .flash-message.flash-warning,
+[data-theme="dark"] .settings-message.warning,
+[data-theme="dark"] .sales-warning {
+    background: #44391D !important;
+    background-color: #44391D !important;
+    color: #FBBF24 !important;
+    border: 1px solid #7A6229 !important;
+}
+
+/* Danger Surface (#482323) */
+[data-theme="dark"] .status-due,
+[data-theme="dark"] .status-inactive,
+[data-theme="dark"] .status-error,
+[data-theme="dark"] .status-danger,
+[data-theme="dark"] .badge-danger,
+[data-theme="dark"] .badge-error,
+[data-theme="dark"] .admin-status.inactive,
+[data-theme="dark"] .inventory-status.status-empty,
+[data-theme="dark"] .status-empty,
+[data-theme="dark"] .inventory-status.empty,
+[data-theme="dark"] .status-rejected,
+[data-theme="dark"] .inventory-status.status-rejected,
+[data-theme="dark"] .status-credit,
+[data-theme="dark"] .flash-message.error,
+[data-theme="dark"] .flash-message.danger,
+[data-theme="dark"] .flash-message.flash-error,
+[data-theme="dark"] .flash-message.flash-danger,
+[data-theme="dark"] .settings-message.error,
+[data-theme="dark"] .settings-message.danger,
+[data-theme="dark"] .admin-btn-danger,
+[data-theme="dark"] .btn-danger,
+[data-theme="dark"] .field-error-message,
+[data-theme="dark"] .customer-notice.error,
+[data-theme="dark"] .return-exchange-error {
+    background: #482323 !important;
+    background-color: #482323 !important;
+    color: #F87171 !important;
+    border: 1px solid #7E3535 !important;
+}
+
+/* Neutral / Manual Surface (#263D2C) */
+[data-theme="dark"] .admin-status.manual,
+[data-theme="dark"] .admin-status.price-live-status.manual,
+[data-theme="dark"] .status-neutral {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #B4C9B3 !important;
+    border: 1px solid #38543B !important;
+}
+
+/* Table Empty & Loading States */
+[data-theme="dark"] .purchase-history-state,
+[data-theme="dark"] .customer-history-state,
+[data-theme="dark"] .sales-history-state {
+    background: #1A2F20 !important;
+    background-color: #1A2F20 !important;
+    color: #8DA58D !important;
+}
+
+/* Info Surface */
+[data-theme="dark"] .flash-message.info,
+[data-theme="dark"] .flash-message.flash-info,
+[data-theme="dark"] .settings-message.info {
+    background: #1A2F3B !important;
+    color: #60A5FA !important;
+    border: 1px solid #244B60 !important;
+}
+
+/* Administration Item Count Badge */
+[data-theme="dark"] .admin-count {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #4DF527 !important;
+    border: 1px solid #38543B !important;
+    border-radius: 20px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+}
+
+/* Reports Status Badge & Prompt Notice Banner */
+[data-theme="dark"] .report-status {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    color: #B4C9B3 !important;
+    border: 1px solid #38543B !important;
+    border-radius: 20px !important;
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+}
+
+[data-theme="dark"] .report-notice {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #F1F7EF !important;
+    border: 1px solid #38543B !important;
+    border-radius: 7px !important;
+    padding: 12px 16px !important;
+    font-size: 12px !important;
+    margin-bottom: 15px !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. Pagination Controls
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .rice-pagination {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .rice-pagination .rice-pagination-button {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #F1F7EF !important;
+    border: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .rice-pagination .rice-pagination-button:hover:not(:disabled) {
+    background: #263D2C !important;
+    border-color: #45C936 !important;
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .rice-pagination .rice-pagination-button[aria-current="page"] {
+    background: #45C936 !important;
+    background-color: #45C936 !important;
+    color: #09140C !important;
+    border-color: #45C936 !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="dark"] .rice-pagination .rice-pagination-button:disabled {
+    background: #1A2F20 !important;
+    color: #8DA58D !important;
+    border-color: #2A3F2C !important;
+    cursor: not-allowed !important;
+}
+
+[data-theme="dark"] .rice-pagination-ellipsis {
+    color: #8DA58D !important;
+}
+
+/* --------------------------------------------------------------------------
+   13. Dropdowns & Autocomplete
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .autocomplete-list,
+[data-theme="dark"] .customer-match-list,
+[data-theme="dark"] .sales-customer-results {
+    background: #17291B !important;
+    background-color: #17291B !important;
+    border: 1px solid #38543B !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .autocomplete-option,
+[data-theme="dark"] .sales-customer-results button,
+[data-theme="dark"] .customer-match-option {
+    background: #17291B !important;
+    background-color: #17291B !important;
+    color: #F1F7EF !important;
+    border: none !important;
+}
+
+[data-theme="dark"] .autocomplete-option:hover,
+[data-theme="dark"] .autocomplete-option[aria-selected="true"],
+[data-theme="dark"] .sales-customer-results button:hover,
+[data-theme="dark"] .customer-match-option:hover {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .autocomplete-status,
+[data-theme="dark"] .sales-customer-empty,
+[data-theme="dark"] .customer-match-empty {
+    color: #8DA58D !important;
+}
+
+/* --------------------------------------------------------------------------
+   14. Modals & Overlays
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .held-preview-overlay,
+[data-theme="dark"] .return-modal-overlay,
+[data-theme="dark"] .admin-modal-overlay,
+[data-theme="dark"] .payment-detail-overlay,
+[data-theme="dark"] .purchase-detail-overlay,
+[data-theme="dark"] .logout-modal-overlay {
+    background: rgba(5, 15, 8, 0.85) !important;
+}
+
+/* --------------------------------------------------------------------------
+   15. Auth Pages Visual Panel
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .auth-shell .visual {
+    background: linear-gradient(135deg, #09140C 0%, #0A4715 50%, #176B25 100%) !important;
+}
+
+[data-theme="dark"] .auth-shell .forgot-link a,
+[data-theme="dark"] .auth-shell .register-link a {
+    color: #45C936 !important;
+}
+
+[data-theme="dark"] .auth-shell .forgot-link a:hover,
+[data-theme="dark"] .auth-shell .register-link a:hover {
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .password-toggle-btn {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .password-toggle-btn:hover {
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .password-strength-bar {
+    background: #263D2C !important;
+    border: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .password-strength-label {
+    color: #B4C9B3 !important;
+}
+
+/* --------------------------------------------------------------------------
+   16. Inner Navigation Items & Config Tabs
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] .config-menu-item,
+[data-theme="dark"] .settings-menu-item {
+    background: #203725 !important;
+    color: #B4C9B3 !important;
+    border: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .config-menu-item:hover,
+[data-theme="dark"] .settings-menu-item:hover {
+    background: #263D2C !important;
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .config-menu-item.active,
+[data-theme="dark"] .settings-menu-item.active {
+    background: #294B30 !important;
+    color: #4DF527 !important;
+    border-left: 3px solid #45C936 !important;
+    font-weight: 700 !important;
+}
+
+[data-theme="dark"] .inventory-filter {
+    background: #203725 !important;
+    color: #B4C9B3 !important;
+    border: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .inventory-filter:hover {
+    background: #263D2C !important;
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .inventory-filter.active {
+    background: #45C936 !important;
+    color: #09140C !important;
+    border-color: #45C936 !important;
+    font-weight: 700 !important;
+}
+
+/* Additional Customer, Profile, Reports Refinements */
+[data-theme="dark"] .profile-page-heading h2 {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-page-heading p {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .profile-main-card {
+    background: #17291B !important;
+    background-color: #17291B !important;
+    border: 1px solid #38543B !important;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .profile-banner {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    border-bottom: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .profile-banner h2 {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-banner p {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .profile-avatar-large {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    border: 3px solid #45C936 !important;
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .profile-info-section {
+    background: #203725 !important;
+    background-color: #203725 !important;
+    border: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .profile-section-heading {
+    border-bottom: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .profile-section-heading > span {
+    background: #263D2C !important;
+    background-color: #263D2C !important;
+    border: 1px solid #38543B !important;
+    color: #4DF527 !important;
+}
+
+[data-theme="dark"] .profile-section-heading h3 {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-section-heading p {
+    color: #8DA58D !important;
+}
+
+[data-theme="dark"] .profile-info-row {
+    border-bottom: 1px solid #263D2C !important;
+}
+
+[data-theme="dark"] .profile-info-row > span {
+    color: #B4C9B3 !important;
+}
+
+[data-theme="dark"] .profile-info-row strong {
+    color: #F1F7EF !important;
+}
+
+[data-theme="dark"] .profile-status.active {
+    background: #183D25 !important;
+    background-color: #183D25 !important;
+    color: #4DF527 !important;
+    border: 1px solid #2D6A42 !important;
+}
+
+[data-theme="dark"] .profile-status.inactive {
+    background: #482323 !important;
+    background-color: #482323 !important;
+    color: #F87171 !important;
+    border: 1px solid #7E3535 !important;
+}
+
+[data-theme="dark"] .profile-footer {
+    border-top: 1px solid #38543B !important;
+}
+
+[data-theme="dark"] .profile-settings-link {
+    background: #45C936 !important;
+    background-color: #45C936 !important;
+    color: #09140C !important;
+    border: 1px solid #4DF527 !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .profile-settings-link:hover {
+    background: #4DF527 !important;
+    background-color: #4DF527 !important;
+    box-shadow: 0 4px 12px rgba(69, 201, 54, 0.35) !important;
+}
+
+/* --------------------------------------------------------------------------
+   17. Print Media Preservation - Agriculture Green High-Fidelity Paper Output
+   -------------------------------------------------------------------------- */
+@page {
+    size: A4 landscape;
+    margin: 8mm 10mm;
+}
+
+@media print {
+    *, *::before, *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        box-sizing: border-box !important;
+    }
+
+    html,
+    html[data-theme="dark"],
+    body,
+    html[data-theme="dark"] body,
+    [data-theme="dark"] body,
+    body.app-body,
+    [data-theme="dark"] .app-body,
+    .dashboard-body,
+    [data-theme="dark"] .dashboard-body,
+    .purchase-body,
+    [data-theme="dark"] .purchase-body,
+    .sales-body,
+    [data-theme="dark"] .sales-body,
+    .auth-page,
+    [data-theme="dark"] .auth-page,
+    main,
+    main.page,
+    [data-theme="dark"] main.page,
+    .page,
+    [data-theme="dark"] .page,
+    .reports-page,
+    [data-theme="dark"] .reports-page,
+    .sales-page,
+    [data-theme="dark"] .sales-page,
+    .purchase-page,
+    [data-theme="dark"] .purchase-page,
+    .dashboard-page,
+    [data-theme="dark"] .dashboard-page {
+        background: #FFFFFF !important;
+        background-color: #FFFFFF !important;
+        color: #173D20 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        margin: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+        position: static !important;
+        float: none !important;
+        transform: none !important;
+    }
+
+    aside.sidebar,
+    .sidebar,
+    header.topbar,
+    .topbar,
+    .theme-toggle-btn,
+    .sidebar-footer,
+    .sales-top-buttons,
+    .purchase-actions,
+    .reports-heading,
+    .report-filters,
+    .reports-page > .report-section:not(#reportPrintArea),
+    #reportFilterForm,
+    #reportExportActions,
+    #reportPagination,
+    #reportNotice,
+    .report-status {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Preserve Agriculture Green Report PDF Color Palette */
+    #reportPrintArea,
+    [data-theme="dark"] #reportPrintArea {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: #FFFFFF !important;
+        background-color: #FFFFFF !important;
+        color: #173D20 !important;
+    }
+
+    #reportPrintArea .report-preview-header,
+    [data-theme="dark"] #reportPrintArea .report-preview-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border-bottom: 2px solid #234B28 !important;
+        padding-bottom: 5px !important;
+        margin-bottom: 6px !important;
+    }
+
+    #reportPrintArea .report-preview-header h3,
+    #reportPrintArea #previewTitle,
+    [data-theme="dark"] #reportPrintArea .report-preview-header h3,
+    [data-theme="dark"] #reportPrintArea #previewTitle {
+        color: #0A4715 !important;
+        font-size: 18px !important;
+        font-weight: 800 !important;
+        margin: 0 0 2px 0 !important;
+        padding-left: 8px !important;
+        border-left: 4px solid #45C936 !important;
+        line-height: 1.2 !important;
+    }
+
+    #reportPrintArea .report-meta,
+    #reportPrintArea #previewSubtitle,
+    [data-theme="dark"] #reportPrintArea .report-meta,
+    [data-theme="dark"] #reportPrintArea #previewSubtitle {
+        color: #4A6B50 !important;
+        font-size: 10.5px !important;
+        padding-left: 12px !important;
+        margin-bottom: 2px !important;
+    }
+
+    #reportPrintArea .report-generated-info,
+    [data-theme="dark"] #reportPrintArea .report-generated-info {
+        display: flex !important;
+        justify-content: space-between !important;
+        color: #2B4A30 !important;
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        margin-bottom: 10px !important;
+        padding: 3px 0 !important;
+        border-bottom: 1px dashed #C9DDBB !important;
+    }
+
+    #reportPrintArea .report-summary-cards,
+    [data-theme="dark"] #reportPrintArea .report-summary-cards {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin: 0 0 10px 0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    #reportPrintArea .report-summary-card,
+    [data-theme="dark"] #reportPrintArea .report-summary-card {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        padding: 6px 10px !important;
+        border: 1px solid #C9DDBB !important;
+        border-radius: 6px !important;
+        background: #F3FBEA !important;
+        background-color: #F3FBEA !important;
+        box-sizing: border-box !important;
+    }
+
+    #reportPrintArea .report-summary-card span,
+    [data-theme="dark"] #reportPrintArea .report-summary-card span {
+        display: block !important;
+        color: #55745A !important;
+        font-size: 8.5px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px !important;
+        margin-bottom: 2px !important;
+    }
+
+    #reportPrintArea .report-summary-card strong,
+    [data-theme="dark"] #reportPrintArea .report-summary-card strong {
+        display: block !important;
+        color: #0A4715 !important;
+        font-size: 13.5px !important;
+        font-weight: 800 !important;
+        line-height: 1.2 !important;
+    }
+
+    #reportPrintArea .report-table-wrapper,
+    [data-theme="dark"] #reportPrintArea .report-table-wrapper {
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 10px 0 !important;
+        padding: 0 !important;
+        border: 1px solid #C9DDBB !important;
+        border-radius: 6px !important;
+        background: #FFFFFF !important;
+    }
+
+    #reportPrintArea .report-table,
+    [data-theme="dark"] #reportPrintArea .report-table {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto !important;
+        table-layout: auto !important;
+    }
+
+    #reportPrintArea thead,
+    [data-theme="dark"] #reportPrintArea thead {
+        display: table-header-group !important;
+    }
+
+    #reportPrintArea thead tr,
+    [data-theme="dark"] #reportPrintArea thead tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    #reportPrintArea thead th,
+    #reportPrintArea .report-table th,
+    [data-theme="dark"] #reportPrintArea thead th,
+    [data-theme="dark"] #reportPrintArea .report-table th {
+        background: #D9F5A8 !important;
+        background-color: #D9F5A8 !important;
+        color: #173D20 !important;
+        border-top: 1px solid #B8DC98 !important;
+        border-bottom: 2px solid #82B366 !important;
+        font-size: 9.5px !important;
+        font-weight: 800 !important;
+        padding: 7px 6px !important;
+        line-height: 1.25 !important;
+        vertical-align: middle !important;
+    }
+
+    #reportPrintArea tbody tr,
+    [data-theme="dark"] #reportPrintArea tbody tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    #reportPrintArea tbody tr:nth-child(even) td,
+    [data-theme="dark"] #reportPrintArea tbody tr:nth-child(even) td {
+        background: #F7FCF2 !important;
+        background-color: #F7FCF2 !important;
+    }
+
+    #reportPrintArea tbody tr:nth-child(odd) td,
+    [data-theme="dark"] #reportPrintArea tbody tr:nth-child(odd) td {
+        background: #FFFFFF !important;
+        background-color: #FFFFFF !important;
+    }
+
+    #reportPrintArea tbody td,
+    #reportPrintArea .report-table td,
+    [data-theme="dark"] #reportPrintArea tbody td,
+    [data-theme="dark"] #reportPrintArea .report-table td {
+        color: #1A3320 !important;
+        border-bottom: 1px solid #E2EEDB !important;
+        font-size: 9px !important;
+        padding: 6px 6px !important;
+        line-height: 1.3 !important;
+        vertical-align: middle !important;
+    }
+
+    /* Print Table Cell Alignment & Formatting */
+    #reportPrintArea .cell-identifier,
+    #reportPrintArea .th-identifier,
+    [data-theme="dark"] #reportPrintArea .cell-identifier,
+    [data-theme="dark"] #reportPrintArea .th-identifier {
+        white-space: nowrap !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+        font-size: 8px !important;
+        letter-spacing: -0.2px !important;
+        text-align: left !important;
+    }
+
+    #reportPrintArea .cell-date,
+    #reportPrintArea .th-date,
+    [data-theme="dark"] #reportPrintArea .cell-date,
+    [data-theme="dark"] #reportPrintArea .th-date {
+        white-space: nowrap !important;
+        font-size: 8.5px !important;
+        text-align: left !important;
+    }
+
+    #reportPrintArea .cell-amount,
+    #reportPrintArea .th-amount,
+    [data-theme="dark"] #reportPrintArea .cell-amount,
+    [data-theme="dark"] #reportPrintArea .th-amount {
+        white-space: nowrap !important;
+        text-align: right !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    #reportPrintArea .cell-amount,
+    [data-theme="dark"] #reportPrintArea .cell-amount {
+        font-weight: 600 !important;
+    }
+
+    #reportPrintArea .cell-quantity,
+    #reportPrintArea .th-quantity,
+    [data-theme="dark"] #reportPrintArea .cell-quantity,
+    [data-theme="dark"] #reportPrintArea .th-quantity {
+        white-space: nowrap !important;
+        text-align: right !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    #reportPrintArea .cell-status,
+    #reportPrintArea .th-status,
+    [data-theme="dark"] #reportPrintArea .cell-status,
+    [data-theme="dark"] #reportPrintArea .th-status {
+        white-space: nowrap !important;
+        text-align: center !important;
+    }
+
+    #reportPrintArea .report-total-box,
+    [data-theme="dark"] #reportPrintArea .report-total-box {
+        background: #EDF7DF !important;
+        background-color: #EDF7DF !important;
+        border: 1px solid #C5E1A5 !important;
+        border-radius: 6px !important;
+        color: #0A4715 !important;
+        font-weight: 800 !important;
+        font-size: 11px !important;
+        padding: 8px 14px !important;
+        margin-top: 10px !important;
+        margin-bottom: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    #reportPrintArea .report-total-box span,
+    #reportPrintArea .report-total-box strong,
+    [data-theme="dark"] #reportPrintArea .report-total-box span,
+    [data-theme="dark"] #reportPrintArea .report-total-box strong {
+        color: #0A4715 !important;
+        font-weight: 800 !important;
+    }
+}
+}

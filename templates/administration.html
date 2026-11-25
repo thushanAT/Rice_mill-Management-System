@@ -1,0 +1,1851 @@
+{% extends "base.html" %}
+
+{% block title %}Administration | Rice Mill Management System{% endblock %}
+{% block page_subtitle %}Manage system settings and employee accounts{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* =========================================
+           ADMINISTRATION MAIN
+        ========================================= */
+        .admin-page {
+            color: #173D20;
+        }
+        .admin-heading {
+            margin-bottom: 22px;
+        }
+        .admin-heading h2 {
+            margin: 0 0 6px;
+            color: #0A4715;
+            font-size: 25px;
+        }
+        .admin-heading p, .admin-section-heading p, .admin-config-title p, .admin-form-heading p {
+            margin: 0;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .admin-section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-section-heading h3, .admin-config-title h3 {
+            margin: 0 0 6px;
+            color: #0A4715;
+        }
+        /* =========================================
+           MAIN TABS
+        ========================================= */
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #D8E8C8;
+            flex-wrap: wrap;
+        }
+        .admin-tab {
+            padding: 13px 18px;
+            border: 0;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: #55745A;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .admin-tab.active {
+            color: #0A4715;
+            border-bottom-color: #45C936;
+        }
+        .admin-section {
+            display: none;
+        }
+        .admin-section.active {
+            display: block;
+        }
+        /* =========================================
+           CONFIGURATION LAYOUT
+        ========================================= */
+        .admin-config-layout {
+            display: grid;
+            grid-template-columns: 225px minmax(0, 1fr);
+            gap: 18px;
+            align-items: start;
+        }
+        .admin-config-menu, .admin-config-content, .admin-user-form-card, .admin-user-list-card {
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(10,71,21,0.07);
+        }
+        .admin-config-menu {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .config-menu-item {
+            text-align: left;
+            padding: 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #FFFFFF;
+            color: #173D20;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .config-menu-item:hover, .config-menu-item.active {
+            background: #EFFAEB;
+            color: #0A4715;
+        }
+        .admin-config-content {
+            padding: 20px;
+            min-width: 0;
+        }
+        .admin-config-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .admin-count {
+            background: #EFFAEB;
+            color: #0A4715;
+            border-radius: 20px;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        /* =========================================
+           FORMS
+        ========================================= */
+        .admin-add-form {
+            display: flex;
+            align-items: end;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 16px;
+            background: #F7FCF4;
+            border: 1px solid #D8E8C8;
+            border-radius: 10px;
+            margin-bottom: 18px;
+        }
+        .admin-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+            flex: 1;
+        }
+        .admin-field-full {
+            grid-column: 1 / -1;
+        }
+        .admin-field label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #173D20;
+        }
+        .admin-field-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #173D20;
+        }
+        .admin-field label span, .admin-field-label span {
+            color: #DC2626;
+        }
+        .admin-field input {
+            width: 100%;
+            min-height: 42px;
+            padding: 10px 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #FFFFFF;
+            color: #173D20;
+            outline: none;
+        }
+        .admin-field input:focus {
+            border-color: #45C936;
+            box-shadow: 0 0 0 3px rgba(69,201,54,0.12);
+        }
+        .admin-category-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .admin-category-choice {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 9px 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #FFFFFF;
+            color: #173D20;
+            cursor: pointer;
+        }
+        .admin-category-choice input {
+            width: 16px;
+            min-height: 16px;
+            margin: 0;
+            padding: 0;
+            accent-color: #20852B;
+        }
+        .admin-category-choice span {
+            color: #173D20;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .admin-form-actions {
+            display: flex;
+            gap: 9px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .admin-primary-btn, .admin-secondary-btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .admin-primary-btn {
+            background: #45C936;
+            color: #FFFFFF;
+        }
+        .admin-primary-btn:hover {
+            background: #0A4715;
+        }
+        .admin-secondary-btn {
+            background: #EFF3EC;
+            color: #173D20;
+            border: 1px solid #D8E8C8;
+        }
+        /* =========================================
+           TABLES
+        ========================================= */
+        .admin-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+        .admin-table th {
+            padding: 12px;
+            text-align: left;
+            background: #0A4715;
+            color: #FFFFFF;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #E5EDE0;
+            font-size: 13px;
+        }
+        .admin-table tbody tr:hover {
+            background: #F7FCF4;
+        }
+        .admin-empty {
+            text-align: center !important;
+            color: #718273;
+            padding: 25px !important;
+        }
+        .admin-help {
+            font-size: 12px;
+            color: #718273;
+            margin: 14px 0 0;
+        }
+        .admin-row-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .admin-action-btn {
+            border: 1px solid #D8E8C8;
+            background: #FFFFFF;
+            color: #173D20;
+            border-radius: 6px;
+            padding: 6px 9px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .admin-action-btn:hover {
+            background: #EFFAEB;
+        }
+        .admin-action-btn.danger {
+            color: #DC2626;
+            border-color: #F2CACA;
+        }
+        .admin-status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .admin-status.active {
+            background: #DCFCE7;
+            color: #166534;
+        }
+        .admin-status.inactive {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        .admin-status.editable {
+            background: #E8F5E9;
+            color: #315C37;
+        }
+        .admin-status.manual {
+            background: #F2F4F0;
+            color: #68776A;
+        }
+        .default-price-input {
+            width: 150px;
+            min-height: 36px;
+            padding: 7px 9px;
+            border: 1px solid #D8E8C8;
+            border-radius: 7px;
+        }
+        .price-lock-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 8px;
+            color: #315C37;
+            white-space: nowrap;
+        }
+        .price-lock-control input {
+            accent-color: #20852B;
+        }
+        .purchase-price-table {
+            min-width: 1080px;
+        }
+        .purchase-price-control {
+            display: grid;
+            grid-template-columns: minmax(0,1fr);
+            gap: 8px;
+            min-width: 280px;
+        }
+        .purchase-price-entry {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .purchase-price-control .default-price-input {
+            flex: 1 1 115px;
+            width: 130px;
+        }
+        .legacy-price-note {
+            padding: 10px 12px;
+            border: 1px solid #E9D69B;
+            border-radius: 7px;
+            color: #6D571A;
+            background: #FFF9E8;
+            margin: 8px 0;
+        }
+        /* =========================================
+           USER SUMMARY
+        ========================================= */
+        .admin-user-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .admin-summary-card {
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 11px;
+            padding: 18px;
+            box-shadow: 0 5px 18px rgba(10,71,21,0.06);
+        }
+        .admin-summary-card span {
+            display: block;
+            color: #55745A;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        .admin-summary-card strong {
+            font-size: 25px;
+            color: #0A4715;
+        }
+        .admin-user-form-card, .admin-user-list-card {
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+        .admin-form-heading, .admin-list-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .admin-form-heading h3, .admin-list-heading h3 {
+            margin: 0;
+            color: #0A4715;
+        }
+        .admin-form-heading p {
+            margin-top: 5px;
+        }
+        .admin-close-btn {
+            border: 0;
+            background: #EFFAEB;
+            color: #0A4715;
+            border-radius: 7px;
+            padding: 8px 11px;
+            font-weight: 700;
+        }
+        .admin-user-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+        /* =========================================
+           PERMISSIONS
+        ========================================= */
+        .admin-permission-heading {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .admin-permission-heading h3 {
+            margin: 0 0 5px;
+            color: #0A4715;
+            font-size: 16px;
+        }
+        .admin-permission-heading p {
+            margin: 0;
+            color: #55745A;
+            font-size: 12px;
+        }
+        .admin-permission-tools {
+            display: flex;
+            gap: 10px;
+        }
+        .admin-permission-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #E5EDE0;
+        }
+        .admin-permission-radio-group {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            padding: 8px 0;
+        }
+        .admin-permission-radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #173D20;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .admin-permission-radio-group input {
+            accent-color: #2D5A27;
+            width: 16px;
+            height: 16px;
+        }
+        .admin-text-btn {
+            border: 0;
+            background: transparent;
+            color: #087C19;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .admin-permission-list {
+            border: 1px solid #D8E8C8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .permission-header, .normal-permission-row {
+            display: grid;
+            grid-template-columns: 1fr 150px;
+            gap: 10px;
+            align-items: center;
+            padding: 13px 16px;
+            border-bottom: 1px solid #E5EDE0;
+        }
+        .permission-header {
+            background: #EFFAEB;
+            font-size: 12px;
+        }
+        .normal-permission-row strong {
+            font-size: 13px;
+        }
+        .normal-permission-row label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #55745A;
+        }
+        .normal-permission-row input, .admin-permission-actions input {
+            width: 16px;
+            height: 16px;
+            accent-color: #16A34A;
+        }
+        .permission-admin-heading {
+            padding: 15px 16px;
+            background: #F7FCF4;
+            border-top: 1px solid #D8E8C8;
+        }
+        .permission-admin-heading strong {
+            color: #0A4715;
+            font-size: 13px;
+        }
+        .permission-admin-heading p {
+            margin: 5px 0 0;
+            color: #55745A;
+            font-size: 12px;
+        }
+        .admin-permission-actions {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            padding: 15px 16px;
+        }
+        .admin-permission-actions label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+        }
+        .admin-permission-help {
+            margin: 0 16px 14px;
+            color: #55745A;
+            font-size: 12px;
+        }
+        .inventory-subpermissions {
+            grid-column: 1 / -1;
+            padding: 0 16px 12px;
+            border-bottom: 1px solid #E5EDE0;
+            background: #FBFEF9;
+        }
+        .inventory-subpermissions summary {
+            padding: 10px 0;
+            color: #087C19;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .inventory-subpermissions .admin-permission-actions {
+            padding: 4px 0 10px;
+            gap: 12px 25px;
+        }
+        .inventory-subpermissions .admin-permission-help {
+            margin: 0;
+        }
+        /* =========================================
+           USER SEARCH
+        ========================================= */
+        .admin-list-heading input {
+            max-width: 280px;
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+        }
+        /* =========================================
+           MODALS
+        ========================================= */
+        .admin-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .admin-modal {
+            width: 100%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow: auto;
+            background: #FFFFFF;
+            border-radius: 13px;
+            padding: 22px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        .admin-modal .admin-form-heading {
+            border-bottom: 1px solid #D8E8C8;
+            padding-bottom: 14px;
+        }
+        .admin-modal-detail {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #EDF2E9;
+            font-size: 13px;
+        }
+        .admin-modal-detail span {
+            color: #718273;
+        }
+        .admin-modal-detail strong {
+            overflow-wrap: anywhere;
+        }
+        .admin-password-modal form {
+            display: grid;
+            gap: 15px;
+        }
+        /* =========================================
+           TOAST
+        ========================================= */
+        .admin-toast {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            z-index: 4000;
+            background: #0A4715;
+            color: #FFFFFF;
+            padding: 13px 18px;
+            border-radius: 9px;
+            box-shadow: 0 5px 20px #0002;
+            display: none;
+            font-size: 13px;
+        }
+        .admin-toast.show {
+            display: block;
+        }
+        /* =========================================
+           HIDDEN ELEMENTS
+        ========================================= */
+        .admin-page [hidden], .admin-modal-overlay[hidden] {
+            display: none !important;
+        }
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+        @media (max-width: 900px) {
+            .admin-config-layout {
+                grid-template-columns: 1fr;
+            }
+            .admin-config-menu {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .admin-section-heading,
+            .admin-config-title,
+            .admin-list-heading,
+            .admin-permission-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+            .admin-user-summary {
+                grid-template-columns: 1fr;
+            }
+            .admin-user-fields {
+                grid-template-columns: 1fr;
+            }
+            .admin-config-menu {
+                grid-template-columns: 1fr 1fr;
+            }
+            .admin-add-form {
+                align-items: stretch;
+                flex-direction: column;
+            }
+            .admin-tabs {
+                gap: 0;
+            }
+            .admin-tab {
+                padding: 11px 8px;
+                font-size: 12px;
+            }
+            .permission-header, .normal-permission-row {
+                grid-template-columns: 1fr 120px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="admin-page">
+
+        <div class="admin-heading">
+            <h2>Administration</h2>
+            <p>Manage rice mill configuration and employee access.</p>
+        </div>
+
+        <!-- MAIN TABS -->
+        <div class="admin-tabs">
+            <button type="button" class="admin-tab active" data-tab="configuration">
+                ⚙️ System Configuration
+            </button>
+            <button type="button" class="admin-tab" data-tab="users">
+                👥 User Management
+            </button>
+        </div>
+
+        <!-- =========================================
+        SYSTEM CONFIGURATION
+        ========================================== -->
+        <section class="admin-section active" id="configuration">
+
+            <div class="admin-section-heading">
+                <div>
+                    <h3>System Configuration</h3>
+                    <p>Manage options used in different system modules.</p>
+                </div>
+            </div>
+
+            <div class="admin-config-layout">
+
+                <!-- CONFIGURATION MENU -->
+                <aside class="admin-config-menu">
+
+                    <button type="button" class="config-menu-item active"
+                        data-config="rice-varieties">
+                        Rice Varieties
+                    </button>
+
+                    <button type="button" class="config-menu-item"
+                        data-config="paddy-types">
+                        Paddy Types
+                    </button>
+
+                    <button type="button" class="config-menu-item"
+                        data-config="other-products">
+                        Other Sellable Products
+                    </button>
+
+                    <button type="button" class="config-menu-item"
+                        data-config="categories">
+                        Product Categories
+                    </button>
+
+                    <button type="button" class="config-menu-item"
+                        data-config="packaging">
+                        Packaging Sizes
+                    </button>
+
+                    <button type="button" class="config-menu-item"
+                        data-config="purchase-prices">
+                        Paddy Purchase Prices
+                    </button>
+
+                    <button type="button" class="config-menu-item"
+                        data-config="selling-prices">
+                        Selling Prices
+                    </button>
+
+                </aside>
+
+                <!-- CONFIGURATION CONTENT -->
+                <div class="admin-config-content">
+
+                    <div class="admin-config-title">
+                        <div>
+                            <h3 id="configTitle">Rice Varieties</h3>
+                            <p id="configDescription"></p>
+                        </div>
+
+                        <span class="admin-count" id="configCount">0 Items</span>
+                    </div>
+
+                    <!-- NORMAL CONFIGURATION FORM -->
+                    <form id="configForm" class="admin-add-form">
+
+                        <input type="hidden" id="configEditId">
+
+                        <div class="admin-field">
+                            <label for="configName">
+                                Name
+                                <span>*</span>
+                            </label>
+
+                            <input type="text"
+                               id="configName"
+                               placeholder="Enter name"
+                               required>
+                        </div>
+
+                        <div class="admin-field" id="riceMainCategoryField" hidden>
+                            <span class="admin-field-label">Main Category <span>*</span></span>
+                            <div class="admin-category-checkboxes" id="riceMainCategories" role="group" aria-describedby="riceMainCategoryHelp">
+                                <label class="admin-category-choice"><input type="checkbox" data-main-category-code="bulk"> <span>Bulk Rice</span></label>
+                                <label class="admin-category-choice"><input type="checkbox" data-main-category-code="packed"> <span>Packed Rice</span></label>
+                            </div>
+                            <small id="riceMainCategoryHelp">Select Bulk Rice, Packed Rice, or both for this variety.</small>
+                        </div>
+
+                        <div class="admin-form-actions">
+                            <button type="submit"
+                                class="admin-primary-btn"
+                                id="configSubmitBtn">
+                                ＋ Add Item
+                            </button>
+
+                            <button type="button"
+                                class="admin-secondary-btn"
+                                id="configCancelBtn"
+                                hidden>
+                                Cancel
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <!-- CONFIGURATION TABLE -->
+                    <div class="admin-table-wrap">
+
+                        <table class="admin-table">
+                            <thead id="configTableHead">
+                            </thead>
+                            <tbody id="configTableBody">
+                            </tbody>
+                        </table>
+
+                    </div>
+
+                    <p class="admin-help" id="configHelp">
+                        Deactivate items already used in transactions to preserve historical records.
+                    </p>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================
+        USER MANAGEMENT
+        ========================================== -->
+        <section class="admin-section" id="users">
+
+            <div class="admin-section-heading">
+                <div>
+                    <h3>User Management</h3>
+                    <p>Create and manage employee accounts.</p>
+                </div>
+
+                <button type="button"
+                    class="admin-primary-btn"
+                    id="newUserBtn">
+                    ＋ Create New User
+                </button>
+            </div>
+
+            <!-- USER SUMMARY -->
+            <div class="admin-user-summary">
+
+                <div class="admin-summary-card">
+                    <span>Total Staff Users</span>
+                    <strong id="totalUsers">0</strong>
+                </div>
+
+                <div class="admin-summary-card">
+                    <span>Active Users</span>
+                    <strong id="activeUsers">0</strong>
+                </div>
+
+                <div class="admin-summary-card">
+                    <span>Deactivated Users</span>
+                    <strong id="inactiveUsers">0</strong>
+                </div>
+
+            </div>
+
+            <!-- CREATE / EDIT USER FORM -->
+            <div class="admin-user-form-card" id="userFormCard" hidden>
+
+                <div class="admin-form-heading">
+                    <div>
+                        <h3 id="userFormTitle">Create New User</h3>
+                        <p>Select the system tabs this employee can access.</p>
+                    </div>
+
+                    <button type="button"
+                        class="admin-close-btn"
+                        id="closeUserForm">
+                        ✕
+                    </button>
+                </div>
+
+                <form id="userForm">
+
+                    <input type="hidden" id="userEditId">
+
+                    <div class="admin-user-fields">
+
+                        <div class="admin-field">
+                            <label for="userFirstName">First Name <span>*</span></label>
+                            <input id="userFirstName" type="text" required>
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="userLastName">Last Name <span>*</span></label>
+                            <input id="userLastName" type="text" required>
+                        </div>
+
+                        <div class="admin-field admin-field-full">
+                            <label for="userUsername">Username <span>*</span></label>
+                            <input id="userUsername" type="text" required>
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="userEmail">Email Address</label>
+                            <input id="userEmail" type="email">
+                        </div>
+
+                        <div class="admin-field">
+                            <label for="userContactNumber">Contact Number</label>
+                            <input id="userContactNumber" type="tel" placeholder="Enter contact number" maxlength="30">
+                        </div>
+
+                        <div class="admin-field" id="passwordField">
+                            <label for="userPassword">Password <span>*</span></label>
+                            <input id="userPassword"
+                               type="password"
+                               minlength="8"
+                               autocomplete="new-password">
+                        </div>
+
+                        <div class="admin-field" id="confirmPasswordField">
+                            <label for="userConfirmPassword">Confirm Password <span>*</span></label>
+                            <input id="userConfirmPassword"
+                               type="password"
+                               minlength="8"
+                               autocomplete="new-password">
+                        </div>
+
+                    </div>
+
+                    <!-- NORMAL TAB PERMISSIONS -->
+                    <div class="admin-permission-heading">
+
+                        <div>
+                            <h3>Employee Tab Access</h3>
+                            <p>Select the tabs this employee is allowed to access.</p>
+                        </div>
+
+                        <div class="admin-permission-tools">
+                            <button type="button"
+                                class="admin-text-btn"
+                                id="selectAllTabs">
+                                Select All
+                            </button>
+
+                            <button type="button"
+                                class="admin-text-btn"
+                                id="clearAllTabs">
+                                Clear All
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="admin-permission-list">
+
+                        <div class="permission-header">
+                            <strong>System Tab</strong>
+                            <strong>Access</strong>
+                        </div>
+
+                        <div id="normalPermissionList">
+                        </div>
+
+                        <!-- ADMINISTRATION SPECIAL PERMISSIONS -->
+                        <div class="permission-admin-heading">
+                            <strong>Administration</strong>
+                            <p>Choose individual permissions for the Administration module.</p>
+                        </div>
+
+                        <div class="admin-permission-actions"
+                         id="adminPermissionList">
+
+                            <label>
+                                <input type="checkbox" value="View">
+                                View
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="Add">
+                                Add
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="Edit">
+                                Edit
+                            </label>
+
+                            <label>
+                                <input type="checkbox" value="Delete">
+                                Delete
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                    <!-- ACCOUNT SETTINGS ACCESS PERMISSION -->
+                    <div class="admin-permission-section">
+                        <div class="admin-permission-heading">
+                            <div>
+                                <h3>Account Settings Access</h3>
+                                <p>Allow this employee to access and update their own account settings.</p>
+                            </div>
+                        </div>
+                        <div class="admin-permission-radio-group">
+                            <label>
+                                <input type="radio" name="accountSettingsAccess" id="accountSettingsAccessAllow" value="allow">
+                                <span>Allow</span>
+                            </label>
+                            <label>
+                                <input type="radio" name="accountSettingsAccess" id="accountSettingsAccessDeny" value="deny" checked>
+                                <span>Deny</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-actions">
+
+                        <button type="submit"
+                            class="admin-primary-btn"
+                            id="saveUserBtn">
+                            Create User
+                        </button>
+
+                        <button type="button"
+                            class="admin-secondary-btn"
+                            id="cancelUserBtn">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- EMPLOYEE LIST -->
+            <div class="admin-user-list-card">
+
+                <div class="admin-list-heading">
+                    <h3>Employee Accounts</h3>
+
+                    <div style="position:relative">
+                        <input type="search" id="userSearch" placeholder="Search employee..."
+                           autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                        <div id="userSearchSuggestions" class="autocomplete-list" role="listbox" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-table-wrap">
+
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Employee Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Accessible Tabs</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="usersTableBody">
+                        </tbody>
+                    </table>
+                    <div id="usersPagination" class="inventory-pagination" aria-live="polite">
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- =========================================
+    VIEW USER MODAL
+    ========================================== -->
+    <div class="admin-modal-overlay" id="viewUserModal" hidden>
+
+        <div class="admin-modal">
+
+            <div class="admin-form-heading">
+                <h3>Employee Details</h3>
+
+                <button type="button"
+                    class="admin-close-btn"
+                    id="closeViewModal">
+                    ✕
+                </button>
+            </div>
+
+            <div id="viewUserContent">
+            </div>
+
+        </div>
+    </div>
+
+    <!-- =========================================
+    CHANGE PASSWORD MODAL
+    ========================================== -->
+    <div class="admin-modal-overlay" id="passwordModal" hidden>
+
+        <div class="admin-modal admin-password-modal">
+
+            <div class="admin-form-heading">
+                <h3>Change Employee Password</h3>
+
+                <button type="button"
+                    class="admin-close-btn"
+                    id="closePasswordModal">
+                    ✕
+                </button>
+            </div>
+
+            <form id="changePasswordForm">
+
+                <input type="hidden" id="passwordUserId">
+
+                <div class="admin-field">
+                    <label for="newEmployeePassword">New Password</label>
+                    <input type="password"
+                       id="newEmployeePassword"
+                       minlength="8"
+                       required>
+                </div>
+
+                <div class="admin-field">
+                    <label for="confirmEmployeePassword">Confirm New Password</label>
+                    <input type="password"
+                       id="confirmEmployeePassword"
+                       minlength="8"
+                       required>
+                </div>
+
+                <button type="submit" class="admin-primary-btn">
+                    Update Password
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="admin-toast" id="adminToast">
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const modules = [
+                "Dashboard", "Paddy Purchase", "Sales & Invoicing",
+                "Inventory Management", "Production Management",
+                "Customer Management", "Payments & Receivables", "Reports"
+            ];
+            const definitions = {
+                "rice-varieties": { title: "Rice Varieties", description: "Manage rice varieties used throughout the system.", group: "rice_variety", price: false },
+                "paddy-types": { title: "Paddy Types", description: "Manage paddy types used in purchase and inventory.", group: "paddy_type", price: false },
+                "other-products": { title: "Other Sellable Products", description: "Manage bran and other sellable products.", group: "product", price: false },
+                "categories": { title: "Product Categories", description: "Manage product categories used throughout the system.", group: "category", price: false },
+                "packaging": { title: "Packaging Sizes", description: "Manage available packaging size options.", group: "package_size", price: false },
+                "purchase-prices": { title: "Paddy Purchase Prices", description: "Manage optional default purchase prices for rice varieties.", price: true, priceType: "purchase" },
+                "selling-prices": { title: "Selling Prices", description: "Manage optional default selling prices for rice varieties and other products.", price: true, priceType: "selling" }
+            };
+            const configData = {
+                "rice-varieties": [], "paddy-types": [], "other-products": [],
+                "categories": [], "packaging": []
+            };
+            const priceDefaults = { purchase: {}, selling: {} };
+            let purchasePriceDefaults = {};
+            let legacyPurchasePrices = [];
+            let mainCategories = [];
+            let users = [];
+            let activeConfig = "rice-varieties";
+
+            const $ = id => document.getElementById(id);
+            const configForm = $("configForm"), configName = $("configName"), configEditId = $("configEditId");
+            const configTableHead = $("configTableHead"), configTableBody = $("configTableBody");
+            const userForm = $("userForm"), userFormCard = $("userFormCard");
+
+            async function api(path, options = {}) {
+                const response = await window.csrfFetch(path, {
+                    credentials: "same-origin",
+                    ...options,
+                    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+                });
+                let data = {};
+                try {
+                    data = await response.json();
+                } catch (_) {}
+                if (!response.ok || data.success === false) {
+                    throw new Error(data.message || `Request failed (${response.status})`);
+                }
+                return data;
+            }
+            function esc(value) {
+                return String(value ?? "").replace(/[&<>"']/g, c => ({
+                    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+                }[c]));
+            }
+            function showToast(message) {
+                const toast = $("adminToast");
+                if (!toast) return;
+                toast.textContent = message;
+                toast.classList.add("show");
+                setTimeout(() => toast.classList.remove("show"), 2500);
+            }
+            function notifyError(error) {
+                console.error(error);
+                const msg = error.message || "Something went wrong. Please try again.";
+                const lower = msg.toLowerCase();
+                let handled = false;
+                if (lower.includes("username") && $("userUsername")) {
+                    window.RiceValidator?.showError($("userUsername"), msg);
+                    $("userUsername").focus();
+                    handled = true;
+                } else if (lower.includes("email") && $("userEmail")) {
+                    window.RiceValidator?.showError($("userEmail"), msg);
+                    $("userEmail").focus();
+                    handled = true;
+                } else if ((lower.includes("contact") || lower.includes("phone")) && $("userContactNumber")) {
+                    window.RiceValidator?.showError($("userContactNumber"), msg);
+                    $("userContactNumber").focus();
+                    handled = true;
+                } else if (lower.includes("first name") && $("userFirstName")) {
+                    window.RiceValidator?.showError($("userFirstName"), msg);
+                    $("userFirstName").focus();
+                    handled = true;
+                } else if (lower.includes("last name") && $("userLastName")) {
+                    window.RiceValidator?.showError($("userLastName"), msg);
+                    $("userLastName").focus();
+                    handled = true;
+                } else if (lower.includes("password") && $("userPassword")) {
+                    window.RiceValidator?.showError($("userPassword"), msg);
+                    $("userPassword").focus();
+                    handled = true;
+                }
+                if (!handled) {
+                    alert(msg);
+                }
+            }
+            function groupToKey(group) {
+                return ({ rice_variety: "rice-varieties", paddy_type: "paddy-types", product: "other-products", category: "categories", package_size: "packaging" })[group];
+            }
+            function applyServerData(data) {
+                mainCategories = data.categories || [];
+                const categoryInputs = [...$("riceMainCategories").querySelectorAll("[data-main-category-code]")];
+                const hadSavedSelection = categoryInputs.some(input => input.value !== "");
+                const selectedCodes = categoryInputs.filter(input => input.checked).map(input => input.dataset.mainCategoryCode);
+                categoryInputs.forEach(input => {
+                    const category = mainCategories.find(item => item.code === input.dataset.mainCategoryCode);
+                    input.value = category ? String(category.id) : "";
+                    input.checked = category ? (!hadSavedSelection || selectedCodes.includes(category.code)) : false;
+                });
+                Object.keys(configData).forEach(k => configData[k] = []);
+                (data.items || []).forEach(item => {
+                    const key = groupToKey(item.group);
+                    if (key) configData[key].push({ id: item.id, name: item.name, active: item.active !== false, unit: item.unit || "kg",
+                        categories: item.categories || [], categoryIds: item.categoryIds || [] });
+                });
+                priceDefaults.purchase = {};
+                priceDefaults.selling = {};
+                (data.prices || []).forEach(p => {
+                    if (p.type === "selling") priceDefaults[p.type][p.item] = { price: p.price === null ? "" : p.price, locked: !!p.locked };
+                });
+                purchasePriceDefaults = {};
+                (data.purchasePrices || []).forEach(p => {
+                    purchasePriceDefaults[`${p.varietyId}:${p.paddyType}`] = p;
+                });
+                legacyPurchasePrices = data.legacyPurchasePrices || [];
+            }
+            async function loadMasters() {
+                const data = await api("/api/masters");
+                applyServerData(data);
+                renderConfig();
+            }
+            async function loadUsers() {
+                const data = await api("/api/admin/users");
+                users = (data.users || []).filter(u => u.role !== "admin").map(u => ({
+                    id: u.id, firstName: u.firstName, lastName: u.lastName, username: u.username,
+                    email: u.email || "", contactNumber: u.contactNumber || "", active: !!u.active,
+                    permissions: u.permissions || {}
+                }));
+                const searchInput = $("userSearch");
+                if (window.RiceAutocomplete && !searchInput.dataset.autocompleteReady) {
+                    searchInput.dataset.autocompleteReady = "true";
+                    window.RiceAutocomplete.attach(searchInput, $("userSearchSuggestions"), {
+                        minChars: 1, getItems: () => users,
+                        searchText: user => `${user.firstName} ${user.lastName} ${user.username} ${user.email} ${user.contactNumber||""}`,
+                        label: user => `${user.firstName} ${user.lastName} · ${user.username}`,
+                        key: user => user.id,
+                        onSelect: user => {
+                            searchInput.value = user.username;
+                            searchInput.dispatchEvent(new Event("input", { bubbles: true }));
+                        }
+                    });
+                }
+                renderUsers();
+            }
+
+            document.querySelectorAll(".admin-tab").forEach(button => button.addEventListener("click", function () {
+                document.querySelectorAll(".admin-tab").forEach(x => x.classList.remove("active"));
+                document.querySelectorAll(".admin-section").forEach(x => x.classList.remove("active"));
+                this.classList.add("active");
+                const section = $(this.dataset.tab);
+                if (section) section.classList.add("active");
+            }));
+
+            document.querySelectorAll(".config-menu-item").forEach(button => button.addEventListener("click", function () {
+                document.querySelectorAll(".config-menu-item").forEach(x => x.classList.remove("active"));
+                this.classList.add("active");
+                activeConfig = this.dataset.config;
+                resetConfigForm();
+                renderConfig();
+            }));
+
+            function resetConfigForm() {
+                configForm.reset();
+                configEditId.value = "";
+                $("riceMainCategories").querySelectorAll("[data-main-category-code]").forEach(input => {
+                    input.checked = input.value !== "";
+                });
+                $("configSubmitBtn").textContent = "＋ Add Item";
+                $("configCancelBtn").hidden = true;
+            }
+            function getPriceProducts(type) {
+                const rice = configData["rice-varieties"].filter(x => x.active);
+                return type === "purchase" ? rice : [...rice, ...configData["other-products"].filter(x => x.active)];
+            }
+            function renderConfig() {
+                const def = definitions[activeConfig];
+                if (activeConfig !== "purchase-prices") configTableHead.closest("table").classList.remove("purchase-price-table");
+                $("configTitle").textContent = def.title;
+                $("configDescription").textContent = def.description;
+                $("riceMainCategoryField").hidden = activeConfig !== "rice-varieties" || def.price;
+                configForm.hidden = def.price;
+                $("configHelp").textContent = def.price
+                    ? "Prices are optional. Leave a price blank to allow manual pricing. Saved prices apply to new transactions only."
+                    : "Deactivate items already used in transactions to preserve historical records.";
+                if (activeConfig === "purchase-prices" && legacyPurchasePrices.length) {
+                    const legacy = legacyPurchasePrices.map(row => `${esc(row.item)}: LKR ${esc(row.price)} (unassigned)`).join("; ");
+                    $("configHelp").innerHTML = `Legacy single purchase prices are preserved but are not applied to Wet or Dry purchases. Assign each manually after confirming its type: <strong>${legacy}</strong>`;
+                }
+                configTableBody.innerHTML = "";
+                if (def.price) {
+                    if (activeConfig === "purchase-prices") {
+                        const products = configData["rice-varieties"];
+                        const colspan = 4;
+                        $("configCount").textContent = products.length + " Varieties";
+                        configTableHead.innerHTML = "<tr><th>#</th><th>Product / Variety</th><th>Wet Paddy Price (LKR/kg)</th><th>Dry Paddy Price (LKR/kg)</th></tr>";
+                        configTableHead.closest("table").classList.add("purchase-price-table");
+                        if (!products.length) {
+                            configTableBody.innerHTML = `<tr><td colspan="${colspan}" class="admin-empty">No rice varieties have been added.</td></tr>`;
+                            return;
+                        }
+                        const renderCell = (item, paddyType) => {
+                            const saved = purchasePriceDefaults[`${item.id}:${paddyType}`] || { price: null, locked: false };
+                            const has = saved.price !== null && saved.price !== "";
+                            const controlKey = `${item.id}-${paddyType.startsWith("Wet")?"wet":"dry"}`;
+                            return `<td><div class="purchase-price-control" data-price-control="${controlKey}">
+                        <div class="purchase-price-entry"><label class="price-lock-control"><input type="checkbox" class="default-price-lock" ${has?"":"disabled"} ${has&&saved.locked?"checked":""}> Lock Price</label>
+                        <input type="number" class="default-price-input" min="0.01" step="0.01" placeholder="Manual price" value="${has?esc(saved.price):""}"></div>
+                        <span class="admin-status price-live-status ${!has?"manual":saved.locked?"active":"editable"}">${!has?"Manual Price":saved.locked?"Locked":"Editable"}</span>
+                        <button type="button" class="admin-action-btn save-purchase-price" data-variety-id="${item.id}" data-paddy-type="${paddyType}">Save Price</button>
+                    </div></td>`;
+                        };
+                        products.forEach((item, index) => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `<td>${index+1}</td><td><strong>${esc(item.name)}</strong>${item.active?"":" <small>(Inactive)</small>"}</td>${renderCell(item,"Wet Paddy")}${renderCell(item,"Dry Paddy")}`;
+                            configTableBody.appendChild(row);
+                        });
+                        return;
+                    }
+                    configTableHead.closest("table").classList.remove("purchase-price-table");
+                    const type = def.priceType, products = getPriceProducts(type);
+                    $("configCount").textContent = products.length + " Products";
+                    configTableHead.innerHTML = "<tr><th>#</th><th>Product / Variety</th><th>Lock Price / Default Price (LKR/kg)</th><th>Status</th><th>Actions</th></tr>";
+                    if (!products.length) {
+                        configTableBody.innerHTML = '<tr><td colspan="5" class="admin-empty">No active products or varieties available.</td></tr>';
+                        return;
+                    }
+                    products.forEach((item, index) => {
+                        const saved = priceDefaults[type][item.name] || { price: "", locked: false };
+                        const value = saved.price;
+                        const has = value !== "";
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td>${index+1}</td><td><strong>${esc(item.name)}</strong></td>
+                <td><label class="price-lock-control"><input type="checkbox" class="default-price-lock" ${has?"":"disabled"} ${has&&saved.locked?"checked":""}> Lock Price</label><input type="number" class="default-price-input" min="0.01" step="0.01" placeholder="Optional" value="${esc(value)}"></td>
+                <td><span class="admin-status price-live-status ${has?(saved.locked?"active":"editable"):"manual"}">${has?(saved.locked?"Locked":"Editable"):"Manual Price"}</span></td>
+                <td><button type="button" class="admin-action-btn save-default-price" data-name="${esc(item.name)}">Save Price</button></td>`;
+                        configTableBody.appendChild(row);
+                    });
+                    return;
+                }
+                const items = configData[activeConfig];
+                $("configCount").textContent = items.length + " Items";
+                const showCategories = activeConfig === "rice-varieties" || activeConfig === "other-products";
+                configTableHead.innerHTML = `<tr><th>#</th><th>Name</th>${showCategories?"<th>Main Category</th>":""}<th>Status</th><th>Actions</th></tr>`;
+                if (!items.length) {
+                    configTableBody.innerHTML = '<tr><td colspan="4" class="admin-empty">No items added yet.</td></tr>';
+                    return;
+                }
+                items.forEach((item, index) => {
+                    const row = document.createElement("tr");
+                    const categoryNames = item.categories.map(code => mainCategories.find(category => category.code === code)?.name).filter(Boolean).join(", ");
+                    row.innerHTML = `<td>${index+1}</td><td>${esc(item.name)}</td>${showCategories?`<td>${esc(categoryNames)}</td>`:""}
+            <td><span class="admin-status ${item.active?"active":"inactive"}">${item.active?"Active":"Inactive"}</span></td>
+            <td><div class="admin-row-actions">
+            <button type="button" class="admin-action-btn" data-action="edit" data-id="${item.id}">Edit</button>
+            <button type="button" class="admin-action-btn" data-action="toggle" data-id="${item.id}">${item.active?"Deactivate":"Activate"}</button>
+            <button type="button" class="admin-action-btn danger" data-action="delete" data-id="${item.id}">Delete</button>
+            </div></td>`;
+                    configTableBody.appendChild(row);
+                });
+            }
+            configForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                const name = configName.value.trim();
+                if (!name) {
+                    alert("Please enter a name.");
+                    configName.focus();
+                    return;
+                }
+                const def = definitions[activeConfig];
+                const categoryIds = activeConfig === "rice-varieties"
+                    ? [...$("riceMainCategories").querySelectorAll("[data-main-category-code]:checked")].map(input => Number(input.value)) : undefined;
+                if (activeConfig === "rice-varieties" && !categoryIds.length) {
+                    alert("Select at least one main category.");
+                    $("riceMainCategories").querySelector("[data-main-category-code]")?.focus();
+                    return;
+                }
+                try {
+                    if (configEditId.value) {
+                        await api(`/api/masters/${configEditId.value}`, { method: "PUT", body: JSON.stringify({ name, ...(categoryIds ? { categoryIds } : {}) }) });
+                        showToast("Item updated successfully.");
+                    } else {
+                        await api("/api/masters", { method: "POST", body: JSON.stringify({ group: def.group, name, unit: "kg", ...(categoryIds ? { categoryIds } : {}) }) });
+                        showToast("New item added successfully.");
+                    }
+                    await loadMasters();
+                    resetConfigForm();
+                } catch (error) {
+                    notifyError(error);
+                }
+            });
+            $("configCancelBtn").addEventListener("click", resetConfigForm);
+            configTableBody.addEventListener("click", async function (event) {
+                const purchasePriceButton = event.target.closest(".save-purchase-price");
+                if (purchasePriceButton) {
+                    const control = purchasePriceButton.closest(".purchase-price-control");
+                    const input = control.querySelector(".default-price-input"), raw = input.value.trim();
+                    if (raw !== "" && (!Number.isFinite(Number(raw)) || Number(raw) <= 0)) {
+                        alert("Please enter a valid price greater than zero.");
+                        input.focus();
+                        return;
+                    }
+                    try {
+                        await api("/api/purchase-prices", { method: "PUT", body: JSON.stringify({
+                            varietyId: Number(purchasePriceButton.dataset.varietyId), paddyType: purchasePriceButton.dataset.paddyType,
+                            price: raw === "" ? null : Number(raw), locked: raw !== "" && control.querySelector(".default-price-lock").checked
+                        }) });
+                        showToast(raw === "" ? "Price cleared. Manual pricing is allowed." : "Paddy purchase price saved.");
+                        await loadMasters();
+                    } catch (error) {
+                        notifyError(error);
+                    }
+                    return;
+                }
+                const priceButton = event.target.closest(".save-default-price");
+                if (priceButton) {
+                    const input = priceButton.closest("tr").querySelector(".default-price-input");
+                    const raw = input.value.trim();
+                    if (raw !== "" && (!Number.isFinite(Number(raw)) || Number(raw) < 0)) {
+                        alert("Please enter a valid price.");
+                        input.focus();
+                        return;
+                    }
+                    try {
+                        await api("/api/prices", { method: "PUT", body: JSON.stringify({
+                            item: priceButton.dataset.name, type: definitions[activeConfig].priceType, price: raw === "" ? null : Number(raw),
+                            locked: raw !== "" && priceButton.closest("tr").querySelector(".default-price-lock").checked
+                        }) });
+                        showToast(raw === "" ? "Default price removed. Manual pricing is allowed." : "Default price saved successfully.");
+                        await loadMasters();
+                    } catch (error) {
+                        notifyError(error);
+                    }
+                    return;
+                }
+                const button = event.target.closest("button[data-action]");
+                if (!button) return;
+                const item = configData[activeConfig].find(x => String(x.id) === String(button.dataset.id));
+                if (!item) return;
+                try {
+                    if (button.dataset.action === "edit") {
+                        configEditId.value = item.id;
+                        configName.value = item.name;
+                        $("riceMainCategories").querySelectorAll("[data-main-category-code]").forEach(input => {
+                            input.checked = item.categoryIds.includes(Number(input.value));
+                        });
+                        $("configSubmitBtn").textContent = "Update Item";
+                        $("configCancelBtn").hidden = false;
+                        configName.focus();
+                    } else if (button.dataset.action === "toggle") {
+                        await api(`/api/masters/${item.id}`, { method: "PUT", body: JSON.stringify({ active: !item.active }) });
+                        showToast(item.active ? "Item deactivated." : "Item activated.");
+                        await loadMasters();
+                    } else if (button.dataset.action === "delete") {
+                        if (!confirm("Delete this item permanently? Items used in transactions must be deactivated instead.")) return;
+                        await api(`/api/masters/${item.id}`, { method: "DELETE" });
+                        showToast("Item deleted.");
+                        resetConfigForm();
+                        await loadMasters();
+                    }
+                } catch (error) {
+                    notifyError(error);
+                }
+            });
+            function refreshPricePreview(control) {
+                const input = control.querySelector(".default-price-input"), lock = control.querySelector(".default-price-lock"), status = control.querySelector(".price-live-status");
+                const has = input.value.trim() !== "";
+                lock.disabled = !has;
+                if (!has) lock.checked = false;
+                const locked = has && lock.checked;
+                status.textContent = has ? (locked ? "Locked" : "Editable") : "Manual Price";
+                status.className = `admin-status price-live-status ${locked?"active":has?"editable":"manual"}`;
+            }
+            configTableBody.addEventListener("input", event => {
+                if (event.target.matches(".default-price-input")) refreshPricePreview(event.target.closest(".purchase-price-control") || event.target.closest("tr"));
+            });
+            configTableBody.addEventListener("change", event => {
+                if (event.target.matches(".default-price-lock")) refreshPricePreview(event.target.closest(".purchase-price-control") || event.target.closest("tr"));
+            });
+
+            const normalPermissionList = $("normalPermissionList"), adminPermissionList = $("adminPermissionList");
+            function renderPermissionOptions(selectedTabs = [], selectedAdminActions = [], selectedInventoryPermissions = {}) {
+                normalPermissionList.innerHTML = "";
+                modules.forEach((module, index) => {
+                    const row = document.createElement("div");
+                    row.className = "normal-permission-row";
+                    const moduleAccessLabel = module === "Inventory Management"
+                        ? "Allow Inventory Management Access" : "Allow Access";
+                    row.innerHTML = `<strong>${esc(module)}</strong><label><input type="checkbox" class="module-access" data-module="${index}" ${selectedTabs.includes(module)?"checked":""}> ${moduleAccessLabel}</label>`;
+                    normalPermissionList.appendChild(row);
+                    if (module === "Inventory Management") {
+                        const details = document.createElement("details");
+                        details.className = "inventory-subpermissions";
+                        details.open = true;
+                        details.innerHTML = `<summary>Inventory-specific permissions</summary>
+                    <div class="admin-permission-actions" id="inventoryPermissionList">
+                        <label><input type="checkbox" data-inventory-permission="manageOpeningStockAdjustments">
+                            Manage Opening Stock &amp; Stock Adjustments</label>
+                        <label><input type="checkbox" data-inventory-permission="inspectReturnedItems">
+                            Inspect Returned Items</label>
+                        <label><input type="checkbox" data-inventory-permission="approveReturnBills">
+                            Return Bill Approval</label>
+                    </div>
+                    <p class="admin-permission-help">Sub-permissions take effect only when Inventory Management access is enabled.</p>`;
+                        normalPermissionList.appendChild(details);
+                    }
+                });
+                adminPermissionList.querySelectorAll("input").forEach(input => input.checked = selectedAdminActions.includes(input.value));
+                normalPermissionList.querySelectorAll("[data-inventory-permission]").forEach(input => {
+                    input.checked = selectedInventoryPermissions?.[input.dataset.inventoryPermission] === true;
+                });
+            }
+            function collectPermissions() {
+                const tabs = [];
+                normalPermissionList.querySelectorAll(".module-access:checked").forEach(input => tabs.push(modules[Number(input.dataset.module)]));
+                const administration = [];
+                adminPermissionList.querySelectorAll("input:checked").forEach(input => administration.push(input.value));
+                const inventory = {};
+                normalPermissionList.querySelectorAll("[data-inventory-permission]").forEach(input => {
+                    inventory[input.dataset.inventoryPermission] = input.checked;
+                });
+                const accountSettingsRadio = document.querySelector('input[name="accountSettingsAccess"]:checked');
+                const account_settings = accountSettingsRadio ? accountSettingsRadio.value === "allow" : false;
+                return { tabs, administration, inventory, account_settings, accountSettings: account_settings };
+            }
+            $("selectAllTabs").addEventListener("click", () => normalPermissionList.querySelectorAll(".module-access").forEach(x => x.checked = true));
+            $("clearAllTabs").addEventListener("click", () => normalPermissionList.querySelectorAll(".module-access").forEach(x => x.checked = false));
+
+            function openUserForm(user = null) {
+                userForm.reset();
+                $("userEditId").value = user ? user.id : "";
+                userForm.querySelectorAll("input").forEach(i => window.RiceValidator?.clearError(i));
+                $("userFormTitle").textContent = user ? "Edit Employee" : "Create New User";
+                $("saveUserBtn").textContent = user ? "Update User" : "Create User";
+                $("passwordField").hidden = !!user;
+                $("confirmPasswordField").hidden = !!user;
+                $("userPassword").required = !user;
+                $("userConfirmPassword").required = !user;
+                $("userUsername").readOnly = !!user;
+                if (user) {
+                    $("userFirstName").value = user.firstName;
+                    $("userLastName").value = user.lastName;
+                    $("userUsername").value = user.username;
+                    $("userEmail").value = user.email || "";
+                    $("userContactNumber").value = user.contactNumber || "";
+                    const hasAccountSettings = user.permissions?.account_settings === true || user.permissions?.accountSettings === true;
+                    $("accountSettingsAccessAllow").checked = hasAccountSettings;
+                    $("accountSettingsAccessDeny").checked = !hasAccountSettings;
+                    renderPermissionOptions(user.permissions?.tabs || [], user.permissions?.administration || [], user.permissions?.inventory || {});
+                } else {
+                    $("userContactNumber").value = "";
+                    $("accountSettingsAccessAllow").checked = false;
+                    $("accountSettingsAccessDeny").checked = true;
+                    renderPermissionOptions([], []);
+                }
+                userFormCard.hidden = false;
+                userFormCard.scrollIntoView({ behavior: "smooth", block: "start" });
+                $("userFirstName").focus();
+            }
+            function closeUserForm() {
+                userFormCard.hidden = true;
+                userForm.reset();
+                userForm.querySelectorAll("input").forEach(i => window.RiceValidator?.clearError(i));
+            }
+            $("newUserBtn").addEventListener("click", () => openUserForm());
+            $("closeUserForm").addEventListener("click", closeUserForm);
+            $("cancelUserBtn").addEventListener("click", closeUserForm);
+
+            userForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                const editId = $("userEditId").value;
+                const firstName = $("userFirstName").value.trim(), lastName = $("userLastName").value.trim();
+                const username = $("userUsername").value.trim(), email = $("userEmail").value.trim();
+                const contactNumber = $("userContactNumber").value.trim();
+                const password = $("userPassword").value, confirmPassword = $("userConfirmPassword").value;
+
+                if (window.RiceValidator) {
+                    const vFirst = window.RiceValidator.validateName(firstName, "First Name", true);
+                    if (!vFirst.valid) {
+                        window.RiceValidator.showError($("userFirstName"), vFirst.message);
+                        $("userFirstName").focus();
+                        return;
+                    }
+                    else window.RiceValidator.clearError($("userFirstName"));
+
+                    if (lastName) {
+                        const vLast = window.RiceValidator.validateName(lastName, "Last Name", false);
+                        if (!vLast.valid) {
+                            window.RiceValidator.showError($("userLastName"), vLast.message);
+                            $("userLastName").focus();
+                            return;
+                        }
+                        else window.RiceValidator.clearError($("userLastName"));
+                    }
+
+                    const vUser = window.RiceValidator.validateUsername(username, true);
+                    if (!vUser.valid) {
+                        window.RiceValidator.showError($("userUsername"), vUser.message);
+                        $("userUsername").focus();
+                        return;
+                    }
+                    else window.RiceValidator.clearError($("userUsername"));
+
+                    if (email) {
+                        const vEmail = window.RiceValidator.validateEmail(email, false);
+                        if (!vEmail.valid) {
+                            window.RiceValidator.showError($("userEmail"), vEmail.message);
+                            $("userEmail").focus();
+                            return;
+                        }
+                        else window.RiceValidator.clearError($("userEmail"));
+                    }
+
+                    if (contactNumber) {
+                        const vPhone = window.RiceValidator.validatePhone(contactNumber, false);
+                        if (!vPhone.valid) {
+                            window.RiceValidator.showError($("userContactNumber"), vPhone.message);
+                            $("userContactNumber").focus();
+                            return;
+                        }
+                        else window.RiceValidator.clearError($("userContactNumber"));
+                    }
+
+                    if (!editId) {
+                        const vPwd = window.RiceValidator.validatePassword(password, true);
+                        if (!vPwd.valid) {
+                            window.RiceValidator.showError($("userPassword"), vPwd.message);
+                            $("userPassword").focus();
+                            return;
+                        }
+                        else window.RiceValidator.clearError($("userPassword"));
+
+                        const vMatch = window.RiceValidator.validateConfirmPassword(password, confirmPassword);
+                        if (!vMatch.valid) {
+                            window.RiceValidator.showError($("userConfirmPassword"), vMatch.message);
+                            $("userConfirmPassword").focus();
+                            return;
+                        }
+                        else window.RiceValidator.clearError($("userConfirmPassword"));
+                    }
+                } else {
+                    if (!firstName || !username) {
+                        alert("First name and username are required.");
+                        return;
+                    }
+                    if (!editId && password !== confirmPassword) {
+                        alert("Passwords do not match.");
+                        $("userConfirmPassword").focus();
+                        return;
+                    }
+                    if (!editId && password.length < 8) {
+                        alert("Password must contain at least 8 characters.");
+                        return;
+                    }
+                }
+
+                const payload = { firstName, lastName, username, email, contactNumber, permissions: collectPermissions() };
+                if (!editId) payload.password = password;
+                try {
+                    if (editId) await api(`/api/admin/users/${editId}`, { method: "PUT", body: JSON.stringify(payload) });
+                    else await api("/api/admin/users", { method: "POST", body: JSON.stringify(payload) });
+                    showToast(editId ? "Employee details updated." : "Employee account created.");
+                    await loadUsers();
+                    closeUserForm();
+                } catch (error) {
+                    notifyError(error);
+                }
+            });
+
+            let usersPage = 1;
+            function renderUsers() {
+                const search = $("userSearch").value.toLowerCase();
+                const filtered = users.filter(user => (`${user.firstName} ${user.lastName} ${user.username} ${user.email||""} ${user.contactNumber||""}`).toLowerCase().includes(search));
+                const pages = Math.max(1, Math.ceil(filtered.length / 5));
+                usersPage = Math.min(usersPage, pages);
+                $("totalUsers").textContent = users.length;
+                $("activeUsers").textContent = users.filter(x => x.active).length;
+                $("inactiveUsers").textContent = users.filter(x => !x.active).length;
+                const tbody = $("usersTableBody");
+                tbody.innerHTML = "";
+                if (!filtered.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">No employee accounts found.</td></tr>';
+                    return;
+                }
+                filtered.slice((usersPage - 1) * 5, usersPage * 5).forEach(user => {
+                    const count = (user.permissions?.tabs || []).length;
+                    const row = document.createElement("tr");
+                    row.innerHTML = `<td><strong>${esc(user.firstName)} ${esc(user.lastName)}</strong></td>
+            <td>${esc(user.username)}</td><td>${esc(user.email||"—")}</td><td>${count} Tabs</td>
+            <td><span class="admin-status ${user.active?"active":"inactive"}">${user.active?"Active":"Deactivated"}</span></td>
+            <td><div class="admin-row-actions">
+            <button type="button" class="admin-action-btn" data-user-action="view" data-id="${user.id}">View</button>
+            <button type="button" class="admin-action-btn" data-user-action="edit" data-id="${user.id}">Edit</button>
+            <button type="button" class="admin-action-btn" data-user-action="password" data-id="${user.id}">Password</button>
+            <button type="button" class="admin-action-btn" data-user-action="toggle" data-id="${user.id}">${user.active?"Deactivate":"Reactivate"}</button>
+            </div></td>`;
+                    tbody.appendChild(row);
+                });
+                window.RicePagination.render($("usersPagination"), { page: usersPage, pages, total: filtered.length, perPage: 5 }, "data-users-page");
+            }
+            $("userSearch").addEventListener("input", () => {
+                usersPage = 1;
+                renderUsers();
+            });
+            $("usersPagination").addEventListener("click", event => {
+                const button = event.target.closest("[data-users-page]");
+                if (button && !button.disabled) {
+                    usersPage = Number(button.dataset.usersPage);
+                    renderUsers();
+                }
+            });
+            $("usersTableBody").addEventListener("click", async function (event) {
+                const button = event.target.closest("button[data-user-action]");
+                if (!button) return;
+                const user = users.find(x => String(x.id) === String(button.dataset.id));
+                if (!user) return;
+                const action = button.dataset.userAction;
+                if (action === "view") {
+                    const tabs = user.permissions?.tabs || [], admin = user.permissions?.administration || [];
+                    const hasAccountSettings = user.permissions?.account_settings === true || user.permissions?.accountSettings === true;
+                    $("viewUserContent").innerHTML = `
+            <div class="admin-modal-detail"><span>Name</span><strong>${esc(user.firstName)} ${esc(user.lastName)}</strong></div>
+            <div class="admin-modal-detail"><span>Username</span><strong>${esc(user.username)}</strong></div>
+            <div class="admin-modal-detail"><span>Email</span><strong>${esc(user.email||"—")}</strong></div>
+            <div class="admin-modal-detail"><span>Contact Number</span><strong>${esc(user.contactNumber||"—")}</strong></div>
+            <div class="admin-modal-detail"><span>Status</span><strong>${user.active?"Active":"Deactivated"}</strong></div>
+            <div class="admin-modal-detail"><span>Account Settings</span><strong>${hasAccountSettings ? "Allowed" : "Denied"}</strong></div>
+            <div class="admin-modal-detail"><span>Accessible Tabs</span><strong>${tabs.length?esc(tabs.join(", ")):"None"}</strong></div>
+            <div class="admin-modal-detail"><span>Administration</span><strong>${admin.length?esc(admin.join(", ")):"No access"}</strong></div>`;
+                    $("viewUserModal").hidden = false;
+                } else if (action === "edit") openUserForm(user);
+                else if (action === "password") {
+                    $("passwordUserId").value = user.id;
+                    $("changePasswordForm").reset();
+                    $("passwordModal").hidden = false;
+                } else if (action === "toggle") {
+                    const verb = user.active ? "deactivate" : "reactivate";
+                    if (!confirm(`Are you sure you want to ${verb} this account?`)) return;
+                    try {
+                        await api(`/api/admin/users/${user.id}`, { method: "PUT", body: JSON.stringify({ active: !user.active }) });
+                        showToast(user.active ? "Account deactivated." : "Account reactivated.");
+                        await loadUsers();
+                    } catch (error) {
+                        notifyError(error);
+                    }
+                }
+            });
+            $("closeViewModal").addEventListener("click", () => $("viewUserModal").hidden = true);
+            $("closePasswordModal").addEventListener("click", () => $("passwordModal").hidden = true);
+            $("changePasswordForm").addEventListener("submit", async function (event) {
+                event.preventDefault();
+                const id = $("passwordUserId").value, password = $("newEmployeePassword").value, confirmPassword = $("confirmEmployeePassword").value;
+                if (window.RiceValidator) {
+                    const vPwd = window.RiceValidator.validatePassword(password, true);
+                    if (!vPwd.valid) {
+                        window.RiceValidator.showError($("newEmployeePassword"), vPwd.message);
+                        $("newEmployeePassword").focus();
+                        return;
+                    }
+                    else window.RiceValidator.clearError($("newEmployeePassword"));
+
+                    const vMatch = window.RiceValidator.validateConfirmPassword(password, confirmPassword);
+                    if (!vMatch.valid) {
+                        window.RiceValidator.showError($("confirmEmployeePassword"), vMatch.message);
+                        $("confirmEmployeePassword").focus();
+                        return;
+                    }
+                    else window.RiceValidator.clearError($("confirmEmployeePassword"));
+                } else {
+                    if (password !== confirmPassword) {
+                        alert("Passwords do not match.");
+                        return;
+                    }
+                    if (password.length < 8) {
+                        alert("Password must contain at least 8 characters.");
+                        return;
+                    }
+                }
+                try {
+                    await api(`/api/admin/users/${id}/reset-password`, { method: "POST", body: JSON.stringify({ password }) });
+                    $("passwordModal").hidden = true;
+                    showToast("Employee password changed successfully.");
+                } catch (error) {
+                    notifyError(error);
+                }
+            });
+
+            try {
+                await Promise.all([loadMasters(), loadUsers()]);
+            } catch (error) {
+                notifyError(error);
+            }
+        });
+    </script>
+{% endblock %}

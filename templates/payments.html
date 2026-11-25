@@ -1,0 +1,796 @@
+{% extends "base.html" %}
+
+{% block title %}Payments & Receivables{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .payment-page {
+            padding: 22px;
+            color: #173d20;
+        }
+        .page-heading {
+            margin-bottom: 22px;
+        }
+        .page-heading h2 {
+            margin: 0;
+            font-size: 25px;
+            color: #173d20;
+        }
+        .page-heading p {
+            margin: 6px 0 0;
+            color: #64806a;
+            font-size: 13px;
+        }
+        .payment-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 19px;
+            border: 1px solid #e2eedf;
+            box-shadow: 0 3px 10px rgba(20,70,30,.05);
+        }
+        .summary-icon {
+            font-size: 23px;
+            margin-bottom: 9px;
+        }
+        .summary-label {
+            font-size: 13px;
+            color: #718274;
+            margin-bottom: 12px;
+        }
+        .summary-card h3 {
+            font-size: 23px;
+            margin: 0;
+            color: #173d20;
+        }
+        .payment-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #dcebd7;
+        }
+        .payment-tab {
+            border: none;
+            background: transparent;
+            padding: 12px 17px;
+            color: #54715a;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .payment-tab.active {
+            color: #1d7029;
+            border-bottom-color: #45c936;
+        }
+        .payment-panel {
+            display: none;
+        }
+        .payment-panel.active {
+            display: block;
+        }
+        .payment-section {
+            background: white;
+            border: 1px solid #e2eedf;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 10px rgba(20,70,30,.04);
+        }
+        .payment-section-title {
+            background: #f1f8e4;
+            border-left: 4px solid #45c936;
+            padding: 11px 14px;
+            color: #173d20;
+            font-weight: 700;
+            margin-bottom: 18px;
+            border-radius: 4px;
+        }
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+        .payment-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .payment-field label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #36583d;
+        }
+        .payment-field input, .payment-field select, .payment-field textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #d5e3d1;
+            background: white;
+            border-radius: 7px;
+            padding: 11px 12px;
+            font-size: 13px;
+            color: #263b2a;
+            outline: none;
+        }
+        .payment-field input:focus, .payment-field select:focus, .payment-field textarea:focus {
+            border-color: #45c936;
+            box-shadow: 0 0 0 3px rgba(69,201,54,.10);
+        }
+        .payment-field input[readonly] {
+            background: #f3f7f1;
+            color: #58705c;
+        }
+        .payment-field textarea {
+            resize: vertical;
+            min-height: 42px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .payment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .payment-btn {
+            border: none;
+            border-radius: 7px;
+            padding: 11px 19px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .payment-btn-primary {
+            background: #278b32;
+            color: white;
+        }
+        .payment-btn-primary:hover {
+            background: #1d7029;
+        }
+        .payment-btn-secondary {
+            background: #edf4e9;
+            color: #315a36;
+        }
+        .payment-btn-small {
+            padding: 7px 11px;
+            font-size: 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            background: #e7f5df;
+            color: #236b2d;
+            font-weight: 600;
+        }
+        .payment-table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+        .payment-table th {
+            background: #d9f5a8;
+            color: #234b28;
+            padding: 12px 10px;
+            font-size: 12px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .payment-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #edf2e9;
+            font-size: 12px;
+            color: #405b45;
+        }
+        .payment-table tr:hover td {
+            background: #f9fcf6;
+        }
+        .empty-row {
+            text-align: center !important;
+            padding: 30px !important;
+            color: #829084 !important;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-partial {
+            background: #fff1ce;
+            color: #946400;
+        }
+        .status-credit {
+            background: #ffe3df;
+            color: #a33b2e;
+        }
+        .allocation-row {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr 1fr;
+            gap: 12px;
+            padding: 13px;
+            border: 1px solid #e4eddf;
+            border-radius: 8px;
+            margin-bottom: 9px;
+            align-items: center;
+            font-size: 12px;
+        }
+        .allocation-row input {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #d5e3d1;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .allocation-heading {
+            font-weight: 700;
+            color: #54715a;
+            background: #f3f8ef;
+        }
+        .outstanding-total {
+            background: #f1f8e4;
+            padding: 14px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            margin-top: 14px;
+        }
+        .payment-message {
+            display: none;
+            padding: 12px 15px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .payment-message.success {
+            display: block;
+            background: #e1f5e2;
+            color: #236b2d;
+        }
+        .payment-message.error {
+            display: block;
+            background: #ffe6e2;
+            color: #a33b2e;
+        }
+        .customer-search-wrap {
+            position: relative;
+        }
+        .customer-match-list {
+            position: absolute;
+            z-index: 20;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 280px;
+            overflow: auto;
+            background: #fff;
+            border: 1px solid #d5e3d1;
+            border-radius: 7px;
+            box-shadow: 0 8px 18px rgba(20,70,30,.12);
+        }
+        .customer-match-list[hidden] {
+            display: none;
+        }
+        .customer-match-option {
+            display: flex;
+            width: 100%;
+            gap: 8px;
+            align-items: center;
+            text-align: left;
+            padding: 10px 12px;
+            border: 0;
+            border-bottom: 1px solid #edf2e9;
+            background: #fff;
+            color: #244b2b;
+            cursor: pointer;
+        }
+        .customer-match-option:hover, .customer-match-option:focus {
+            background: #f1f8e4;
+        }
+        .customer-match-option span {
+            flex: 1;
+        }
+        .customer-match-option small {
+            color: #718274;
+        }
+        .customer-match-empty {
+            padding: 12px;
+            color: #718274;
+            font-size: 12px;
+        }
+        .payment-help {
+            font-size: 12px;
+            color: #718274;
+        }
+        .completed-outstanding-section {
+            border-top: 2px solid #e1ecd9;
+        }
+        .payment-detail-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(15,42,20,.55);
+        }
+        .payment-detail-overlay[hidden] {
+            display: none;
+        }
+        .payment-detail-box {
+            width: min(760px,100%);
+            max-height: 85vh;
+            overflow: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #d8e8c8;
+            color: #24452a;
+        }
+        .payment-detail-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .payment-detail-head h3 {
+            margin: 0;
+            color: #173d20;
+        }
+        .payment-detail-meta {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .payment-detail-meta div {
+            padding: 10px;
+            background: #f5faef;
+            border-radius: 7px;
+        }
+        .payment-detail-meta span {
+            display: block;
+            color: #718274;
+            font-size: 11px;
+        }
+        .payment-detail-meta strong {
+            color: #24452a;
+        }
+        .payment-error {
+            color: #a33b2e !important;
+        }
+        .payment-btn:disabled, .payment-btn-small:disabled {
+            opacity: .55;
+            cursor: wait;
+        }
+        .customer-info-box {
+            display: none;
+            background: #f5faef;
+            border: 1px solid #dcebd7;
+            padding: 13px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        .receipt-area {
+            display: none;
+            background: white;
+            border: 1px dashed #8da68a;
+            padding: 22px;
+            max-width: 500px;
+            margin-top: 20px;
+            color: #243d28;
+        }
+        .receipt-area h3 {
+            text-align: center;
+            margin: 0 0 5px;
+        }
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+            font-size: 13px;
+        }
+        @media (max-width: 1000px) {
+            .payment-summary {
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+            .payment-grid {
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .payment-page {
+                padding: 12px;
+            }
+            .payment-summary, .payment-grid {
+                grid-template-columns: 1fr;
+            }
+            .allocation-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .payment-section {
+                padding: 13px;
+            }
+        }
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #paymentReceipt, #paymentReceipt * {
+                visibility: visible !important;
+            }
+            #paymentReceipt {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 500px;
+                border: none;
+            }
+            #paymentReceipt button {
+                display: none !important;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="payment-page">
+
+        <div class="page-heading">
+            <h2>💰 Payments & Receivables</h2>
+            <p>Manage customer payments, invoice settlements and outstanding balances.</p>
+        </div>
+
+        <!-- SUMMARY -->
+
+        <div class="payment-summary">
+
+            <div class="summary-card">
+                <div class="summary-icon">💳</div>
+                <div class="summary-label">Total Outstanding</div>
+                <h3 id="totalOutstanding">Rs. 0.00</h3>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">💵</div>
+                <div class="summary-label">Today's Collections</div>
+                <h3 id="todayCollections">Rs. 0.00</h3>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">👥</div>
+                <div class="summary-label">Customers with Outstanding</div>
+                <h3 id="outstandingCustomers">0</h3>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-icon">📄</div>
+                <div class="summary-label">Partially Paid Invoices</div>
+                <h3 id="partialInvoices">0</h3>
+            </div>
+
+        </div>
+
+        <!-- TABS -->
+
+        <div class="payment-tabs">
+            <button class="payment-tab active" data-tab="receive">💰 Receive Payment</button>
+            <button class="payment-tab" data-tab="outstanding">📋 Outstanding Invoices</button>
+            <button class="payment-tab" data-tab="customers">👥 Customer Outstanding</button>
+        </div>
+
+        <!-- RECEIVE PAYMENT -->
+
+        <div class="payment-panel active" id="panel-receive">
+
+            <div class="payment-section">
+
+                <div class="payment-section-title">01. Customer Information</div>
+
+                <div id="paymentMessage" class="payment-message">
+                </div>
+
+                <div class="payment-grid">
+
+                    <div class="payment-field">
+                        <label>Customer Search *</label>
+                        <div class="customer-search-wrap">
+                            <input type="search" id="paymentCustomerSearch"
+                           placeholder="Enter Customer ID or Name"
+                           autocomplete="off" aria-autocomplete="list" aria-controls="paymentCustomerMatches">
+                            <div id="paymentCustomerMatches" class="customer-match-list" role="listbox" hidden>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-field">
+                        <label>Customer ID</label>
+                        <input type="text" id="paymentCustomerId" readonly placeholder="Auto display">
+                    </div>
+
+                    <div class="payment-field">
+                        <label>Customer Name</label>
+                        <input type="text" id="paymentCustomerName" readonly placeholder="Auto display">
+                    </div>
+
+                </div>
+
+                <div class="customer-info-box" id="paymentCustomerInfo">
+                    <div class="payment-grid">
+                        <div>
+                            <strong>Credit Limit</strong>
+                            <p id="customerCreditLimit">Rs. 0.00</p>
+                        </div>
+                        <div>
+                            <strong>Total Outstanding</strong>
+                            <p id="customerOutstanding">Rs. 0.00</p>
+                        </div>
+                        <div>
+                            <strong>Available Credit</strong>
+                            <p id="customerAvailableCredit">Rs. 0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="payment-section">
+
+                <div class="payment-section-title">02. Outstanding Invoice Selection</div>
+
+                <div class="payment-table-wrapper">
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Invoice Number</th>
+                                <th>Invoice Date</th>
+                                <th>Invoice Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Outstanding</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentInvoiceList">
+                            <tr>
+                                <td colspan="6" class="empty-row">Search and select a customer to view outstanding invoices.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="outstanding-total">
+                    <span>Selected Invoice Outstanding</span>
+                    <span id="selectedOutstanding">Rs. 0.00</span>
+                </div>
+
+            </div>
+
+            <div class="payment-section">
+
+                <div class="payment-section-title">03. Payment Details</div>
+
+                <form id="paymentForm">
+
+                    <div class="payment-grid">
+
+                        <div class="payment-field">
+                            <label>Payment Amount (Rs.) *</label>
+                            <input type="number" id="paymentAmount" min="0.01"
+                               step="0.01" placeholder="Enter payment amount" required>
+                        </div>
+
+                        <div class="payment-field">
+                            <label>Payment Method *</label>
+                            <select id="paymentMethod" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                            </select>
+                        </div>
+
+                        <div class="payment-field">
+                            <label>Payment Date *</label>
+                            <input type="date" id="paymentDate" required>
+                        </div>
+
+                        <div class="payment-field" id="bankReferenceField" style="display:none;">
+                            <label>Bank Reference Number *</label>
+                            <input type="text" id="bankReference" maxlength="100" placeholder="Enter bank reference">
+                        </div>
+
+                        <div class="payment-field">
+                            <label>Allocation Method *</label>
+                            <select id="allocationMethod" required>
+                                <option value="oldest">Oldest Invoice First (Automatic)</option>
+                                <option value="manual">Manual Invoice Allocation</option>
+                            </select>
+                        </div>
+
+                        <div class="payment-field">
+                            <label>Payment Note</label>
+                            <input type="text" id="paymentNote" maxlength="2000" placeholder="Optional note">
+                        </div>
+
+                    </div>
+
+                    <div id="manualAllocationArea" style="display:none; margin-top:20px;">
+                        <div class="payment-section-title">Manual Invoice Allocation</div>
+                        <p style="font-size:12px;color:#718274;">
+                            Enter how much of this payment should be allocated to each selected invoice.
+                        </p>
+                        <div id="manualAllocationList">
+                        </div>
+                        <div class="outstanding-total">
+                            <span>Manual Allocation Total</span>
+                            <span id="manualAllocationTotal">Rs. 0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="outstanding-total">
+                        <span>Total Payment to Allocate</span>
+                        <span id="paymentPreview">Rs. 0.00</span>
+                    </div>
+
+                    <div class="payment-actions">
+                        <button type="button" class="payment-btn payment-btn-secondary" id="clearPaymentBtn">Clear</button>
+                        <button type="submit" class="payment-btn payment-btn-primary">✔ Confirm Payment</button>
+                    </div>
+
+                </form>
+
+                <div class="receipt-area" id="paymentReceipt">
+                    <h3>PAYMENT RECEIPT</h3>
+                    <p style="text-align:center;">Rice Mill Management System</p>
+                    <hr>
+                    <div id="receiptDetails">
+                    </div>
+                    <p style="text-align:center;margin-top:20px;">Thank you for your payment!</p>
+                    <button type="button" class="payment-btn payment-btn-primary" onclick="printPaymentReceipt()">🖨 Print Receipt</button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- OUTSTANDING INVOICES -->
+
+        <div class="payment-panel" id="panel-outstanding">
+
+            <div class="payment-section">
+                <div class="payment-section-title">04. Outstanding Invoices</div>
+
+                <div class="payment-field" style="margin-bottom:18px;">
+                    <label>Search Invoice / Customer</label>
+                    <input type="text" id="outstandingSearch"
+                       placeholder="Search by invoice number, customer ID or name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                    <div id="outstandingSearchSuggestions" class="autocomplete-list" role="listbox" hidden>
+                    </div>
+                </div>
+
+                <div class="payment-table-wrapper">
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice Number</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Invoice Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Outstanding</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outstandingTableBody">
+                            <tr>
+                                <td colspan="8" class="empty-row">No outstanding invoices available.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="outstandingPagination" class="payment-pagination" aria-live="polite">
+                </div>
+            </div>
+            <div class="payment-section completed-outstanding-section">
+                <div class="payment-section-title">Completed Outstanding Bills History</div>
+                <p class="payment-help">Previously outstanding invoices that have been fully settled.</p>
+                <div class="payment-table-wrapper">
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Original Invoice Number</th>
+                                <th>Customer</th>
+                                <th>Original Invoice Date</th>
+                                <th>Invoice Amount</th>
+                                <th>Total Paid</th>
+                                <th>Final Payment Date &amp; Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="completedOutstandingBody">
+                            <tr>
+                                <td colspan="8" class="empty-row">No completed outstanding invoices found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="completedOutstandingPagination" class="payment-pagination" aria-live="polite">
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CUSTOMER OUTSTANDING -->
+
+        <div class="payment-panel" id="panel-customers">
+
+            <div class="payment-section">
+                <div class="payment-section-title">06. Customer Outstanding Summary</div>
+
+                <div class="payment-field" style="margin-bottom:18px;">
+                    <label>Search Customer</label>
+                    <div style="position:relative">
+                        <input type="text" id="customerOutstandingSearch"
+                       placeholder="Search customer ID or name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                        <div id="customerOutstandingSuggestions" class="autocomplete-list" role="listbox" hidden>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-table-wrapper">
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Customer ID</th>
+                                <th>Customer Name</th>
+                                <th>Credit Limit</th>
+                                <th>Outstanding</th>
+                                <th>Available Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerOutstandingBody">
+                            <tr>
+                                <td colspan="5" class="empty-row">Customer balances will load from the server.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="payment-detail-overlay" id="completedInvoiceDialog" role="dialog" aria-modal="true" aria-labelledby="completedInvoiceTitle" hidden>
+        <section class="payment-detail-box">
+            <div class="payment-detail-head">
+                <h3 id="completedInvoiceTitle">Invoice Details</h3>
+                <button type="button" class="payment-btn-small" id="completedInvoiceClose">Close</button>
+            </div>
+            <div id="completedInvoiceDetails">
+            </div>
+        </section>
+    </div>
+    <script src="{{ url_for('static', filename='payments.js', v='page-size-5-v1') }}"></script>
+
+{% endblock %}

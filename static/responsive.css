@@ -1,0 +1,1220 @@
+/* ==========================================================================
+   RICE MILL MANAGEMENT SYSTEM - MOBILE & TABLET RESPONSIVE STYLESHEET
+
+   Scope:
+   - Scoped strictly inside media queries (screen and max-width: 1023px).
+   - Zero modifications to desktop layouts at 1024px and above.
+   - Zero modifications to print media (@media print).
+   - Full support for Light Mode and Dark Mode via existing CSS variables.
+   - Breakpoints:
+       * Small phones:    <= 360px
+       * Standard phones: 361px - 480px
+       * Large phones:    481px - 600px
+       * Tablets:         601px - 1023px
+       * Desktop:         >= 1024px (Prudently protected)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. Desktop Protection (>= 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (min-width: 1024px) {
+    .sidebar-toggle-btn,
+    .sidebar-close-btn,
+    .sidebar-backdrop {
+        display: none !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   1. Global Base Viewport & Page-Level Overflow Protection (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    html, body {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    body.sidebar-open {
+        overflow: hidden !important;
+        touch-action: none !important;
+    }
+
+    /* Main content container fills entire width */
+    main.page,
+    .page,
+    .dashboard-page,
+    .purchase-page,
+    .sales-page,
+    .customer-page,
+    .inventory-page,
+    .production-page,
+    .payment-page,
+    .reports-page,
+    .admin-page,
+    .settings-page,
+    .profile-page {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 16px 14px 32px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   2. Slide-out Navigation Drawer & Backdrop (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    /* Mobile Drawer */
+    aside.sidebar,
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        max-width: 86vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 3000 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s !important;
+        visibility: hidden !important;
+        box-shadow: none !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    body.sidebar-open aside.sidebar,
+    body.sidebar-open .sidebar,
+    aside.sidebar.is-open,
+    .sidebar.is-open {
+        transform: translateX(0) !important;
+        visibility: visible !important;
+        box-shadow: 0 0 35px rgba(0, 0, 0, 0.45) !important;
+    }
+
+    /* Brand Header with Close Button */
+    .sidebar .brand {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        padding: 14px 12px 18px !important;
+        margin-bottom: 14px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sidebar .brand-info {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
+    .sidebar .brand h2 {
+        font-size: 19px !important;
+        white-space: nowrap !important;
+    }
+
+    .sidebar .brand p {
+        font-size: 11px !important;
+        margin-top: 4px !important;
+    }
+
+    .sidebar-close-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.28) !important;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.16) !important;
+        color: #FFFFFF !important;
+        cursor: pointer !important;
+        transition: background-color 0.2s, transform 0.1s !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sidebar-close-btn:hover {
+        background: rgba(255, 255, 255, 0.28) !important;
+    }
+
+    .sidebar-close-btn:active {
+        transform: scale(0.95) !important;
+    }
+
+    [data-theme="dark"] .sidebar-close-btn {
+        background: #203725 !important;
+        border-color: #38543B !important;
+        color: #F1F7EF !important;
+    }
+
+    /* Nav Links inside Drawer */
+    .sidebar nav {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-right: 4px !important;
+        gap: 6px !important;
+    }
+
+    .sidebar nav a {
+        min-height: 44px !important;
+        padding: 11px 13px !important;
+        font-size: 13.5px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Drawer Backdrop */
+    .sidebar-backdrop {
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(0, 0, 0, 0.55) !important;
+        backdrop-filter: blur(2px) !important;
+        -webkit-backdrop-filter: blur(2px) !important;
+        z-index: 2999 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.28s ease !important;
+        display: none;
+    }
+
+    body.sidebar-open .sidebar-backdrop {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        display: block !important;
+    }
+
+    /* Anchored Logout Button in Drawer Footer */
+    .sidebar-footer {
+        padding-top: 12px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sidebar-logout-btn {
+        min-height: 44px !important;
+        font-size: 13.5px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   3. Compact Mobile Topbar (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    .topbar {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        padding: 10px 14px !important;
+        margin-bottom: 18px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    .topbar-left-group {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
+    /* Hamburger Toggle Button */
+    .sidebar-toggle-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-direction: column !important;
+        gap: 4.5px !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        padding: 0 !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        background: rgba(255, 255, 255, 0.22) !important;
+        color: #FFFFFF !important;
+        cursor: pointer !important;
+        flex-shrink: 0 !important;
+        transition: background-color 0.2s, transform 0.1s !important;
+    }
+
+    .sidebar-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.32) !important;
+    }
+
+    .sidebar-toggle-btn:active {
+        transform: scale(0.95) !important;
+    }
+
+    .sidebar-toggle-btn .hamburger-bar {
+        display: block !important;
+        width: 20px !important;
+        height: 2px !important;
+        background-color: #FFFFFF !important;
+        border-radius: 2px !important;
+        transition: transform 0.2s, opacity 0.2s !important;
+    }
+
+    [data-theme="dark"] .sidebar-toggle-btn {
+        background: #263D2C !important;
+        border-color: #38543B !important;
+        color: #F1F7EF !important;
+    }
+
+    [data-theme="dark"] .sidebar-toggle-btn .hamburger-bar {
+        background-color: #F1F7EF !important;
+    }
+
+    /* Topbar Information text */
+    .topbar-info {
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+    }
+
+    .topbar-info h1 {
+        font-size: clamp(15px, 3.4vw, 20px) !important;
+        line-height: 1.25 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        margin: 0 !important;
+    }
+
+    .topbar-info p {
+        font-size: 11.5px !important;
+        margin: 3px 0 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        opacity: 0.9 !important;
+    }
+
+    /* Topbar Controls */
+    .topbar-controls {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .theme-toggle-btn {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        padding: 0 !important;
+    }
+
+    .profile-button {
+        padding: 7px 11px !important;
+        min-height: 38px !important;
+        font-size: 13px !important;
+        gap: 6px !important;
+    }
+
+    .profile-menu {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        left: auto !important;
+        max-width: calc(100vw - 20px) !important;
+        width: 280px !important;
+        box-sizing: border-box !important;
+        z-index: 2500 !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   4. Dashboard Module Responsiveness (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    .dashboard-heading {
+        margin-bottom: 18px !important;
+    }
+
+    .dashboard-heading h2 {
+        font-size: clamp(20px, 4vw, 25px) !important;
+        margin-bottom: 5px !important;
+    }
+
+    .dashboard-heading p {
+        font-size: 13px !important;
+    }
+
+    .dashboard-cards {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .dashboard-card {
+        padding: 14px 12px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        border-radius: 10px !important;
+    }
+
+    .dashboard-card h3 {
+        font-size: 13px !important;
+        line-height: 1.35 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .dashboard-card .value {
+        font-size: clamp(17px, 3.8vw, 22px) !important;
+        font-weight: 800 !important;
+        line-height: 1.25 !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .dashboard-card p {
+        font-size: 11px !important;
+        margin-top: 5px !important;
+        line-height: 1.3 !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   5. Sales & Invoicing Module - Special Attention (Requirement 7)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    .sales-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 0 25px !important;
+    }
+
+    .sales-heading {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .sales-heading h2 {
+        font-size: clamp(20px, 4vw, 24px) !important;
+        margin: 0 0 4px !important;
+    }
+
+    .sales-heading p {
+        font-size: 13px !important;
+    }
+
+    .sales-heading-actions {
+        width: 100% !important;
+    }
+
+    .sales-top-buttons {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .held-bills-button,
+    .return-bill-button {
+        flex: 1 1 auto !important;
+        min-height: 42px !important;
+        padding: 9px 10px !important;
+        font-size: 12px !important;
+        justify-content: center !important;
+    }
+
+    .held-bills-panel {
+        width: min(480px, calc(100vw - 20px)) !important;
+        max-width: calc(100vw - 20px) !important;
+        right: 0 !important;
+        left: auto !important;
+    }
+
+    .sales-card {
+        padding: 16px 14px !important;
+        margin-bottom: 16px !important;
+        border-radius: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .sales-section-heading {
+        padding: 10px 12px !important;
+        margin-bottom: 14px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+    }
+
+    .sales-section-heading h2 {
+        font-size: 16px !important;
+    }
+
+    .sales-section-heading p {
+        font-size: 12px !important;
+    }
+
+    .sales-items-heading {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .sales-add-btn {
+        width: 100% !important;
+        min-height: 42px !important;
+        font-size: 13.5px !important;
+    }
+
+    .sales-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* Convert Sales Items Table into Individual Clean Touch Cards */
+    .sales-table-wrapper {
+        border: none !important;
+        background: transparent !important;
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .sales-table {
+        display: block !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        border-collapse: separate !important;
+        table-layout: auto !important;
+    }
+
+    .sales-table thead {
+        display: none !important;
+    }
+
+    .sales-table tbody {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        width: 100% !important;
+    }
+
+    /* Sales Item Card */
+    .sales-table tr.sales-item-row {
+        display: flex !important;
+        flex-direction: column !important;
+        position: relative !important;
+        padding: 16px 14px 14px !important;
+        background: #FFFFFF !important;
+        border: 1px solid #D8E8C8 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 2px 10px rgba(23, 61, 32, 0.06) !important;
+        gap: 10px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    [data-theme="dark"] .sales-table tr.sales-item-row {
+        background: #17291B !important;
+        border-color: #38543B !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .sales-table tr.sales-item-row td {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        padding: 0 !important;
+        border: none !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        text-align: left !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Visual Labels for Card Fields */
+    .sales-table tr.sales-item-row td:nth-child(1)::before {
+        content: "Category *";
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #55745A;
+    }
+
+    .sales-table tr.sales-item-row td:nth-child(2)::before {
+        content: "Product / Variety *";
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #55745A;
+    }
+
+    .sales-table tr.sales-item-row td:nth-child(3)::before {
+        content: "Package Size";
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #55745A;
+    }
+
+    .sales-table tr.sales-item-row td:nth-child(4)::before {
+        content: "Quantity *";
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #55745A;
+    }
+
+    .sales-table tr.sales-item-row td:nth-child(5)::before {
+        content: "Unit Price (Rs.) *";
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #55745A;
+    }
+
+    [data-theme="dark"] .sales-table tr.sales-item-row td:nth-child(1)::before,
+    [data-theme="dark"] .sales-table tr.sales-item-row td:nth-child(2)::before,
+    [data-theme="dark"] .sales-table tr.sales-item-row td:nth-child(3)::before,
+    [data-theme="dark"] .sales-table tr.sales-item-row td:nth-child(4)::before,
+    [data-theme="dark"] .sales-table tr.sales-item-row td:nth-child(5)::before {
+        color: #B4C9B3;
+    }
+
+    /* Input Controls inside Item Card */
+    .sales-table tr.sales-item-row select,
+    .sales-table tr.sales-item-row input {
+        width: 100% !important;
+        min-height: 42px !important;
+        padding: 9px 11px !important;
+        font-size: 14px !important;
+        border: 1px solid #C9DDBB !important;
+        border-radius: 7px !important;
+        background: #F9FDF5 !important;
+        color: #173D20 !important;
+        box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .sales-table tr.sales-item-row select,
+    [data-theme="dark"] .sales-table tr.sales-item-row input {
+        background: #263D2C !important;
+        border-color: #38543B !important;
+        color: #F1F7EF !important;
+    }
+
+    /* Units display */
+    .sales-table tr.sales-item-row small.quantity-unit,
+    .sales-table tr.sales-item-row small.price-unit {
+        display: inline-block !important;
+        font-size: 11px !important;
+        color: #71836E !important;
+        margin-top: 1px !important;
+    }
+
+    /* Item Total inside Card */
+    .sales-table tr.sales-item-row td.item-total {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 10px 12px !important;
+        margin-top: 4px !important;
+        background: #F2FAE3 !important;
+        border-radius: 8px !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        color: #04851C !important;
+    }
+
+    [data-theme="dark"] .sales-table tr.sales-item-row td.item-total {
+        background: #203725 !important;
+        color: #4DF527 !important;
+    }
+
+    .sales-table tr.sales-item-row td.item-total::before {
+        content: "Item Total:";
+        font-size: 12.5px !important;
+        font-weight: 700 !important;
+        color: #173D20 !important;
+    }
+
+    [data-theme="dark"] .sales-table tr.sales-item-row td.item-total::before {
+        color: #F1F7EF !important;
+    }
+
+    /* Remove button anchored top-right of the card */
+    .sales-table tr.sales-item-row td:nth-child(7) {
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+    }
+
+    .sales-table tr.sales-item-row .remove-item-btn {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        border-radius: 8px !important;
+        margin: 0 !important;
+    }
+
+    /* Invoice Grand Total */
+    .sales-grand-total {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        padding: 14px 16px !important;
+    }
+
+    .sales-grand-total strong {
+        font-size: 22px !important;
+    }
+
+    /* Sales Action Buttons */
+    .sales-actions {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+    }
+
+    .sales-actions button {
+        width: 100% !important;
+        min-height: 46px !important;
+        font-size: 14px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Return Exchange Mode Banner */
+    .return-exchange-banner {
+        padding: 14px 12px !important;
+    }
+
+    .return-exchange-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    /* Sales History Filters */
+    .sales-history-filters {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .sales-history-filters label {
+        width: 100% !important;
+    }
+
+    .sales-history-filters input,
+    .sales-history-filters select,
+    .sales-history-filters button {
+        width: 100% !important;
+        min-height: 42px !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   6. Paddy Purchase Module (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    .purchase-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 0 25px !important;
+    }
+
+    .purchase-container {
+        padding: 18px 14px !important;
+        border-radius: 12px !important;
+    }
+
+    #purchaseForm .form-row {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    #purchaseForm input,
+    #purchaseForm select {
+        min-height: 44px !important;
+        font-size: 14px !important;
+    }
+
+    .purchase-actions {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .purchase-actions button {
+        width: 100% !important;
+        min-height: 46px !important;
+    }
+
+    .total-box {
+        padding: 16px 14px !important;
+    }
+
+    #grandTotal {
+        font-size: 22px !important;
+    }
+
+    .purchase-history-filters {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .purchase-history-filters label,
+    .purchase-history-filters button {
+        width: 100% !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   7. Inventory, Production, Customer & Payments Modules (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    /* Inventory */
+    .inventory-overview {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .inventory-form-grid,
+    .inventory-section {
+        padding: 16px 14px !important;
+    }
+
+    /* Production */
+    .production-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .production-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .production-calculation {
+        grid-template-columns: 1fr !important;
+    }
+
+    .production-actions {
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+    }
+
+    .production-btn {
+        width: 100% !important;
+        min-height: 44px !important;
+    }
+
+    /* Customer */
+    .customer-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .customer-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .customer-actions {
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+    }
+
+    .customer-btn {
+        width: 100% !important;
+        min-height: 44px !important;
+    }
+
+    .customer-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+
+    .customer-search {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Payments */
+    .payment-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px !important;
+    }
+
+    .payment-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .payment-actions {
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+    }
+
+    .payment-btn {
+        width: 100% !important;
+        min-height: 44px !important;
+    }
+
+    .allocation-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   8. Administration, Account Settings & Reports (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    /* Administration */
+    .admin-tabs {
+        display: flex !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 4px !important;
+        padding-bottom: 4px !important;
+    }
+
+    .admin-tab {
+        flex: 1 0 auto !important;
+        white-space: nowrap !important;
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+    }
+
+    .admin-page,
+    .admin-section,
+    .admin-config-layout,
+    .admin-config-content,
+    .admin-user-list-card,
+    .admin-user-form-card {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .admin-config-content {
+        padding: 16px 12px !important;
+        overflow: hidden !important;
+    }
+
+    .admin-config-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    .admin-config-menu {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .config-menu-item {
+        min-height: 42px !important;
+        padding: 9px 12px !important;
+        text-align: center !important;
+        font-size: 13px !important;
+    }
+
+    .admin-table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-sizing: border-box !important;
+    }
+
+    .admin-category-checkboxes {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    .admin-category-choice {
+        min-width: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .admin-user-summary,
+    .admin-user-fields {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .admin-add-form {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 14px 12px !important;
+    }
+
+    .admin-add-form input,
+    .admin-add-form select,
+    .admin-add-form button {
+        width: 100% !important;
+        min-height: 42px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Reports */
+    .report-form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .report-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .report-actions button {
+        width: 100% !important;
+        min-height: 44px !important;
+    }
+
+    /* Account Settings */
+    .settings-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    .settings-menu {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .settings-menu-item {
+        min-height: 42px !important;
+        padding: 9px 12px !important;
+        text-align: center !important;
+        font-size: 13px !important;
+    }
+
+    .settings-fields {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .settings-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .settings-actions button {
+        width: 100% !important;
+        min-height: 44px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   9. Controlled Horizontal Scrolling for All Data Tables (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    .purchase-history-table-wrap,
+    .sales-history-table-wrap,
+    .inventory-table-container,
+    .customer-table-container,
+    .payment-table-container,
+    .reports-table-wrapper,
+    .admin-table-container,
+    .return-table-wrap,
+    .held-preview-table-wrap {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-sizing: border-box !important;
+        border-radius: 8px !important;
+    }
+
+    /* Tables retain their tabular format with controlled scrolling without breaking the outer page */
+    .purchase-history-table,
+    .sales-history-table,
+    .inventory-table,
+    .customer-table,
+    .payment-table,
+    .reports-table,
+    .admin-table,
+    .return-table,
+    .held-preview-table {
+        table-layout: auto !important;
+        font-size: 12px !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   10. Modals, Dialogs and Dropdowns (< 1024px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1023px) {
+    /* Modal overlays */
+    .purchase-detail-overlay,
+    .held-preview-overlay,
+    .return-modal-overlay,
+    .sales-detail-overlay,
+    .logout-modal-overlay,
+    .customer-modal-overlay,
+    .payment-modal-overlay {
+        padding: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Modal card boxes */
+    .purchase-detail-box,
+    .held-preview-box,
+    .return-modal-box,
+    .sales-detail-box,
+    .customer-modal-box,
+    .payment-modal-box {
+        width: min(100%, calc(100vw - 24px)) !important;
+        max-height: 90vh !important;
+        max-height: 90dvh !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 16px 14px !important;
+        border-radius: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .logout-modal-card {
+        width: min(380px, calc(100vw - 28px)) !important;
+        padding: 20px 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    .logout-modal-actions {
+        display: flex !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .logout-modal-actions button {
+        flex: 1 1 50% !important;
+        min-height: 42px !important;
+    }
+
+    /* Return Bill modal internal grids */
+    .return-search-grid,
+    .return-invoice-details,
+    .return-settlement-fields,
+    .return-replacement-row,
+    .return-settlement-summary {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+    }
+
+    .return-modal-actions {
+        flex-direction: column-reverse !important;
+        gap: 8px !important;
+    }
+
+    .return-modal-actions button,
+    .return-modal-actions #returnHoldButtonSlot {
+        width: 100% !important;
+    }
+
+    /* Autocomplete dropdowns stay within screen */
+    .autocomplete-list,
+    .sales-customer-results {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        z-index: 1500 !important;
+    }
+
+    /* Floating notifications stay within screen */
+    .held-notification {
+        top: 14px !important;
+        right: 14px !important;
+        left: 14px !important;
+        max-width: calc(100vw - 28px) !important;
+        box-sizing: border-box !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   11. Small Phones (<= 360px) Specific Fine-Tuning
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 360px) {
+    /* 1 Column for Dashboard KPI Cards */
+    .dashboard-cards {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Compact Topbar */
+    .topbar {
+        padding: 8px 10px !important;
+        gap: 6px !important;
+    }
+
+    .topbar-info p {
+        display: none !important;
+    }
+
+    .topbar-info h1 {
+        font-size: 14px !important;
+    }
+
+    /* Hide username text on very narrow screens, show avatar only */
+    .profile-username {
+        display: none !important;
+    }
+
+    .profile-button {
+        padding: 6px 8px !important;
+        gap: 3px !important;
+    }
+
+    /* Summaries turn to 1 column */
+    .inventory-overview,
+    .production-summary,
+    .customer-summary,
+    .payment-summary {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-config-menu,
+    .settings-menu {
+        grid-template-columns: 1fr !important;
+    }
+
+    .return-exchange-meta {
+        grid-template-columns: 1fr !important;
+    }
+
+    .allocation-row {
+        grid-template-columns: 1fr !important;
+    }
+}

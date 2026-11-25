@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('rice_mill_theme') || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
+    <title>Login | Rice Mill Management System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='dark_theme.css', v='agri-green-v9') }}">
+</head>
+
+<body class="auth-page">
+
+    <div class="auth-shell">
+
+        <!-- THEME TOGGLE BUTTON -->
+        <div class="auth-theme-toggle-wrap">
+            <button type="button"
+                    class="theme-toggle-btn auth-theme-toggle"
+                    id="themeToggleBtn"
+                    aria-label="Toggle theme"
+                    title="Toggle theme">
+                <span class="theme-icon-sun" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-sun">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2"></path>
+                        <path d="M12 20v2"></path>
+                        <path d="m4.93 4.93 1.41 1.41"></path>
+                        <path d="m17.66 17.66 1.41 1.41"></path>
+                        <path d="M2 12h2"></path>
+                        <path d="M20 12h2"></path>
+                        <path d="m6.34 17.66-1.41 1.41"></path>
+                        <path d="m19.07 4.93-1.41 1.41"></path>
+                    </svg>
+                </span>
+                <span class="theme-icon-moon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-moon">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </span>
+            </button>
+        </div>
+
+        <!-- LEFT SIDE -->
+        <section class="visual">
+
+            <div class="brand">
+                <span class="brand-icon">🌾</span>
+                <span>RICE MILL MANAGEMENT</span>
+            </div>
+
+            <div class="visual-content">
+                <h1>
+                    Manage your mill.
+                    <br>
+                    Everything in control.
+                </h1>
+
+                <p>
+                    One system to manage your rice mill operations —
+                    from paddy purchasing to production, inventory and sales.
+                </p>
+            </div>
+
+        </section>
+
+        <!-- RIGHT SIDE -->
+        <section class="form-side">
+
+            <div class="form-card">
+
+                <h2>Welcome Back!</h2>
+                <p class="form-subtitle">
+                    Login to access your dashboard
+                </p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages-container" id="flashMessages">
+                            {% for category, message in messages %}
+                                <div class="flash-message {{ category }} flash-{{ category }}" role="alert">
+                                    <span class="flash-icon">
+                                        {% if category == 'success' %}
+                                            ✓
+                                        {% elif category in ['error', 'danger'] %}
+                                            ⚠️
+                                        {% elif category == 'warning' %}
+                                            ⚠️
+                                        {% else %}
+                                            ℹ️
+                                        {% endif %}
+                                    </span>
+                                    <span class="flash-text">{{ message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="field">
+                        <label>Username</label>
+                        <input type="text"
+                               name="username"
+                               placeholder="Enter your username"
+                               required>
+                    </div>
+
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password"
+                               name="password"
+                               placeholder="Enter your password"
+                               required>
+                    </div>
+
+                    <div class="forgot-link">
+                        <a href="{{ url_for('forgot_password') }}">
+                            Forgot Password?
+                        </a>
+                    </div>
+
+                    <button type="submit" class="btn">
+                        Login
+                    </button>
+
+                </form>
+
+                <div class="register-link">
+                    Don't have an account?
+                    <a href="{{ url_for('register') }}">Register</a>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='validation.js') }}" defer></script>
+    <script>
+        (function () {
+            const toggleBtn = document.getElementById("themeToggleBtn");
+            function updateThemeState(theme) {
+                document.documentElement.setAttribute("data-theme", theme);
+                if (toggleBtn) {
+                    const isDark = theme === "dark";
+                    toggleBtn.setAttribute("aria-label", isDark ? "Switch to Light Theme" : "Switch to Dark Theme");
+                    toggleBtn.setAttribute("title", isDark ? "Switch to Light Theme" : "Switch to Dark Theme");
+                }
+            }
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            updateThemeState(currentTheme);
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const activeTheme = document.documentElement.getAttribute("data-theme") || "light";
+                    const targetTheme = activeTheme === "dark" ? "light" : "dark";
+                    updateThemeState(targetTheme);
+                    try {
+                        localStorage.setItem("rice_mill_theme", targetTheme);
+                    } catch (err) {
+                        console.warn("Storage unavailable", err);
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

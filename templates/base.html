@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <script>
+        (function () {
+            try {
+                var userId = {{ (session.get('user_id') or 'guest') | tojson }};
+                var userKey = 'rice_mill_theme_user_' + userId;
+                var theme = localStorage.getItem(userKey);
+                if (!theme) {
+                    theme = localStorage.getItem('rice_mill_theme') || 'light';
+                }
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+
+        window.csrfFetch = function (input, options = {}) {
+            const method = String(options.method || "GET").toUpperCase();
+            const headers = new Headers(options.headers || {});
+            if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+                const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (token) headers.set("X-CSRFToken", token);
+            }
+            return window.fetch(input, { ...options, headers });
+        };
+    </script>
+
+    <title>{% block title %}Rice Mill Management System{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='autocomplete.js') }}"></script>
+    <script src="{{ url_for('static', filename='pagination.js', v='page-size-5') }}"></script>
+    <script src="{{ url_for('static', filename='customer-display.js', v='customer-display-9') }}"></script>
+    <style>
+        .autocomplete-wrapper {
+            display: block;
+            position: relative;
+            z-index: 1;
+            flex: 1 1 auto;
+            min-width: 0;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .autocomplete-wrapper > input {
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+        }
+        .autocomplete-wrapper.autocomplete-open {
+            z-index: 1200;
+        }
+        .autocomplete-list {
+            position: absolute;
+            z-index: 1201;
+            top: calc(100% + 3px);
+            left: 0;
+            right: 0;
+            width: 100%;
+            max-height: min(320px,45vh);
+            overflow: auto;
+            padding: 5px;
+            border: 1px solid #C9DDBB;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 8px 22px rgba(23,61,32,.16);
+            box-sizing: border-box;
+        }
+        .autocomplete-option {
+            display: block;
+            width: 100%;
+            padding: 9px 11px;
+            border: 0;
+            border-radius: 5px;
+            background: #fff;
+            color: #173D20;
+            text-align: left;
+            cursor: pointer;
+        }
+        .autocomplete-option:hover, .autocomplete-option[aria-selected="true"] {
+            background: #F2FAE3;
+        }
+        .autocomplete-status {
+            padding: 10px 11px;
+            color: #55745A;
+            font-size: 13px;
+        }
+        body .rice-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 12px 0;
+            color: #58705c;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+        .rice-pagination-summary {
+            flex: 0 0 auto;
+            margin: 0;
+            white-space: nowrap;
+        }
+        .rice-pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 0;
+        }
+        .rice-pagination .rice-pagination-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            min-width: 34px;
+            min-height: 32px;
+            margin: 0;
+            padding: 0 10px;
+            border: 1px solid #C9DDBB;
+            border-radius: 6px;
+            background: #fff;
+            color: #205B2B;
+            font: inherit;
+            font-weight: 500;
+            line-height: 1;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .rice-pagination .rice-pagination-button[aria-current="page"] {
+            border-color: #04851C;
+            background: #04851C;
+            color: #fff;
+            font-weight: 700;
+        }
+        .rice-pagination .rice-pagination-button:disabled {
+            border-color: #DCE5D7;
+            background: #F3F6F1;
+            color: #849184;
+            opacity: 1;
+            cursor: not-allowed;
+        }
+        .rice-pagination-ellipsis {
+            min-width: 10px;
+            text-align: center;
+            color: #66806A;
+        }
+        @media (max-width: 600px) {
+            .autocomplete-list {
+                max-height: 40vh;
+            }
+            body .rice-pagination {
+                justify-content: center;
+            }
+            .rice-pagination-summary {
+                flex-basis: 100%;
+                text-align: center;
+            }
+            .rice-pagination-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dark_theme.css', v='agri-green-v9') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='responsive.css', v='mobile-v1') }}">
+</head>
+
+<body class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="appSidebar">
+
+        <div class="brand">
+            <div class="brand-info">
+                <h2>🌾 Rice Mill</h2>
+                <p>Management System</p>
+            </div>
+            <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close navigation menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <nav>
+
+            {% if session.get('role') == 'admin' or 'Dashboard' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('dashboard') }}"
+               class="{% if active_page == 'dashboard' %}active{% endif %}">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' or 'Paddy Purchase' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('paddy_purchase') }}"
+               class="{% if active_page == 'purchase' %}active{% endif %}">
+                    <span class="nav-icon">🌾</span>
+                    Paddy Purchase
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' or 'Sales & Invoicing' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('sales') }}"
+               class="{% if active_page == 'sales' %}active{% endif %}">
+                    <span class="nav-icon">🧾</span>
+                    Sales & Invoicing
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' or 'Inventory Management' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('inventory') }}"
+               class="{% if active_page == 'inventory' %}active{% endif %}">
+                    <span class="nav-icon">📦</span>
+                    Inventory Management
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' or 'Production Management' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('production') }}"
+               class="{% if active_page == 'production' %}active{% endif %}">
+                    <span class="nav-icon">🏭</span>
+                    Production Management
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' or 'Customer Management' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('customer') }}"
+               class="{% if active_page == 'customer' %}active{% endif %}">
+                    <span class="nav-icon">👥</span>
+                    Customer Management
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' or 'Payments & Receivables' in session.get('permissions', {}).get('tabs', []) %}
+                <a href="{{ url_for('payments') }}"
+               class="{% if active_page == 'payments' %}active{% endif %}">
+                    <span class="nav-icon">💰</span>
+                    Payments & Receivables
+                </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('reports') }}"
+               class="{% if active_page == 'reports' %}active{% endif %}">
+                    <span class="nav-icon">📊</span>
+                    Reports
+                </a>
+
+                <a href="{{ url_for('administration') }}"
+               class="{% if active_page == 'administration' %}active{% endif %}">
+                    <span class="nav-icon">🛠️</span>
+                    Administration
+                </a>
+            {% endif %}
+
+        </nav>
+
+        <!-- SIDEBAR FOOTER WITH FULL-WIDTH ANCHORED LOGOUT BUTTON -->
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ url_for('logout') }}" id="sidebarLogoutForm" class="sidebar-logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="button" class="sidebar-logout-btn" id="sidebarLogoutBtn" aria-label="Logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-logout-icon" aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+    <!-- MOBILE SIDEBAR BACKDROP -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true">
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="page">
+
+        <!-- COMMON GREEN TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left-group">
+                <button type="button"
+                        class="sidebar-toggle-btn"
+                        id="sidebarToggleBtn"
+                        aria-label="Toggle navigation menu"
+                        aria-expanded="false"
+                        aria-controls="appSidebar">
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                    <span class="hamburger-bar"></span>
+                </button>
+
+                <div class="topbar-info">
+                    <h1>
+                        {{ session.get('mill_name', 'Rice Mill Management System') }}
+                    </h1>
+
+                    <p>
+                        {% block page_subtitle %}
+                            Manage your rice mill operations
+                        {% endblock %}
+                    </p>
+                </div>
+            </div>
+
+            <!-- TOPBAR CONTROLS (THEME SWITCHER & PROFILE) -->
+            <div class="topbar-controls">
+
+                <!-- THEME TOGGLE BUTTON -->
+                <button type="button"
+                        class="theme-toggle-btn"
+                        id="themeToggleBtn"
+                        aria-label="Toggle dark mode"
+                        title="Toggle dark mode">
+                    <span class="theme-icon-sun" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-sun">
+                            <circle cx="12" cy="12" r="4"></circle>
+                            <path d="M12 2v2"></path>
+                            <path d="M12 20v2"></path>
+                            <path d="m4.93 4.93 1.41 1.41"></path>
+                            <path d="m17.66 17.66 1.41 1.41"></path>
+                            <path d="M2 12h2"></path>
+                            <path d="M20 12h2"></path>
+                            <path d="m6.34 17.66-1.41 1.41"></path>
+                            <path d="m19.07 4.93-1.41 1.41"></path>
+                        </svg>
+                    </span>
+                    <span class="theme-icon-moon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-moon">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        </svg>
+                    </span>
+                </button>
+
+                <!-- PROFILE DROPDOWN -->
+                <div class="profile-wrap">
+
+                    <button type="button"
+                            class="profile-button"
+                            id="profileButton"
+                            aria-expanded="false"
+                            aria-controls="profileMenu">
+
+                        <span class="profile-avatar">👤</span>
+
+                        <span class="profile-username">
+                            {{ session.get('username', 'User') }}
+                        </span>
+
+                        <span class="profile-arrow">⌄</span>
+
+                    </button>
+
+                    <!-- PROFILE MENU -->
+                    <div class="profile-menu"
+                         id="profileMenu"
+                         hidden>
+
+                        <!-- PROFILE HEADER -->
+                        <div class="profile-menu-header">
+
+                            <div class="profile-large-avatar">
+                                👤
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    {{ session.get('first_name', session.get('username', 'User')) }}
+                                    {{ session.get('last_name', '') }}
+                                </h3>
+
+                                <p>
+                                    {% if session.get('role') == 'admin' %}
+                                        Admin / Mill Owner
+                                    {% else %}
+                                        Employee
+                                    {% endif %}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <!-- PROFILE DETAILS -->
+                        <div class="profile-details">
+
+                            <div>
+                                <span>Username</span>
+
+                                <strong>
+                                    {{ session.get('username', 'Not available') }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Role</span>
+
+                                <strong>
+                                    {% if session.get('role') == 'admin' %}
+                                        Administrator
+                                    {% else %}
+                                        Employee
+                                    {% endif %}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Rice Mill</span>
+
+                                <strong>
+                                    {{ session.get('mill_name', 'Not configured') }}
+                                </strong>
+                            </div>
+
+                        </div>
+
+                        <!-- PROFILE MENU FOOTER -->
+                        <div class="profile-menu-footer">
+
+                            <!-- VIEW PROFILE - BOTH ROLES -->
+                            <a href="{{ url_for('profile') }}"
+                               class="profile-menu-item">
+                                👤 View Profile
+                            </a>
+
+                            <!-- ACCOUNT SETTINGS -->
+                            {% if can_access_account_settings() %}
+
+                                <a href="{{ url_for('account_settings') }}"
+                               class="profile-menu-item">
+                                    ⚙️ Account Settings
+                                </a>
+
+                            {% endif %}
+
+                            <!-- LOG OUT - BOTH ROLES -->
+                            <form method="POST" action="{{ url_for('logout') }}" class="logout-form">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="profile-menu-item logout-item">
+                                    🚪 Log Out
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- FLASH MESSAGES -->
+        {% block flash_messages %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages-container" id="flashMessages">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }} flash-{{ category }}" role="alert">
+                                <span class="flash-icon">
+                                    {% if category == 'success' %}
+                                        ✓
+                                    {% elif category in ['error', 'danger'] %}
+                                        ⚠️
+                                    {% elif category == 'warning' %}
+                                        ⚠️
+                                    {% else %}
+                                        ℹ️
+                                    {% endif %}
+                                </span>
+                                <span class="flash-text">{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% endblock %}
+
+        <!-- PAGE CONTENT -->
+        {% block content %}{% endblock %}
+
+    </main>
+
+    <!-- LOGOUT CONFIRMATION DIALOG -->
+    <div class="logout-modal-overlay" id="logoutConfirmModal" hidden role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle">
+        <div class="logout-modal-card">
+            <div class="logout-modal-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </div>
+            <h3 id="logoutModalTitle" class="logout-modal-title">Confirm Logout</h3>
+            <p class="logout-modal-message">Are you sure you want to logout?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="logout-btn-cancel" id="logoutModalCancel">Cancel</button>
+                <button type="button" class="logout-btn-confirm" id="logoutModalConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE DROPDOWN SCRIPT -->
+    <script>
+        window.csrfFetch = function (input, options = {}) {
+            const method = String(options.method || "GET").toUpperCase();
+            const headers = new Headers(options.headers || {});
+            if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+                const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                if (token) headers.set("X-CSRFToken", token);
+            }
+            return window.fetch(input, { ...options, headers });
+        };
+
+        const profileButton = document.getElementById("profileButton");
+        const profileMenu = document.getElementById("profileMenu");
+
+        if (profileButton && profileMenu) {
+            // OPEN / CLOSE DROPDOWN
+            profileButton.addEventListener("click", function (event) {
+                event.stopPropagation();
+
+                const isOpen = !profileMenu.hidden;
+
+                profileMenu.hidden = isOpen;
+
+                profileButton.setAttribute(
+                    "aria-expanded",
+                    String(!isOpen)
+                );
+            });
+
+            // CLOSE WHEN CLICKING OUTSIDE
+            document.addEventListener("click", function (event) {
+                if (
+                    !profileMenu.contains(event.target) &&
+                    !profileButton.contains(event.target)
+                ) {
+                    profileMenu.hidden = true;
+
+                    profileButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+                }
+            });
+
+            // CLOSE WITH ESCAPE KEY
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    profileMenu.hidden = true;
+
+                    profileButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+                }
+            });
+        }
+
+        // SIDEBAR LOGOUT CONFIRMATION DIALOG
+        (function () {
+            const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+            const logoutModal = document.getElementById("logoutConfirmModal");
+            const sidebarLogoutForm = document.getElementById("sidebarLogoutForm");
+            const cancelBtn = document.getElementById("logoutModalCancel");
+            const confirmBtn = document.getElementById("logoutModalConfirm");
+
+            let activeLogoutForm = sidebarLogoutForm;
+
+            function openLogoutModal(targetForm) {
+                activeLogoutForm = targetForm || sidebarLogoutForm;
+                const modal = logoutModal || document.getElementById("logoutConfirmModal");
+                if (modal) {
+                    modal.hidden = false;
+                    const cBtn = cancelBtn || document.getElementById("logoutModalCancel");
+                    cBtn?.focus();
+                }
+            }
+
+            function closeLogoutModal() {
+                const modal = logoutModal || document.getElementById("logoutConfirmModal");
+                if (modal) {
+                    modal.hidden = true;
+                    sidebarLogoutBtn?.focus();
+                }
+            }
+
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    openLogoutModal(sidebarLogoutForm);
+                });
+            }
+
+            // Also support topbar logout button
+            document.querySelectorAll(".logout-item").forEach(function (btn) {
+                btn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const form = btn.closest("form") || sidebarLogoutForm;
+                    openLogoutModal(form);
+                });
+            });
+
+            if (cancelBtn) {
+                cancelBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    closeLogoutModal();
+                });
+            }
+
+            if (confirmBtn) {
+                confirmBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    if (activeLogoutForm) {
+                        activeLogoutForm.submit();
+                    } else if (sidebarLogoutForm) {
+                        sidebarLogoutForm.submit();
+                    }
+                });
+            }
+
+            if (logoutModal) {
+                logoutModal.addEventListener("click", function (e) {
+                    if (e.target === logoutModal) {
+                        closeLogoutModal();
+                    }
+                });
+                document.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape" && !logoutModal.hidden) {
+                        closeLogoutModal();
+                    }
+                });
+            }
+        })();
+
+        // THEME SWITCHER CONTROLLER WITH PER-USER PERSISTENCE
+        (function () {
+            const toggleBtn = document.getElementById("themeToggleBtn");
+            const userId = {{ (session.get('user_id') or 'guest') | tojson }};
+            const userKey = "rice_mill_theme_user_" + userId;
+
+            function updateThemeState(theme) {
+                document.documentElement.setAttribute("data-theme", theme);
+                if (toggleBtn) {
+                    const isDark = theme === "dark";
+                    toggleBtn.setAttribute("aria-label", isDark ? "Switch to Light Theme" : "Switch to Dark Theme");
+                    toggleBtn.setAttribute("title", isDark ? "Switch to Light Theme" : "Switch to Dark Theme");
+                }
+            }
+
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            updateThemeState(currentTheme);
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const activeTheme = document.documentElement.getAttribute("data-theme") || "light";
+                    const targetTheme = activeTheme === "dark" ? "light" : "dark";
+                    updateThemeState(targetTheme);
+                    try {
+                        localStorage.setItem(userKey, targetTheme);
+                        localStorage.setItem("rice_mill_theme", targetTheme);
+                    } catch (err) {
+                        console.warn("Storage unavailable", err);
+                    }
+                });
+            }
+        })();
+
+        // MOBILE SIDEBAR DRAWER CONTROLLER
+        (function () {
+            const sidebar = document.getElementById("appSidebar");
+            const toggleBtn = document.getElementById("sidebarToggleBtn");
+            const closeBtn = document.getElementById("sidebarCloseBtn");
+            const backdrop = document.getElementById("sidebarBackdrop");
+
+            if (!sidebar || !toggleBtn) return;
+
+            function openSidebar() {
+                document.body.classList.add("sidebar-open");
+                document.documentElement.classList.add("sidebar-open");
+                sidebar.classList.add("is-open");
+                toggleBtn.setAttribute("aria-expanded", "true");
+                if (backdrop) backdrop.removeAttribute("hidden");
+            }
+
+            function closeSidebar() {
+                document.body.classList.remove("sidebar-open");
+                document.documentElement.classList.remove("sidebar-open");
+                sidebar.classList.remove("is-open");
+                toggleBtn.setAttribute("aria-expanded", "false");
+            }
+
+            toggleBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const isOpen = sidebar.classList.contains("is-open");
+                if (isOpen) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    closeSidebar();
+                });
+            }
+
+            if (backdrop) {
+                backdrop.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    closeSidebar();
+                });
+            }
+
+            // Close when selecting any authorized navigation link on mobile
+            sidebar.querySelectorAll("nav a").forEach(function (link) {
+                link.addEventListener("click", function () {
+                    if (window.innerWidth < 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            // Close with Escape key
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && sidebar.classList.contains("is-open")) {
+                    closeSidebar();
+                }
+            });
+
+            // Auto-close drawer if resized back to desktop (>= 1024px)
+            window.addEventListener("resize", function () {
+                if (window.innerWidth >= 1024 && sidebar.classList.contains("is-open")) {
+                    closeSidebar();
+                }
+            });
+        })();
+    </script>
+
+    <script src="{{ url_for('static', filename='validation.js') }}"></script>
+
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

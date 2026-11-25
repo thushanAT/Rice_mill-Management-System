@@ -1,0 +1,2467 @@
+{% extends "base.html" %}
+
+{% block title %}Sales & Invoicing | Rice Mill Management System{% endblock %}
+
+{% block page_subtitle %}
+    Create and manage rice sales invoices
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .sales-page {
+            width: 100%;
+            max-width: 1250px;
+            margin: 25px auto;
+            padding: 0 15px 35px;
+            color: #173D20;
+        }
+        .sales-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            margin-bottom: 22px;
+            z-index: 20;
+        }
+        .sales-heading h2 {
+            margin: 0 0 7px;
+            color: #173D20;
+            font-size: 26px;
+        }
+        .sales-heading p {
+            margin: 0;
+            color: #55745A;
+        }
+        .sales-heading-actions {
+            position: relative;
+            flex-shrink: 0;
+        }
+        .sales-top-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .held-bills-button, .return-bill-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            min-height: 44px;
+            padding: 10px 15px;
+            border: 1px solid #C9DDBB;
+            border-radius: 9px;
+            background: #FFF;
+            color: #173D20;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(23,61,32,.07);
+            transition: .2s;
+        }
+        .held-bills-button:hover, .return-bill-button:hover {
+            background: #F3FBEA;
+            border-color: #45C936;
+            transform: translateY(-1px);
+        }
+        .held-bills-icon {
+            font-size: 18px;
+        }
+        .held-bills-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 23px;
+            height: 23px;
+            padding: 0 6px;
+            border-radius: 20px;
+            background: #D62828;
+            color: #FFF;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .held-bills-badge[hidden] {
+            display: none !important;
+        }
+        .held-bills-panel {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: min(520px,calc(100vw - 35px));
+            max-height: min(70vh,600px);
+            overflow-y: auto;
+            padding: 18px;
+            background: #FFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 13px;
+            box-shadow: 0 15px 45px rgba(23,61,32,.20);
+            z-index: 1000;
+        }
+        .held-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #E3EEDB;
+        }
+        .held-panel-title h3 {
+            margin: 0 0 5px;
+            color: #173D20;
+            font-size: 18px;
+        }
+        .held-panel-title p {
+            margin: 0;
+            color: #71836E;
+            font-size: 12px;
+        }
+        .held-panel-close, .held-preview-close {
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: 7px;
+            background: #F1F5ED;
+            color: #55745A;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .held-panel-close:hover, .held-preview-close:hover {
+            background: #FCE8E8;
+            color: #B42323;
+        }
+        .held-bill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .held-bill-card {
+            padding: 15px;
+            border: 1px solid #D8E8C8;
+            border-radius: 10px;
+            background: #FAFDF7;
+        }
+        .held-bill-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .held-bill-reference {
+            color: #04851C;
+            font-size: 14px;
+            font-weight: 800;
+        }
+        .held-bill-status {
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #FFF4CE;
+            color: #8A6500;
+            font-size: 10px;
+            font-weight: 800;
+        }
+        .held-bill-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 12px;
+            margin-bottom: 13px;
+        }
+        .held-bill-info div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .held-bill-info span {
+            color: #71836E;
+            font-size: 10px;
+        }
+        .held-bill-info strong {
+            overflow-wrap: anywhere;
+            color: #173D20;
+            font-size: 12px;
+        }
+        .held-bill-amount {
+            color: #04851C !important;
+            font-size: 14px !important;
+        }
+        .held-bill-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            padding-top: 12px;
+            border-top: 1px solid #E3EEDB;
+        }
+        .held-bill-actions button, .held-preview-actions button {
+            min-height: 34px;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .held-view-btn {
+            background: #EAF1FF;
+            color: #2857A4;
+        }
+        .held-retrieve-btn {
+            background: #DFF5D9;
+            color: #04851C;
+        }
+        .held-delete-btn, .held-preview-actions .held-preview-delete {
+            background: #FCE8E8;
+            color: #B42323;
+        }
+        .held-bill-actions button:hover, .held-preview-actions button:hover {
+            filter: brightness(.96);
+            transform: translateY(-1px);
+        }
+        .held-empty {
+            padding: 30px 15px;
+            text-align: center;
+            color: #71836E;
+            font-size: 13px;
+        }
+        .held-empty-icon {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 30px;
+        }
+        .held-notification {
+            position: fixed;
+            top: 85px;
+            right: 25px;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: min(390px,calc(100vw - 30px));
+            padding: 14px 17px;
+            border: 1px solid #B9DDAF;
+            border-radius: 10px;
+            background: #FFF;
+            box-shadow: 0 8px 30px rgba(23,61,32,.18);
+            color: #173D20;
+            text-align: left;
+            cursor: pointer;
+            animation: heldNotificationIn .25s ease;
+        }
+        .held-notification-icon {
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #DFF5D9;
+            color: #04851C;
+            font-size: 18px;
+        }
+        .held-notification strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        .held-notification small {
+            color: #71836E;
+            font-size: 11px;
+        }
+        @keyframes heldNotificationIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* HELD BILL PREVIEW */
+        .held-preview-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(13,35,18,.55);
+        }
+        .held-preview-box {
+            width: min(760px,100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 25px;
+            border-radius: 14px;
+            background: #FFF;
+            box-shadow: 0 15px 50px rgba(0,0,0,.25);
+        }
+        .held-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #D8E8C8;
+        }
+        .held-preview-header h2 {
+            margin: 0;
+            color: #173D20;
+            font-size: 20px;
+        }
+        .held-preview-meta {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 13px;
+            margin-bottom: 20px;
+        }
+        .held-preview-meta div {
+            padding: 12px;
+            border-radius: 8px;
+            background: #F3FBEA;
+        }
+        .held-preview-meta span {
+            display: block;
+            margin-bottom: 5px;
+            color: #71836E;
+            font-size: 11px;
+        }
+        .held-preview-meta strong {
+            color: #173D20;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+        .held-preview-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+        }
+        .held-preview-table {
+            width: 100%;
+            min-width: 550px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .held-preview-table th {
+            padding: 11px;
+            background: #04851C;
+            color: #FFF;
+            text-align: left;
+        }
+        .held-preview-table td {
+            padding: 11px;
+            border-bottom: 1px solid #E3EEDB;
+            color: #173D20;
+        }
+        .held-preview-table tbody tr:nth-child(even) {
+            background: #F9FDF5;
+        }
+        .held-preview-total {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #EFFA8F;
+            color: #173D20;
+            font-weight: 800;
+        }
+        .held-preview-total strong {
+            color: #04851C;
+            font-size: 18px;
+        }
+        .held-preview-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 20px;
+        }
+        .held-preview-actions .held-preview-retrieve {
+            background: #04851C;
+            color: #FFF;
+        }
+        .held-preview-actions .held-preview-close-btn {
+            background: #EAF3E4;
+            color: #173D20;
+        }
+        /* SALES CARDS AND FORMS */
+        .sales-card {
+            width: 100%;
+            margin-bottom: 22px;
+            padding: 25px;
+            background: #FFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(23,61,32,.06);
+        }
+        .sales-section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+            padding: 12px 16px;
+            background: #F2FAE3;
+            border-left: 5px solid #45C936;
+            border-radius: 7px;
+        }
+        .sales-section-heading h2, .sales-summary-card h2 {
+            margin: 0 0 5px;
+            color: #173D20;
+            font-size: 18px;
+        }
+        .sales-section-heading p {
+            margin: 0;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .sales-grid {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 20px 22px;
+        }
+        .sales-field {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            min-width: 0;
+        }
+        .sales-field label {
+            color: #173D20;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .sales-field input, .sales-field select {
+            width: 100%;
+            min-height: 46px;
+            padding: 11px 13px;
+            border: 1px solid #C9DDBB;
+            border-radius: 8px;
+            background: #F9FDF5;
+            color: #173D20;
+            font-size: 14px;
+            outline: none;
+            transition: .2s;
+        }
+        .sales-field input:focus,
+        .sales-field select:focus,
+        .sales-table input:focus,
+        .sales-table select:focus {
+            border-color: #45C936;
+            background: #FFF;
+            box-shadow: 0 0 0 3px rgba(69,201,54,.18);
+        }
+        .sales-field input[readonly] {
+            background: #EFF5E9;
+            color: #55745A;
+            cursor: not-allowed;
+        }
+        #customerNote, #paymentNote {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .sales-customer-lookup {
+            position: relative;
+        }
+        .sales-customer-lookup {
+            position: relative;
+        }
+        .sales-customer-results {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1500;
+            max-height: 260px;
+            overflow: auto;
+            padding: 5px;
+            border: 1px solid #C9DDBB;
+            border-radius: 8px;
+            background: #FFF;
+            box-shadow: 0 8px 24px rgba(23,61,32,.15);
+        }
+        .sales-customer-results button {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            gap: 3px;
+            padding: 10px;
+            border: 0;
+            border-radius: 6px;
+            background: #FFF;
+            color: #173D20;
+            text-align: left;
+            cursor: pointer;
+        }
+        .sales-customer-results button:hover, .sales-customer-results button:focus {
+            background: #F3FBEA;
+            outline: 0;
+        }
+        .sales-customer-results small {
+            color: #71836E;
+        }
+        .sales-customer-empty {
+            padding: 10px;
+            color: #71836E;
+            font-size: 12px;
+        }
+        .sales-credit-panel {
+            margin-top: 18px;
+            padding: 17px;
+            background: #F3FBEA;
+            border: 1px solid #D8E8C8;
+            border-radius: 9px;
+        }
+        .sales-credit-panel > div {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid #D8E8C8;
+            font-size: 13px;
+        }
+        .sales-credit-panel strong {
+            text-align: right;
+            color: #04851C;
+        }
+        .sales-credit-panel p {
+            margin: 12px 0 0;
+            color: #55745A;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .sales-warning {
+            margin-top: 18px;
+            padding: 15px;
+            border: 1px solid #E7D68A;
+            border-left: 5px solid #D6A600;
+            border-radius: 8px;
+            background: #FFFBE7;
+            color: #6B5711;
+            font-size: 13px;
+        }
+        .sales-warning p {
+            margin: 7px 0 0;
+            line-height: 1.6;
+        }
+        .sales-add-btn, .sales-actions button {
+            min-height: 42px;
+            padding: 10px 17px;
+            border: 0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .sales-add-btn {
+            flex-shrink: 0;
+            background: #04851C;
+            color: #FFF;
+        }
+        .sales-add-btn:hover, .sales-confirm-btn:hover {
+            background: #036D17;
+            transform: translateY(-1px);
+        }
+        .sales-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #D8E8C8;
+            border-radius: 9px;
+        }
+        .sales-table {
+            width: 100%;
+            min-width: 1080px;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .sales-table th:nth-child(1) {
+            width: 14%;
+        }
+        .sales-table th:nth-child(2) {
+            width: 30%;
+        }
+        .sales-table th:nth-child(3) {
+            width: 11%;
+        }
+        .sales-table th:nth-child(4) {
+            width: 12%;
+        }
+        .sales-table th:nth-child(5) {
+            width: 13%;
+        }
+        .sales-table th:nth-child(6) {
+            width: 13%;
+        }
+        .sales-table th:nth-child(7) {
+            width: 7%;
+            text-align: center;
+        }
+        .sales-table th {
+            padding: 13px 10px;
+            background: #D9F5A8;
+            color: #173D20;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .sales-table td {
+            padding: 11px 9px;
+            border-bottom: 1px solid #E3EEDB;
+            vertical-align: middle;
+            min-width: 0;
+        }
+        .sales-table td:nth-child(7) {
+            text-align: center;
+        }
+        .sales-table td > input, .sales-table td > select {
+            display: block;
+            height: 39px;
+            min-height: 39px;
+            box-sizing: border-box;
+            margin: 0;
+            line-height: normal;
+            vertical-align: middle;
+        }
+        .sales-table tbody tr:nth-child(even) {
+            background: #F9FDF5;
+        }
+        .sales-table input, .sales-table select {
+            width: 100%;
+            min-width: 95px;
+            min-height: 39px;
+            padding: 8px;
+            border: 1px solid #C9DDBB;
+            border-radius: 6px;
+            background: #FFF;
+            color: #173D20;
+            outline: none;
+            font-size: 12px;
+        }
+        .sales-table select:disabled {
+            background: #EFF5E9;
+            color: #8A9B85;
+        }
+        .sales-table .item-product {
+            min-width: 260px;
+            white-space: normal;
+        }
+        .sales-table .item-category {
+            min-width: 145px;
+        }
+        .sales-table .item-package {
+            min-width: 110px;
+        }
+        .sales-table small {
+            display: block;
+            margin-top: 4px;
+            color: #71836E;
+            font-size: 10px;
+            line-height: 1.25;
+        }
+        .item-total {
+            min-width: 105px;
+            color: #04851C;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .package-not-required {
+            display: inline-block;
+            padding: 8px;
+            color: #71836E;
+        }
+        .remove-item-btn {
+            display: inline-grid;
+            place-items: center;
+            width: 36px;
+            height: 36px;
+            border: 0;
+            border-radius: 7px;
+            background: #FCE8E8;
+            color: #C62828;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+        .remove-item-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .remove-item-btn:hover {
+            background: #F8D3D3;
+        }
+        .sales-summary-card {
+            padding: 25px;
+        }
+        .sales-summary-card h2 {
+            margin-bottom: 18px;
+        }
+        .sales-grand-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: #EFFA8F;
+            border: 1px solid #D5E77D;
+            border-radius: 9px;
+            color: #173D20;
+            font-size: 17px;
+            font-weight: 800;
+        }
+        .sales-grand-total strong {
+            color: #04851C;
+            font-size: 25px;
+        }
+        .sales-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        .sales-actions .sales-hold-btn {
+            background: #EAF3E4;
+            color: #173D20;
+            border: 1px solid #C9DDBB;
+        }
+        .sales-actions .sales-clear-btn {
+            background: #FCE8E8;
+            color: #B42323;
+        }
+        .sales-actions .sales-confirm-btn {
+            background: #04851C;
+            color: #FFF;
+        }
+        .sales-keyboard-help {
+            margin: 18px 0 0;
+            padding: 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #F3FBEA;
+            color: #55745A;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+        .sales-page button:focus-visible {
+            outline: 3px solid #45C936;
+            outline-offset: 3px;
+        }
+        .sales-page [hidden] {
+            display: none !important;
+        }
+        .return-exchange-banner {
+            margin: 0 0 20px;
+            padding: 18px 20px;
+            border: 2px solid #2f6b3c;
+            border-left-width: 8px;
+            border-radius: 10px;
+            background: #f3fbea;
+            color: #173d20;
+            box-shadow: 0 4px 14px rgba(23,61,32,.08);
+            min-width: 0;
+        }
+        .return-exchange-banner h2 {
+            margin: 0 0 10px;
+            color: #204f2b;
+        }
+        .return-exchange-meta {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 10px;
+        }
+        .return-exchange-meta div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+            padding: 11px;
+            background: #fff;
+            border: 1px solid #d8e8c8;
+            border-radius: 6px;
+        }
+        .return-exchange-meta span {
+            display: block;
+            color: #607462;
+            font-size: 11px;
+        }
+        .return-exchange-meta strong {
+            min-width: 0;
+            color: #173d20;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .return-exchange-difference {
+            margin-top: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+        .return-exchange-payment-card {
+            border-left: 5px solid #04851C;
+        }
+        .return-exchange-payment-card .sales-grid {
+            margin-top: 12px;
+        }
+        .return-exchange-difference-amount {
+            display: block;
+            margin-top: 6px;
+            color: #04851C;
+            font-size: 20px;
+            font-weight: 800;
+        }
+        .return-exchange-error {
+            margin-top: 10px;
+            color: #b42323;
+            font-weight: 700;
+        }
+        @media (max-width: 900px) {
+            .return-exchange-meta {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+        }
+        @media (max-width: 520px) {
+            .return-exchange-meta {
+                grid-template-columns: minmax(0,1fr);
+            }
+            .return-exchange-banner {
+                padding: 15px;
+            }
+        }
+        .held-preview-overlay[hidden],
+        .held-notification[hidden],
+        .held-bills-panel[hidden],
+        .return-modal-overlay[hidden] {
+            display: none !important;
+        }
+        /* RETURN BILL MODAL */
+        .return-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(13,35,18,.62);
+        }
+        .return-modal-box {
+            width: min(850px,100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            padding: 25px;
+            background: #FFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 14px;
+            box-shadow: 0 18px 55px rgba(0,0,0,.28);
+        }
+        .return-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #D8E8C8;
+        }
+        .return-modal-header h2 {
+            margin: 0 0 5px;
+            color: #173D20;
+            font-size: 21px;
+        }
+        .return-modal-header p {
+            margin: 0;
+            color: #71836E;
+            font-size: 12px;
+        }
+        .return-modal-close {
+            width: 35px;
+            height: 35px;
+            flex-shrink: 0;
+            border: 0;
+            border-radius: 8px;
+            background: #F1F5ED;
+            color: #55745A;
+            font-size: 23px;
+            cursor: pointer;
+        }
+        .return-modal-close:hover {
+            background: #FCE8E8;
+            color: #B42323;
+        }
+        .return-info-note {
+            margin-bottom: 18px;
+            padding: 13px 15px;
+            border: 1px solid #D8E8C8;
+            border-left: 4px solid #45C936;
+            border-radius: 8px;
+            background: #F3FBEA;
+            color: #55745A;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .return-search-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .return-search-grid .sales-field {
+            min-width: 0;
+        }
+        .return-search-button {
+            align-self: end;
+            min-height: 46px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 8px;
+            background: #04851C;
+            color: #FFF;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .return-search-button:hover {
+            background: #036D17;
+        }
+        .return-modal-divider {
+            height: 1px;
+            margin: 22px 0;
+            background: #E3EEDB;
+        }
+        .return-invoice-details {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .return-detail-item {
+            padding: 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #F9FDF5;
+        }
+        .return-detail-item span {
+            display: block;
+            margin-bottom: 5px;
+            color: #71836E;
+            font-size: 11px;
+        }
+        .return-detail-item strong {
+            color: #173D20;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+        .return-products-title {
+            margin: 0 0 12px;
+            color: #173D20;
+            font-size: 16px;
+        }
+        .return-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+        }
+        .return-table {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .return-table th {
+            padding: 12px 10px;
+            background: #D9F5A8;
+            color: #173D20;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .return-table td {
+            padding: 11px 10px;
+            border-bottom: 1px solid #E3EEDB;
+            color: #173D20;
+        }
+        .return-table tbody tr:nth-child(even) {
+            background: #F9FDF5;
+        }
+        .return-table input {
+            width: 95px;
+            min-height: 36px;
+            padding: 7px;
+            border: 1px solid #C9DDBB;
+            border-radius: 6px;
+            color: #173D20;
+        }
+        .return-status-note {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #FFFBE7;
+            border: 1px solid #E7D68A;
+            color: #6B5711;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .return-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .return-modal-actions button {
+            min-height: 40px;
+            padding: 10px 17px;
+            border: 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .return-modal-actions #returnHoldButtonSlot {
+            margin-right: auto;
+        }
+        .return-modal-actions #returnHoldButtonSlot .sales-hold-btn {
+            border: 1px solid #C9DDBB;
+            background: #EAF3E4;
+            color: #173D20;
+        }
+        .return-notification-receipt {
+            display: inline-block;
+            margin-top: 8px;
+            color: #245d31;
+            font-weight: 700;
+        }
+        .return-notification-badge {
+            display: inline-grid;
+            place-items: center;
+            min-width: 19px;
+            height: 19px;
+            padding: 0 5px;
+            border-radius: 99px;
+            background: #B42323;
+            color: #fff;
+            font-size: 11px;
+            line-height: 1;
+        }
+        .return-notification-bell {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 22px;
+            color: #173D20;
+        }
+        .return-notification-bell svg {
+            width: 19px;
+            height: 19px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .return-notification-history {
+            margin: 0 0 20px;
+            padding: 14px;
+            border: 1px solid #D8E8C8;
+            border-radius: 9px;
+            background: #F9FDF5;
+        }
+        .return-notification-list {
+            display: grid;
+            gap: 10px;
+        }
+        .return-notification-card {
+            padding: 13px 14px;
+            border: 1px solid #D8E8C8;
+            border-left: 4px solid #04851C;
+            border-radius: 9px;
+            background: #FFF;
+            box-shadow: 0 2px 7px rgba(23,61,32,.06);
+        }
+        .return-notification-card.is-unread {
+            background: #F1F9E9;
+            border-left-color: #B42323;
+        }
+        .return-notification-card.is-rejected {
+            border-left-color: #B42323;
+        }
+        .return-notification-card header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .return-notification-card header strong {
+            color: #173D20;
+            font-size: 14px;
+        }
+        .return-notification-state {
+            padding: 3px 8px;
+            border-radius: 99px;
+            background: #E6F4DE;
+            color: #176324;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .is-rejected .return-notification-state {
+            background: #FCE8E8;
+            color: #A61B1B;
+        }
+        .return-notification-card p {
+            margin: 4px 0;
+            color: #405B43;
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+        .return-notification-card p strong {
+            color: #173D20;
+        }
+        .return-notification-reason {
+            margin-top: 8px !important;
+            padding: 8px 10px;
+            border-radius: 7px;
+            background: #F9FDF5;
+        }
+        .return-notification-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .return-notification-view {
+            min-height: 34px;
+            padding: 7px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #04851C;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .return-notification-view:hover {
+            background: #036D17;
+        }
+        .return-notification-settlement {
+            min-height: 34px;
+            padding: 7px 12px;
+            border: 1px solid #A9C99F;
+            border-radius: 6px;
+            background: #FFF;
+            color: #173D20;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .return-notification-settlement:hover {
+            border-color: #04851C;
+            background: #F3FBEA;
+        }
+        .return-notification-settlement:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+        .return-notification-detail {
+            width: min(900px,calc(100vw - 32px));
+            max-height: 88vh;
+            overflow: auto;
+            padding: 22px;
+            border: 1px solid #D8E8C8;
+            border-top: 6px solid #04851C;
+            border-radius: 14px;
+            background: #fff;
+            color: #173D20;
+            line-height: 1.6;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+        }
+        .return-notification-detail[open] {
+            position: fixed;
+            inset: 0;
+            margin: auto;
+            z-index: 10000;
+        }
+        .return-notification-detail::backdrop {
+            background: rgba(16,34,19,.58);
+        }
+        .return-notification-detail .return-notification-detail-head {
+            position: sticky;
+            top: -22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin: -22px -22px 16px;
+            padding: 15px 20px;
+            background: #F3FBEA;
+            border-bottom: 1px solid #D8E8C8;
+            z-index: 1;
+        }
+        .return-notification-detail-head h2 {
+            margin: 0;
+            color: #173D20;
+            font-size: 20px;
+        }
+        .return-notification-detail-close {
+            min-height: 36px;
+            padding: 7px 14px;
+            border: 1px solid #A9C99F;
+            border-radius: 7px;
+            background: #fff;
+            color: #173D20;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .return-notification-detail .return-notification-items {
+            margin: 12px 0;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .return-notification-detail .return-table {
+            min-width: 680px;
+            margin: 0;
+        }
+        .return-notification-detail-actions {
+            margin: 20px 0 0;
+            padding-top: 16px;
+            border-top: 1px solid #D8E8C8;
+        }
+        .return-notification-detail-actions .return-notification-settlement {
+            min-height: 42px;
+            padding: 10px 18px;
+            border-color: #04851C;
+            background: #04851C;
+            color: #FFF;
+            box-shadow: 0 3px 10px rgba(4,133,28,.18);
+        }
+        .return-notification-detail-actions .return-notification-settlement:hover {
+            border-color: #036D17;
+            background: #036D17;
+        }
+        .return-notification-detail-actions .return-notification-settlement:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+        .return-notification-detail [data-open-return-settlement] {
+            margin-top: 14px;
+            min-height: 42px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 8px;
+            background: #04851C;
+            color: #FFF;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(4,133,28,.18);
+        }
+        .return-notification-detail [data-open-return-settlement]:hover {
+            background: #036D17;
+        }
+        .return-settlement-modal-box {
+            width: min(1040px,100%);
+            max-height: 94vh;
+            overflow-y: auto;
+            padding: 26px;
+            background: #FFF;
+            border: 1px solid #D8E8C8;
+            border-top: 6px solid #04851C;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+        }
+        .return-settlement-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 18px;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #E3EEDB;
+        }
+        .return-settlement-modal-header h2 {
+            margin: 0 0 5px;
+            color: #173D20;
+            font-size: 24px;
+        }
+        .return-settlement-modal-header p {
+            margin: 0;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .return-settlement-summary {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .return-settlement-summary .return-detail-item {
+            background: #F3FBEA;
+        }
+        .return-settlement-choice-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 0 0 12px;
+        }
+        .return-settlement-choice {
+            flex: 1 1 190px;
+            min-height: 47px;
+            padding: 11px 16px;
+            border: 1px solid #A9C99F;
+            border-radius: 9px;
+            background: #FFF;
+            color: #173D20;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .return-settlement-choice:hover {
+            border-color: #04851C;
+            background: #F3FBEA;
+        }
+        .return-settlement-choice[aria-pressed="true"] {
+            border-color: #04851C;
+            background: #04851C;
+            color: #FFF;
+            box-shadow: 0 4px 12px rgba(4,133,28,.2);
+        }
+        .return-refund-summary {
+            padding: 14px 16px;
+            border: 1px solid #B8DCA9;
+            border-radius: 9px;
+            background: #F3FBEA;
+            color: #173D20;
+            font-weight: 700;
+        }
+        .return-settlement-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .return-settlement-close {
+            min-height: 40px;
+            padding: 10px 17px;
+            border: 0;
+            border-radius: 8px;
+            background: #EAF3E4;
+            color: #173D20;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .return-cancel-btn {
+            background: #EAF3E4;
+            color: #173D20;
+        }
+        .return-confirm-btn {
+            background: #04851C;
+            color: #FFF;
+        }
+        .return-confirm-btn:disabled {
+            background: #A9B8A5;
+            cursor: not-allowed;
+        }
+        .return-search-results {
+            margin-top: 15px;
+        }
+        .return-search-results:empty {
+            display: none;
+        }
+        .return-placeholder {
+            padding: 20px;
+            text-align: center;
+            color: #71836E;
+            font-size: 12px;
+            border: 1px dashed #C9DDBB;
+            border-radius: 8px;
+        }
+        .return-total-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-top: 14px;
+            padding: 14px 16px;
+            border: 1px solid #B8DCA9;
+            border-radius: 9px;
+            background: #F3FBEA;
+            color: #173D20;
+            font-weight: 700;
+        }
+        .return-total-summary strong {
+            font-size: 18px;
+            color: #04851C;
+            white-space: nowrap;
+        }
+        .return-invoice-result {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin: 8px 0;
+            padding: 12px 14px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #F9FDF5;
+            color: #173D20;
+            text-align: left;
+        }
+        .return-invoice-result:hover {
+            border-color: #45C936;
+            background: #F3FBEA;
+        }
+        .return-settlement-card {
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #F9FDF5;
+            color: #173D20;
+        }
+        .return-settlement-card summary {
+            cursor: pointer;
+            font-weight: 800;
+            color: #173D20;
+        }
+        .return-settlement-card summary small {
+            display: block;
+            margin-top: 5px;
+            color: #71836E;
+            font-weight: 500;
+        }
+        .return-settlement-form {
+            display: grid;
+            gap: 12px;
+            margin-top: 13px;
+            padding-top: 12px;
+            border-top: 1px solid #D8E8C8;
+        }
+        .return-settlement-fields {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 10px;
+        }
+        .return-replacement-row {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 10px;
+            margin: 9px 0;
+            padding: 10px;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            background: #FFF;
+        }
+        .return-settlement-form .sales-field input,
+        .return-settlement-form .sales-field select,
+        .return-settlement-form .sales-field textarea {
+            width: 100%;
+            min-height: 38px;
+            padding: 8px 10px;
+            border: 1px solid #C9DDBB;
+            border-radius: 7px;
+            background: #F9FDF5;
+            color: #173D20;
+        }
+        .return-settlement-form button {
+            min-height: 38px;
+            padding: 8px 13px;
+            border: 0;
+            border-radius: 7px;
+            background: #04851C;
+            color: #FFF;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .return-settlement-form button.secondary {
+            background: #EAF3E4;
+            color: #173D20;
+        }
+        .return-settlement-form .return-manual-confirm {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6B5711;
+            font-size: 12px;
+        }
+        @media (max-width: 750px) {
+            .sales-heading {
+                align-items: flex-start;
+            }
+            .sales-heading h2 {
+                font-size: 22px;
+            }
+            .held-bills-button, .return-bill-button {
+                padding: 9px 11px;
+                font-size: 11px;
+            }
+            .sales-card {
+                padding: 18px 15px;
+            }
+            .sales-grid {
+                grid-template-columns: 1fr;
+                gap: 17px;
+            }
+            .sales-section-heading {
+                align-items: flex-start;
+            }
+            .sales-items-heading {
+                flex-direction: column;
+            }
+            .sales-add-btn {
+                width: 100%;
+            }
+            .sales-actions {
+                flex-direction: column;
+            }
+            .sales-actions button {
+                width: 100%;
+            }
+            .sales-grand-total strong {
+                font-size: 21px;
+            }
+            .held-preview-box {
+                padding: 17px;
+            }
+            .return-modal-box {
+                padding: 18px;
+            }
+        }
+        @media (max-width: 480px) {
+            .sales-heading {
+                flex-direction: column;
+            }
+            .sales-heading-actions {
+                width: 100%;
+            }
+            .sales-top-buttons {
+                width: 100%;
+            }
+            .sales-top-buttons button {
+                flex: 1;
+                padding: 9px 8px;
+                font-size: 11px;
+            }
+            .held-bills-panel {
+                left: 0;
+                right: auto;
+                width: 100%;
+            }
+            .held-preview-meta, .return-invoice-details, .return-search-grid {
+                grid-template-columns: 1fr;
+            }
+            .return-settlement-fields, .return-replacement-row {
+                grid-template-columns: 1fr;
+            }
+            .return-settlement-summary {
+                grid-template-columns: 1fr;
+            }
+            .return-settlement-modal-box {
+                padding: 17px;
+            }
+            .return-settlement-modal-header h2 {
+                font-size: 20px;
+            }
+            .held-notification {
+                top: 15px;
+                right: 15px;
+            }
+            .return-modal-overlay {
+                padding: 8px;
+            }
+            .return-modal-box {
+                max-height: 96vh;
+                padding: 14px;
+            }
+        }
+        .sales-history {
+            margin-top: 30px;
+            padding: 24px;
+            background: #FFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(23,61,32,.06);
+        }
+        .sales-history h2 {
+            margin: 0 0 6px;
+            color: #173D20;
+            font-size: 20px;
+        }
+        .sales-history-intro {
+            margin: 0 0 17px;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .sales-history-filters {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .sales-history-filters label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: #536b57;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .sales-history-filters input, .sales-history-filters select {
+            min-height: 40px;
+            padding: 8px 10px;
+            border: 1px solid #C9DDBB;
+            border-radius: 7px;
+            background: #F9FDF5;
+            color: #173D20;
+        }
+        .sales-history-filters .search-field {
+            flex: 1 1 230px;
+        }
+        .sales-history-filters .search-field input {
+            width: 100%;
+        }
+        .sales-history-filters button, .sales-history-pager button, .sales-history-action {
+            border: 0;
+            border-radius: 7px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sales-history-filters button, .sales-history-pager button {
+            background: #04851C;
+            color: #FFF;
+        }
+        .sales-history-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 0 14px;
+            color: #55745A;
+            font-size: 12px;
+        }
+        .sales-history-summary span {
+            padding: 8px 11px;
+            border: 1px solid #D8E8C8;
+            border-radius: 7px;
+            background: #F9FDF5;
+        }
+        .sales-history-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #D8E8C8;
+            border-radius: 9px;
+        }
+        .sales-history-table {
+            width: 100%;
+            min-width: 1120px;
+            border-collapse: collapse;
+        }
+        .sales-history-table th {
+            padding: 11px 10px;
+            background: #D9F5A8;
+            color: #24452A;
+            text-align: left;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .sales-history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #EAF1E5;
+            color: #45564A;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+        .sales-history-table tr:last-child td {
+            border-bottom: 0;
+        }
+        .sales-history-table .number {
+            text-align: right;
+            white-space: nowrap;
+        }
+        .sales-history-reference-detail, .sales-history-amount-detail {
+            display: block;
+            margin-top: 4px;
+            color: #55745A;
+            font-size: 10px;
+            line-height: 1.4;
+            font-weight: 500;
+            white-space: normal;
+        }
+        .sales-history-state {
+            padding: 22px !important;
+            text-align: center;
+            color: #718071 !important;
+            background: #FAFCF8;
+        }
+        .sales-history-actions {
+            display: flex;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .sales-history-return-tag, .sales-history-sale-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .sales-history-return-tag {
+            background: #E5F7D9;
+            color: #17652A;
+        }
+        .sales-history-sale-tag {
+            background: #EDF2EA;
+            color: #49624C;
+        }
+        .sales-history-return-row {
+            background: #FAFFF7;
+        }
+        .sales-return-settlement {
+            margin: 16px 0;
+            padding: 14px;
+            border: 1px solid #D8E8C8;
+            border-radius: 9px;
+            background: #F9FDF5;
+        }
+        .sales-return-settlement h4 {
+            margin: 7px 0;
+            color: #173D20;
+        }
+        .sales-return-receipt {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+        .sales-history-action {
+            padding: 7px 10px;
+            background: #EAF1FF;
+            color: #2857A4;
+            text-decoration: none;
+        }
+        .sales-history-action.reprint {
+            background: #DFF5D9;
+            color: #04851C;
+        }
+        .sales-history-pager button:disabled {
+            opacity: .5;
+            cursor: default;
+        }
+        .sales-detail-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(13,35,18,.55);
+        }
+        .sales-detail-overlay[hidden] {
+            display: none;
+        }
+        .sales-detail-box {
+            width: min(820px,100%);
+            max-height: 90vh;
+            overflow: auto;
+            padding: 23px;
+            border-radius: 13px;
+            background: #FFF;
+            box-shadow: 0 15px 50px rgba(0,0,0,.25);
+        }
+        .sales-detail-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .sales-detail-head h3 {
+            margin: 0;
+            color: #173D20;
+        }
+        .sales-detail-close {
+            border: 0;
+            border-radius: 7px;
+            padding: 9px 13px;
+            background: #EAF3E4;
+            color: #173D20;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .sales-detail-meta {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 9px;
+            margin: 15px 0;
+        }
+        .sales-detail-meta div {
+            padding: 10px;
+            border-radius: 7px;
+            background: #F3FBEA;
+        }
+        .sales-detail-meta span {
+            display: block;
+            color: #71836E;
+            font-size: 11px;
+        }
+        .sales-detail-meta strong {
+            color: #173D20;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+        .sales-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .sales-detail-table th, .sales-detail-table td {
+            padding: 9px;
+            border-bottom: 1px solid #E3EEDB;
+            text-align: left;
+        }
+        .sales-detail-table th {
+            background: #D9F5A8;
+        }
+        .sales-detail-totals {
+            display: grid;
+            gap: 6px;
+            margin-top: 13px;
+            text-align: right;
+            color: #173D20;
+        }
+        @media (max-width: 750px) {
+            .sales-history {
+                padding: 18px 14px;
+            }
+            .sales-history-filters > * {
+                flex: 1 1 100%;
+            }
+            .sales-history-filters button {
+                min-height: 42px;
+            }
+            .sales-detail-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+        .return-notification-detail {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .return-notification-detail p, .return-notification-detail li {
+            font-size: 13px;
+            line-height: 1.55;
+        }
+        .return-notification-detail-head h2 {
+            font-size: 19px;
+        }
+        .return-notification-detail h3 {
+            margin: 14px 0 8px;
+            font-size: 15px;
+        }
+        .return-notification-detail .return-table {
+            font-size: 12px;
+        }
+        .return-notification-detail .return-table th,
+        .return-notification-detail .return-table td {
+            font-size: 12px;
+        }
+        .return-exchange-error {
+            margin: 14px 0 0;
+            padding: 11px 13px;
+            border: 1px solid #E7B8B8;
+            border-left: 4px solid #B42323;
+            border-radius: 8px;
+            background: #FFF8F8;
+            color: #A61B1B;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .held-bills-icon svg, .held-notification-icon svg {
+            display: block;
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="sales-page" data-sales-bill-url="{{ url_for('sales_bill') }}">
+
+        <!-- SALES HEADING -->
+        <div class="sales-heading">
+            <div>
+                <h2>Sales &amp; Invoicing</h2>
+                <p>Create and manage rice sales invoices.</p>
+            </div>
+
+            <div class="sales-heading-actions">
+                <div class="sales-top-buttons">
+                    <button type="button" class="held-bills-button"
+                        id="heldBillsButton" aria-expanded="false"
+                        aria-controls="heldBillsPanel">
+                        <span class="held-bills-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h7"/></svg></span>
+                        <span>Held Bills</span>
+                        <span class="held-bills-badge" id="heldBillsBadge" hidden>0</span>
+                    </button>
+
+                    <button type="button" class="return-bill-button" id="returnBillButton" aria-expanded="false" aria-controls="returnBillModal">
+                        <span>Return Bill</span>
+                        <span class="return-notification-bell" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>
+                        <span class="return-notification-badge" id="returnApprovalBadge" role="status" aria-live="polite" aria-label="0 active Return Bill workflows" hidden>0</span>
+                    </button>
+                </div>
+
+                <!-- HELD BILLS PANEL -->
+                <div class="held-bills-panel" id="heldBillsPanel" hidden>
+                    <div class="held-panel-header">
+                        <div class="held-panel-title">
+                            <h3>Held Bills</h3>
+                            <p>View, retrieve or delete Sales Bills, Return Bills and Exchanges</p>
+                        </div>
+                        <span class="held-count" id="heldCount">0 Held</span>
+                        <button type="button" class="held-panel-close" id="closeHeldBillsButton" aria-label="Close Held Bills">×</button>
+                    </div>
+                    <div class="held-bill-list" id="heldBillsList">
+                        <div class="held-empty">
+                            <span class="held-empty-icon" aria-hidden="true">&#128203;</span>
+                            No held bills available.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="return-exchange-banner" id="returnExchangeBanner"
+        data-settlement-url="{{ url_for('api.return_bill_settle', rid=0) }}" hidden>
+            <h2>RETURN EXCHANGE MODE</h2>
+            <div class="return-exchange-meta">
+                <div>
+                    <span>Return Reference</span>
+                    <strong id="exchangeReturnNo">—</strong>
+                </div>
+                <div>
+                    <span>Original Invoice</span>
+                    <strong id="exchangeInvoiceNo">—</strong>
+                </div>
+                <div>
+                    <span>Customer</span>
+                    <strong id="exchangeCustomerName">—</strong>
+                </div>
+                <div>
+                    <span>Approved Return Value</span>
+                    <strong id="exchangeReturnValue">Rs. 0.00</strong>
+                </div>
+            </div>
+            <div class="return-exchange-difference" id="exchangeDifference">
+                Add replacement products to calculate the difference.
+            </div>
+        </section>
+
+        <!-- CUSTOMER DETAILS -->
+        <section class="sales-card">
+            <div class="sales-section-heading">
+                <div>
+                    <h2>Customer Details</h2>
+                    <p>Select a Registered Customer or continue as a Retail Customer</p>
+                </div>
+            </div>
+
+            <div class="sales-grid">
+                <div class="sales-field">
+                    <label for="customerType">Customer Type *</label>
+                    <select id="customerType">
+                        <option value="walkin">Retail Customer</option>
+                        <option value="registered">Registered Customer</option>
+                    </select>
+                </div>
+
+                <div class="sales-field sales-customer-lookup" id="customerNameWrapper" hidden>
+                    <label for="customerName">Registered Customer *</label>
+                    <input type="text" id="customerName"
+                       placeholder="Search name, phone or customer ID" autocomplete="off"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false"
+                       aria-controls="salesCustomerResults">
+                    <div class="sales-customer-results" id="salesCustomerResults"
+                     role="listbox" hidden>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sales-note" id="customerNote">
+                Retail Customer sales require full payment only.
+            </div>
+
+            <div class="sales-credit-panel" id="customerCreditPanel" hidden>
+                <div>
+                    <span>Credit Limit</span>
+                    <strong id="salesCreditLimit">Select a Registered Customer</strong>
+                </div>
+                <div>
+                    <span>Current Outstanding</span>
+                    <strong id="salesOutstanding">Select a Registered Customer</strong>
+                </div>
+                <p>Customer credit limit is checked before confirming the sale. A sale that exceeds the limit cannot be completed.</p>
+            </div>
+        </section>
+
+        <!-- SALES ITEMS -->
+        <section class="sales-card">
+            <div class="sales-section-heading sales-items-heading">
+                <div>
+                    <h2>Sales Items</h2>
+                    <p>Select a category first, then select the relevant product</p>
+                </div>
+                <button type="button" class="sales-add-btn" id="addItemBtn">+ Add Item</button>
+            </div>
+
+            <div class="sales-table-wrapper">
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Product / Variety</th>
+                            <th>Package Size</th>
+                            <th>Quantity</th>
+                            <th>Unit Price (Rs.)</th>
+                            <th>Total (Rs.)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesItems">
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- INVOICE SUMMARY -->
+        <section class="sales-card sales-summary-card">
+            <h2>Invoice Summary</h2>
+            <div class="sales-grand-total">
+                <span>Invoice Grand Total</span>
+                <strong id="grandTotal">Rs. 0.00</strong>
+            </div>
+        </section>
+
+        <!-- PAYMENT DETAILS -->
+        <section class="sales-card" id="paymentDetailsCard">
+            <div class="sales-section-heading">
+                <div>
+                    <h2>Payment Details</h2>
+                    <p>Choose how the customer is paying for this invoice</p>
+                </div>
+            </div>
+
+            <div class="sales-grid">
+                <div class="sales-field" id="paymentTypeWrapper">
+                    <label for="paymentType">Payment Type *</label>
+                    <select id="paymentType">
+                        <option value="full">Full Payment</option>
+                        <option value="partial">Partial Payment</option>
+                        <option value="credit">Credit Sale</option>
+                    </select>
+                </div>
+
+                <div class="sales-field" id="paymentMethodWrapper">
+                    <label for="paymentMethod">Payment Method *</label>
+                    <select id="paymentMethod">
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                </div>
+
+                <div class="sales-field" id="amountReceivedWrapper">
+                    <label for="amountReceived">Amount Received (Rs.)</label>
+                    <input type="number" id="amountReceived" min="0" step="0.01" value="0">
+                </div>
+
+                <div class="sales-field" id="balanceDueWrapper">
+                    <label>Outstanding Balance (Rs.)</label>
+                    <input type="text" id="balanceDue" value="Rs. 0.00" readonly>
+                </div>
+                <div class="sales-field" id="customerBalanceWrapper">
+                    <label>Customer Balance (Rs.)</label>
+                    <input type="text" id="customerBalance" value="Rs. 0.00" readonly>
+                </div>
+            </div>
+
+            <div class="sales-note" id="paymentNote">Full invoice payment is required for Retail Customer sales.</div>
+
+            <div class="sales-warning" id="approvalWarning" hidden>
+                <strong>Customer Credit Check</strong>
+                <p>The outstanding amount is checked against the customer's credit limit. A sale that exceeds the limit cannot be completed.</p>
+            </div>
+        </section>
+
+        <section class="sales-card return-exchange-payment-card" id="exchangePaymentSection" aria-labelledby="exchangePaymentTitle" hidden>
+            <div class="sales-section-heading">
+                <div>
+                    <h2 id="exchangePaymentTitle">Exchange Payment</h2>
+                    <p>Collect the difference between the replacement total and approved Return Value.</p>
+                </div>
+            </div>
+            <div class="sales-grid">
+                <div class="sales-field" id="exchangeCollectionControls" hidden>
+                    <label for="exchangeCollectionMethod">Collection Method</label>
+                    <select id="exchangeCollectionMethod">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="sales-field" id="exchangeCustomerBalanceDueWrap" hidden>
+                    <label for="exchangeCustomerBalanceDue">Customer Balance Due (Rs.)</label>
+                    <input id="exchangeCustomerBalanceDue" type="text" value="Rs. 0.00" readonly>
+                </div>
+                <div class="sales-field" id="exchangeCashReceivedWrap" hidden>
+                    <label for="exchangeCashReceived">Cash Received (Rs.)</label>
+                    <input id="exchangeCashReceived" type="number" min="0" step="0.01" value="0" inputmode="decimal">
+                </div>
+                <div class="sales-field" id="exchangeBalanceChangeWrap" hidden>
+                    <label for="exchangeBalanceChange">Balance / Change (Rs.)</label>
+                    <input id="exchangeBalanceChange" type="text" value="Rs. 0.00" readonly>
+                </div>
+                <div class="sales-field" id="exchangeCollectionReferenceWrap" hidden>
+                    <label for="exchangeCollectionReference">Bank transfer reference</label>
+                    <input id="exchangeCollectionReference" type="text" maxlength="100">
+                </div>
+            </div>
+        </section>
+
+        <section class="sales-card return-exchange-payment-card" id="exchangeRefundSection" aria-labelledby="exchangeRefundTitle" hidden>
+            <div class="sales-section-heading">
+                <div>
+                    <h2 id="exchangeRefundTitle">Exchange Refund</h2>
+                    <p>Refund the difference because the replacement total is below the approved Return Value.</p>
+                </div>
+            </div>
+            <strong class="return-exchange-difference-amount" id="exchangeRefundDifference">Rs. 0.00</strong>
+            <div class="sales-grid">
+                <div class="sales-field" id="exchangeRefundControls" hidden>
+                    <label for="exchangeRefundMethod">Refund Method</label>
+                    <select id="exchangeRefundMethod">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="sales-field" id="exchangeRefundReferenceWrap" hidden>
+                    <label for="exchangeRefundReference">Bank transfer reference</label>
+                    <input id="exchangeRefundReference" type="text" maxlength="100">
+                </div>
+            </div>
+        </section>
+
+        <div class="return-exchange-error" id="exchangeModeError" role="alert" aria-atomic="true" hidden>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="sales-actions">
+            <button type="button" class="sales-hold-btn" id="holdSaleBtn">Hold Sale</button>
+            <button type="button" class="sales-clear-btn" id="clearSaleBtn">Clear</button>
+            <button type="button" class="sales-confirm-btn" id="confirmSaleBtn">Confirm Sale</button>
+        </div>
+
+        <p class="sales-keyboard-help">Keyboard shortcuts: Enter: Next Field | Left Arrow: Previous Field | Up or Down Arrow: Select Options | Tab: Next Control</p>
+
+        <section class="sales-history" id="salesHistory" aria-labelledby="salesHistoryTitle">
+            <h2 id="salesHistoryTitle">Sales History</h2>
+            <p class="sales-history-intro">Saved sales and closed Return Bills. Return value is tracked separately from sales revenue.</p>
+            <form class="sales-history-filters" id="salesHistoryFilters">
+                <label class="search-field">
+                    Search invoice or customer
+                    <input id="salesHistorySearch" type="search" maxlength="120" placeholder="Invoice number or customer name" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                    <div id="salesHistorySuggestions" class="autocomplete-list" role="listbox" hidden>
+                    </div>
+                </label>
+                <label>Date From <input id="salesHistoryDateFrom" type="date"></label>
+                <label>Date To <input id="salesHistoryDateTo" type="date"></label>
+                <label>
+                    Payment Type
+                    <select id="salesHistoryPaymentType">
+                        <option value="">All types</option>
+                        <option value="full">Full</option>
+                        <option value="partial">Partial</option>
+                        <option value="credit">Credit</option>
+                    </select>
+                </label>
+                <label>
+                    Transaction Type
+                    <select id="salesHistoryTransactionType">
+                        <option value="">Sales and Returns</option>
+                        <option value="sale">Sales</option>
+                        <option value="return">Closed Returns</option>
+                    </select>
+                </label>
+                <button type="submit">Apply Filters</button>
+            </form>
+            <div class="sales-history-summary" id="salesHistorySummary" aria-live="polite">
+            </div>
+            <div class="sales-history-table-wrap">
+                <table class="sales-history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Reference</th>
+                            <th>Original Invoice</th>
+                            <th>Customer</th>
+                            <th>Transaction Type</th>
+                            <th class="number">Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesHistoryRows">
+                        <tr>
+                            <td colspan="8" class="sales-history-state">Loading sales history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="sales-history-pager" id="salesHistoryPager" aria-live="polite">
+            </div>
+        </section>
+    </div>
+
+    <div class="sales-detail-overlay" id="salesDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="salesDetailTitle" hidden>
+        <section class="sales-detail-box">
+            <div class="sales-detail-head">
+                <h3 id="salesDetailTitle">Invoice Details</h3>
+                <button class="sales-detail-close" type="button" id="salesDetailClose">Close</button>
+            </div>
+            <div id="salesDetailContent">
+            </div>
+        </section>
+    </div>
+
+    <!-- HELD BILL PREVIEW MODAL -->
+    <div class="held-preview-overlay" id="heldBillPreview"
+     role="dialog" aria-modal="true" aria-labelledby="heldPreviewTitle" hidden>
+        <div class="held-preview-box">
+            <div class="held-preview-header">
+                <h2 id="heldPreviewTitle">Held Bill Details</h2>
+                <button type="button" class="held-preview-close" id="closeHeldPreviewButton" aria-label="Close preview">×</button>
+            </div>
+            <div id="heldBillPreviewContent">
+            </div>
+            <div class="held-preview-actions">
+                <button type="button" class="held-preview-close-btn" id="closeHeldPreviewFooter">Close</button>
+                <button type="button" class="held-preview-delete" id="deletePreviewHeldBill">Delete</button>
+                <button type="button" class="held-preview-retrieve" id="retrievePreviewHeldBill">Retrieve Sale</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETURN BILL MODAL -->
+    <div class="return-modal-overlay" id="returnBillModal"
+     role="dialog" aria-modal="true" aria-labelledby="returnModalTitle" hidden>
+
+        <div class="return-modal-box">
+            <div class="return-modal-header">
+                <div>
+                    <h2 id="returnModalTitle">Return Bill</h2>
+                    <p>Find the original invoice and select the items being returned.</p>
+                </div>
+                <button type="button" class="return-modal-close" id="closeReturnBillModal" aria-label="Close Return Bill">×</button>
+            </div>
+
+            <div class="return-info-note">
+                <strong>Important:</strong>
+                Returned products will be sent to
+                <strong>Inventory Management reviews returned goods separately after settlement.</strong>
+                .
+                They will not be added to sellable stock until an authorised inspection is completed.
+            </div>
+
+            <section class="return-notification-history" aria-labelledby="returnApprovalNotificationsTitle">
+                <h3 class="return-products-title" id="returnApprovalNotificationsTitle">Approval Notifications</h3>
+                <div id="returnApprovalNotifications" aria-live="polite" aria-busy="false">
+                    <div class="return-placeholder">Loading approval history...</div>
+                </div>
+            </section>
+
+            <div class="return-search-grid">
+                <div class="sales-field">
+                    <label for="returnSearchType">Search By *</label>
+                    <select id="returnSearchType">
+                        <option value="invoice">Invoice Number</option>
+                        <option value="customer_name">Customer Name</option>
+                        <option value="customer_id">Customer ID</option>
+                    </select>
+                </div>
+
+                <div class="sales-field">
+                    <label for="returnSearchValue">Search Value *</label>
+                    <input type="text" id="returnSearchValue"
+                       placeholder="Enter original invoice number" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                    <div id="returnInvoiceSuggestions" class="autocomplete-list" role="listbox" hidden>
+                    </div>
+                </div>
+
+                <button type="button" class="return-search-button"
+                    id="searchReturnInvoiceButton">
+                    Search Invoice
+                </button>
+            </div>
+
+            <div class="return-status-note" id="returnSearchMessage" hidden>
+            </div>
+            <div class="return-search-results" id="returnSearchResults">
+                <div class="return-placeholder">
+                    Search using the original invoice number, customer name or customer ID.
+                </div>
+            </div>
+
+            <div class="return-modal-divider">
+            </div>
+
+            <div id="returnInvoiceSection" hidden>
+                <div class="return-invoice-details">
+                    <div class="return-detail-item">
+                        <span>Original Invoice Number</span>
+                        <strong id="returnOriginalInvoice">-</strong>
+                    </div>
+                    <div class="return-detail-item">
+                        <span>Customer</span>
+                        <strong id="returnOriginalCustomer">-</strong>
+                    </div>
+                    <div class="return-detail-item">
+                        <span>Invoice Date</span>
+                        <strong id="returnOriginalDate">-</strong>
+                    </div>
+                    <div class="return-detail-item">
+                        <span>Invoice Total</span>
+                        <strong id="returnOriginalTotal">Rs. 0.00</strong>
+                    </div>
+                </div>
+
+                <h3 class="return-products-title">Products in Original Invoice</h3>
+
+                <div class="return-table-wrap">
+                    <table class="return-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Package Size</th>
+                                <th>Sold Qty</th>
+                                <th>Previously Returned</th>
+                                <th>Available to Return</th>
+                                <th>Return Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnInvoiceItems">
+                            <tr>
+                                <td colspan="6" style="text-align:center">No invoice selected.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="return-total-summary" aria-live="polite">
+                    <span>Total Return Value</span>
+                    <strong id="returnGrandTotal">Rs. 0.00</strong>
+                </div>
+
+                <div class="return-status-note">
+                    Return quantities must not exceed the quantity originally sold
+                    after deducting any previous returns.
+                </div>
+
+                <div class="return-status-note">Settlement is selected after an Admin approves this Return Bill.</div>
+            </div>
+            <div class="return-modal-actions">
+                <span id="returnHoldButtonSlot"></span>
+                <button type="button" class="return-cancel-btn" id="cancelReturnBillButton">Close</button>
+                <button type="button" class="return-confirm-btn"
+                    id="confirmReturnBillButton" disabled>
+                    Confirm Return
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="return-modal-overlay" id="returnSettlementModal" role="dialog" aria-modal="true" aria-labelledby="returnSettlementModalTitle" hidden>
+        <section class="return-settlement-modal-box">
+            <header class="return-settlement-modal-header">
+                <div>
+                    <h2 id="returnSettlementModalTitle">Settle Return</h2>
+                    <p id="returnSettlementModalSubtitle">Review the saved Return Bill and choose a settlement method.</p>
+                </div>
+                <button type="button" class="return-modal-close" id="closeReturnSettlementModal" aria-label="Close settlement">Close</button>
+            </header>
+            <div id="returnSettlementLoading" class="return-placeholder">Loading Return Bill details...</div>
+            <div id="returnSettlementContent" hidden>
+                <div id="returnSettlementBillSummary" class="return-settlement-summary">
+                </div>
+                <h3 class="return-products-title">Returned Products</h3>
+                <div class="return-notification-items">
+                    <table class="return-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Original Price</th>
+                                <th>Return Value</th>
+                                <th id="returnSettlementInventoryHeading">Inventory Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnSettlementItemRows">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="return-info-note" id="returnSettlementInventoryNote">
+                    <strong>Inventory status:</strong>
+                    <span id="returnSettlementInventoryMessage">Inventory status is recorded separately from financial settlement.</span>
+                </div>
+                <h3 class="return-products-title" id="returnSettlementQueueTitle">Settlement</h3>
+                <div id="returnSettlementQueue" class="return-search-results">
+                </div>
+            </div>
+            <div id="returnSettlementError" class="return-status-note" hidden>
+            </div>
+            <footer class="return-settlement-modal-actions">
+                <button type="button" class="return-settlement-close" id="returnSettlementDone">Close</button>
+            </footer>
+        </section>
+    </div>
+
+    <!-- NEW HELD SALE NOTIFICATION -->
+    <button type="button" class="held-notification" id="heldNotification" hidden>
+        <span class="held-notification-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></span>
+        <span>
+            <strong>Sale held successfully</strong>
+            <small>Click here to view your held bills</small>
+        </span>
+    </button>
+{% endblock %}
+
+{% block extra_js %}
+    <dialog class="return-notification-detail" id="returnApprovalNotificationDetail" aria-labelledby="returnNotificationDetailTitle">
+    </dialog>
+
+    <script src="{{ url_for('static', filename='sales.js', v='sales-helper-spacing-12') }}"></script>
+    <script src="{{ url_for('static', filename='sales-history.js', v='page-size-5-v1') }}"></script>
+
+{% endblock %}

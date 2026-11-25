@@ -1,0 +1,1055 @@
+{% extends "base.html" %}
+
+{% block title %}Paddy Purchase | Rice Mill Management System{% endblock %}
+
+{% block page_subtitle %}
+    Manage wet and dry paddy purchases
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .purchase-page {
+            width: 100%;
+            max-width: 1250px;
+            margin: 25px auto;
+            padding: 0 15px 35px;
+        }
+        .purchase-page .dashboard-heading {
+            margin-bottom: 22px;
+        }
+        .purchase-page .dashboard-heading h2 {
+            color: #173D20;
+            font-size: 26px;
+            margin: 0 0 7px;
+        }
+        .purchase-page .dashboard-heading p {
+            color: #55745A;
+            margin: 0;
+        }
+        .purchase-container {
+            width: 100%;
+            max-width: none;
+            margin: 0 auto;
+            padding: 30px;
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(23, 61, 32, 0.08);
+        }
+        #purchaseForm h3 {
+            margin: 0 0 20px;
+            padding: 12px 16px;
+            color: #173D20;
+            background: #F2FAE3;
+            border-left: 5px solid #45C936;
+            border-radius: 7px;
+            font-size: 17px;
+        }
+        #purchaseForm h3:not(:first-child) {
+            margin-top: 30px;
+        }
+        #purchaseForm .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            margin-bottom: 18px;
+        }
+        #purchaseForm .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 18px;
+        }
+        #purchaseForm label {
+            color: #173D20;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        #purchaseForm input, #purchaseForm select {
+            width: 100%;
+            min-height: 47px;
+            padding: 11px 13px;
+            border: 1px solid #C9DDBB;
+            border-radius: 8px;
+            background: #F9FDF5;
+            color: #173D20;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+        #purchaseForm input:focus, #purchaseForm select:focus {
+            border-color: #45C936;
+            background: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(69, 201, 54, 0.18);
+        }
+        #purchaseForm .optional-text {
+            color: #718096;
+            font-weight: 400;
+        }
+        .keyboard-hint {
+            margin: 0 0 22px;
+            padding: 11px 14px;
+            background: #F3FBEA;
+            border: 1px solid #D8E8C8;
+            border-radius: 8px;
+            color: #55745A;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .total-box {
+            margin-top: 25px;
+            padding: 22px;
+            background: #EFFA8F;
+            border: 1px solid #D5E77D;
+            border-radius: 10px;
+            color: #173D20;
+        }
+        .total-box span:first-child {
+            font-size: 17px;
+            font-weight: 700;
+        }
+        #grandTotal {
+            font-size: 25px;
+            font-weight: 800;
+            color: #04851C;
+        }
+        .purchase-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        .purchase-actions button {
+            min-height: 45px;
+            padding: 11px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .purchase-actions .secondary-btn {
+            background: #EAF3E4;
+            color: #173D20;
+            border: 1px solid #C9DDBB;
+        }
+        .purchase-actions .secondary-btn:hover {
+            background: #DCEBCF;
+        }
+        .purchase-actions .primary-btn {
+            background: #04851C;
+            color: #FFFFFF;
+        }
+        .purchase-actions .primary-btn:hover {
+            background: #036D17;
+            transform: translateY(-1px);
+        }
+        .purchase-history {
+            margin: 28px auto 0;
+            padding: 24px;
+            background: #FFFFFF;
+            border: 1px solid #D8E8C8;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(23, 61, 32, 0.08);
+        }
+        .purchase-history h3 {
+            margin: 0 0 6px;
+            color: #173D20;
+        }
+        .purchase-history-intro {
+            margin: 0 0 18px;
+            color: #55745A;
+            font-size: 13px;
+        }
+        .purchase-history-filters {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .purchase-history-filters label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: #536b57;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .purchase-history-filters input {
+            min-height: 40px;
+            padding: 8px 10px;
+            border: 1px solid #C9DDBB;
+            border-radius: 7px;
+            background: #F9FDF5;
+            color: #173D20;
+        }
+        .purchase-history-filters .search-field {
+            flex: 1 1 230px;
+        }
+        .purchase-history-filters .search-field input {
+            width: 100%;
+        }
+        .purchase-history-filters button,
+        .purchase-history-pager button,
+        .purchase-detail-actions a,
+        .purchase-detail-close {
+            border: 0;
+            border-radius: 7px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .purchase-history-filters button, .purchase-history-pager button {
+            background: #04851C;
+            color: #fff;
+        }
+        .purchase-history-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #D8E8C8;
+            border-radius: 9px;
+        }
+        .purchase-history-table {
+            width: 100%;
+            min-width: 1180px;
+            border-collapse: collapse;
+        }
+        .purchase-history-table th {
+            padding: 11px 10px;
+            background: #D9F5A8;
+            color: #24452A;
+            text-align: left;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .purchase-history-table td {
+            padding: 10px;
+            border-bottom: 1px solid #EAF1E5;
+            color: #45564A;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+        .purchase-history-table tr:last-child td {
+            border-bottom: 0;
+        }
+        .purchase-history-table .number {
+            white-space: nowrap;
+            text-align: right;
+        }
+        .purchase-row-actions {
+            display: flex;
+            gap: 7px;
+        }
+        .purchase-row-actions button, .purchase-row-actions a {
+            display: inline-block;
+            padding: 7px 9px;
+            border: 1px solid #C9DDBB;
+            border-radius: 6px;
+            background: #F3FBEA;
+            color: #205B2B;
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .purchase-history-state {
+            padding: 22px;
+            text-align: center;
+            color: #718071;
+            background: #FAFCF8;
+        }
+        .purchase-history-pager button:disabled {
+            opacity: .5;
+            cursor: default;
+        }
+        .purchase-detail-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(13,35,18,.62);
+        }
+        .purchase-detail-overlay[hidden] {
+            display: none;
+        }
+        .purchase-detail-box {
+            width: min(620px,100%);
+            max-height: 90vh;
+            overflow: auto;
+            padding: 24px;
+            background: #fff;
+            border: 1px solid #D8E8C8;
+            border-radius: 14px;
+            box-shadow: 0 18px 55px rgba(0,0,0,.28);
+        }
+        .purchase-detail-box h3 {
+            margin: 0;
+            padding: 0;
+            background: none;
+            border: 0;
+            font-size: 20px;
+        }
+        .purchase-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .purchase-detail-item {
+            padding: 11px;
+            background: #F3FBEA;
+            border: 1px solid #D8E8C8;
+            border-radius: 7px;
+            overflow-wrap: anywhere;
+        }
+        .purchase-detail-item small {
+            display: block;
+            margin-bottom: 5px;
+            color: #55745A;
+        }
+        .purchase-detail-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 20px;
+        }
+        .purchase-detail-actions a {
+            background: #04851C;
+            color: #fff;
+            text-decoration: none;
+        }
+        .purchase-detail-close {
+            background: #EAF3E4;
+            color: #173D20;
+        }
+        #purchaseForm button:focus-visible {
+            outline: 3px solid #45C936;
+            outline-offset: 3px;
+        }
+        @media (max-width: 650px) {
+            .purchase-container {
+                padding: 20px 16px;
+            }
+            .purchase-history {
+                padding: 18px 14px;
+            }
+            .purchase-history-filters > * {
+                flex: 1 1 100%;
+            }
+            .purchase-history-filters button {
+                min-height: 42px;
+            }
+            .purchase-detail-grid {
+                grid-template-columns: 1fr;
+            }
+            #purchaseForm .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .purchase-actions {
+                flex-direction: column-reverse;
+            }
+            .purchase-actions button {
+                width: 100%;
+            }
+            #grandTotal {
+                font-size: 21px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="purchase-page">
+
+        <div class="dashboard-heading">
+            <h2>🌾 Paddy Purchase</h2>
+            <p>Record and manage your daily paddy purchases.</p>
+        </div>
+
+        <div class="purchase-container">
+
+            <div class="keyboard-hint">
+                <strong>Keyboard Shortcuts:</strong>
+                ↑ / ↓ Select option &nbsp; | &nbsp;
+                Enter Next Field &nbsp; | &nbsp;
+                ← Previous Field &nbsp; | &nbsp;
+                Tab / Shift + Tab Navigate
+            </div>
+
+            <form id="purchaseForm">
+
+                <h3>01. Purchase Details</h3>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label for="purchaseType">Paddy Type</label>
+
+                        <select id="purchaseType" required>
+                            <option value="">Select Paddy Type</option>
+                            <option value="Wet Paddy">Wet Paddy</option>
+                            <option value="Dry Paddy">Dry Paddy</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="variety">Paddy Variety</label>
+
+                        <select id="variety" required>
+                            <option value="">Select Variety</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <h3>02. Seller Information</h3>
+
+                <div class="form-group">
+                    <label for="sellerName">
+                        Seller Name
+                        <span class="optional-text">(Optional)</span>
+                    </label>
+
+                    <input
+                    type="text"
+                    id="sellerName"
+                    placeholder="Enter seller name"
+                    autocomplete="off"
+                >
+                </div>
+
+                <h3>03. Quantity and Price</h3>
+
+                <div class="form-row">
+
+                    <div class="form-group">
+                        <label for="quantity">Quantity (kg)</label>
+
+                        <input
+                        type="number"
+                        id="quantity"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="Enter quantity"
+                        required
+                    >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="price">Price per kg (Rs.)</label>
+
+                        <input
+                        type="number"
+                        id="price"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="Enter price"
+                        required
+                    >
+                        <small id="purchasePriceStatus" role="status">Manual Price</small>
+                    </div>
+
+                </div>
+
+                <div class="total-box">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;">
+                        <span>Grand Total</span>
+                        <span id="grandTotal">Rs. 0.00</span>
+                    </div>
+                </div>
+
+                <div class="purchase-actions">
+
+                    <button type="reset" class="secondary-btn">
+                        Clear Form
+                    </button>
+
+                    <button type="submit" class="primary-btn">
+                        Confirm Purchase & Print Bill
+                    </button>
+
+                </div>
+
+            </form>
+
+            <section class="purchase-history" id="purchaseHistory" aria-labelledby="purchaseHistoryTitle">
+                <h3 id="purchaseHistoryTitle">Purchase History</h3>
+                <p class="purchase-history-intro">Saved purchases loaded from the database. Open details to view or reprint a bill.</p>
+                <form class="purchase-history-filters" id="purchaseHistoryFilters">
+                    <label class="search-field">
+                        Search
+                        <input id="purchaseHistorySearch" type="search" maxlength="120"
+                           placeholder="Bill number, seller, variety or paddy type" autocomplete="off"
+                           role="combobox" aria-autocomplete="list" aria-expanded="false">
+                        <div id="purchaseHistorySuggestions" class="autocomplete-list" role="listbox" hidden>
+                        </div>
+                    </label>
+                    <label>Date From <input id="purchaseHistoryDateFrom" type="date"></label>
+                    <label>Date To <input id="purchaseHistoryDateTo" type="date"></label>
+                    <button type="submit">Apply Filters</button>
+                </form>
+                <div class="purchase-history-table-wrap">
+                    <table class="purchase-history-table">
+                        <thead>
+                            <tr>
+                                <th>Purchase ID</th>
+                                <th>Reference Number</th>
+                                <th>Purchase Date</th>
+                                <th>Paddy Type</th>
+                                <th>Paddy Variety</th>
+                                <th>Seller Name</th>
+                                <th class="number">Quantity (kg)</th>
+                                <th class="number">Price per kg</th>
+                                <th class="number">Total Amount</th>
+                                <th>Payment Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchaseHistoryRows">
+                            <tr>
+                                <td colspan="11" class="purchase-history-state">Loading saved purchases...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="purchase-history-pager" id="purchaseHistoryPager" aria-live="polite">
+                </div>
+            </section>
+
+        </div>
+
+        <div class="purchase-detail-overlay" id="purchaseDetailOverlay" role="dialog"
+         aria-modal="true" aria-labelledby="purchaseDetailTitle" hidden>
+            <section class="purchase-detail-box">
+                <h3 id="purchaseDetailTitle">Purchase Details</h3>
+                <div id="purchaseDetailContent">
+                </div>
+                <div class="purchase-detail-actions">
+                    <button class="purchase-detail-close" type="button" id="purchaseDetailClose">Close</button>
+                    <a id="purchaseDetailPrint" href="#" target="_blank" rel="noopener">Open / Print Bill</a>
+                </div>
+            </section>
+        </div>
+
+        {% if session.get('role') == 'employee' and 'Paddy Purchase' in session.get('permissions', {}).get('tabs', []) %}
+            <div class="purchase-detail-overlay" id="purchaseCorrectionOverlay" role="dialog" aria-modal="true" aria-labelledby="purchaseCorrectionTitle" hidden>
+                <section class="purchase-detail-box">
+                    <h3 id="purchaseCorrectionTitle">Request Purchase Correction</h3>
+                    <p>The original purchase stays preserved. An Admin must approve your proposed changes.</p>
+                    <form id="purchaseCorrectionForm">
+                        <input type="hidden" id="correctionPurchaseId">
+                        <label>
+                            Paddy Type
+                            <select id="correctionType" required>
+                                <option>Wet Paddy</option>
+                                <option>Dry Paddy</option>
+                            </select>
+                        </label>
+                        <label>Paddy Variety <input id="correctionVariety" maxlength="120" required></label>
+                        <label>Seller Name <input id="correctionSeller" maxlength="160" required></label>
+                        <label>Quantity (kg) <input id="correctionQuantity" type="number" min="0.001" step="0.001" required></label>
+                        <label>Price per kg <input id="correctionPrice" type="number" min="0.01" step="0.01" required></label>
+                        <label>Purchase Date <input id="correctionDate" type="date" required></label>
+                        <label>
+                            Notes
+                            <textarea id="correctionNotes" maxlength="4000"></textarea>
+                        </label>
+                        <label>
+                            Reason for correction
+                            <textarea id="correctionReason" maxlength="500" required></textarea>
+                        </label>
+                        <div class="purchase-detail-actions">
+                            <button type="submit">Submit Request</button>
+                            <button type="button" id="purchaseCorrectionClose">Cancel</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        const purchaseForm = document.getElementById("purchaseForm");
+
+        const purchaseType = document.getElementById("purchaseType");
+        const variety = document.getElementById("variety");
+        const sellerName = document.getElementById("sellerName");
+        const quantity = document.getElementById("quantity");
+        const price = document.getElementById("price");
+        const purchasePriceStatus = document.getElementById("purchasePriceStatus");
+        const grandTotal = document.getElementById("grandTotal");
+
+        const purchaseUrl = {{ url_for('paddy_purchase')|tojson }};
+        const millName = {{ session.get('mill_name', 'RICE MILL NAME')|tojson }};
+        let purchasePriceSettings = {};
+
+        const keyboardFields = [
+            purchaseType,
+            variety,
+            sellerName,
+            quantity,
+            price
+        ];
+
+        function formatMoney(value) {
+            return Number(value).toLocaleString("en-LK", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function calculateTotal() {
+            const qty = Number(quantity.value) || 0;
+            const unitPrice = Number(price.value) || 0;
+
+            grandTotal.textContent = "Rs. " + formatMoney(qty * unitPrice);
+        }
+
+        function updatePurchasePrice() {
+            const setting = purchasePriceSettings[`${variety.value}:${purchaseType.value}`];
+            price.readOnly = !!(setting && setting.price !== null && setting.locked);
+            if (!setting || setting.price === null) {
+                price.value = "";
+                price.readOnly = false;
+                price.title = "No Administration default price. Enter a purchase price manually.";
+                purchasePriceStatus.textContent = "Manual Price";
+            }
+            else {
+                price.value = Number(setting.price).toFixed(2);
+                price.title = setting.locked ? "Locked by Administration." : "Default from Administration; this purchase may use an edited transaction price.";
+                purchasePriceStatus.textContent = setting.locked ? "Locked" : "Editable";
+            }
+            calculateTotal();
+        }
+        async function loadPurchasePriceSettings() {
+            try {
+                const response = await fetch("/api/masters", { credentials: "same-origin" });
+                const data = await response.json();
+                if (!response.ok || data.success === false) throw new Error(data.message || "Could not load Administration prices.");
+                const activeVarieties = (data.items || []).filter(item => item.group === "rice_variety" && item.active !== false);
+                const previous = variety.value;
+                variety.innerHTML = '<option value="">Select Variety</option>' + activeVarieties.map(item => `<option value="${item.id}" data-variety-name="${escapeHTML(item.name)}">${escapeHTML(item.name)}</option>`).join("");
+                if (previous && activeVarieties.some(item => String(item.id) === previous)) variety.value = previous;
+                purchasePriceSettings = {};
+                (data.purchasePrices || []).filter(row => row.active !== false).forEach(row => {
+                    purchasePriceSettings[`${row.varietyId}:${row.paddyType}`] = { price: row.price, locked: !!row.locked };
+                });
+                updatePurchasePrice();
+            } catch (error) {
+                purchasePriceStatus.textContent = "Price settings unavailable";
+                console.error("Purchase price settings could not be loaded", error);
+            }
+        }
+        variety.addEventListener("change", updatePurchasePrice);
+        purchaseType.addEventListener("change", updatePurchasePrice);
+
+        function localDateISO() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+        }
+
+        quantity.addEventListener("input", calculateTotal);
+        price.addEventListener("input", calculateTotal);
+
+        function savePurchaseData() {
+            const data = {
+                purchaseType: purchaseType.value,
+                varietyId: variety.value,
+                variety: variety.selectedOptions[0]?.dataset.varietyName || "",
+                sellerName: sellerName.value,
+                quantity: quantity.value,
+                price: price.value
+            };
+
+            sessionStorage.setItem(
+                "purchaseEditData",
+                JSON.stringify(data)
+            );
+        }
+
+        function restorePurchaseData() {
+            const editMode = new URLSearchParams(
+                window.location.search
+            ).get("edit");
+
+            if (editMode !== "1") {
+                return;
+            }
+
+            const savedData = sessionStorage.getItem("purchaseEditData");
+
+            if (!savedData) {
+                return;
+            }
+
+            try {
+                const data = JSON.parse(savedData);
+
+                purchaseType.value = data.purchaseType || "";
+                variety.value = data.varietyId || [...variety.options].find(option => option.dataset.varietyName === data.variety)?.value || "";
+                sellerName.value = data.sellerName || "";
+                quantity.value = data.quantity || "";
+                updatePurchasePrice();
+                const setting = purchasePriceSettings[`${variety.value}:${purchaseType.value}`];
+                if (!setting || !setting.locked) price.value = data.price || price.value;
+
+                calculateTotal();
+            } catch (error) {
+                sessionStorage.removeItem("purchaseEditData");
+            }
+        }
+
+        keyboardFields.forEach(function (field, index) {
+            field.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+
+                    if (index < keyboardFields.length - 1) {
+                        keyboardFields[index + 1].focus();
+                    } else {
+                        purchaseForm.requestSubmit();
+                    }
+                }
+
+                if (event.key === "ArrowLeft") {
+                    const isTextInput =
+                        field.tagName === "INPUT" &&
+                        field.type === "text";
+
+                    const isNumberInput =
+                        field.tagName === "INPUT" &&
+                        field.type === "number";
+
+                    let atStart = true;
+
+                    if (isTextInput || isNumberInput) {
+                        atStart = field.selectionStart === 0 ||
+                            field.selectionStart === null;
+                    }
+
+                    if (index > 0 && atStart) {
+                        event.preventDefault();
+                        keyboardFields[index - 1].focus();
+                    }
+                }
+            });
+        });
+
+        purchaseForm.addEventListener("reset", function () {
+            setTimeout(function () {
+                grandTotal.textContent = "Rs. 0.00";
+                updatePurchasePrice();
+                sessionStorage.removeItem("purchaseEditData");
+                sessionStorage.removeItem("purchaseSavedId");
+                sessionStorage.removeItem("purchasePendingIdempotencyKey");
+                sessionStorage.removeItem("purchasePendingFingerprint");
+                purchaseType.focus();
+            }, 0);
+        });
+
+        function escapeHTML(value) {
+            return String(value).replace(/[&<>"']/g, function (character) {
+                const entities = {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                };
+
+                return entities[character];
+            });
+        }
+
+        purchaseForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            if (!purchaseForm.reportValidity()) {
+                return;
+            }
+
+            const type = purchaseType.value;
+            const selectedVarietyId = Number(variety.value) || 0;
+            const selectedVariety = variety.selectedOptions[0]?.dataset.varietyName || "";
+            const seller = sellerName.value.trim() || "Not Provided";
+
+            const qty = Number(quantity.value);
+            const unitPrice = Number(price.value);
+
+            if (!type || !selectedVarietyId || !selectedVariety || qty <= 0 || unitPrice <= 0) {
+                alert("Please enter all required purchase details correctly.");
+                return;
+            }
+
+            savePurchaseData();
+            const requestData = {
+                purchaseType: type,
+                variety: selectedVariety,
+                varietyId: selectedVarietyId,
+                sellerName: seller,
+                quantity: qty,
+                price: unitPrice,
+                date: localDateISO(),
+                paymentMethod: "Cash"
+            };
+            const fingerprint = JSON.stringify(requestData);
+            let idempotencyKey = sessionStorage.getItem("purchasePendingIdempotencyKey");
+            if (!idempotencyKey || sessionStorage.getItem("purchasePendingFingerprint") !== fingerprint) {
+                idempotencyKey = crypto.randomUUID();
+                sessionStorage.setItem("purchasePendingIdempotencyKey", idempotencyKey);
+                sessionStorage.setItem("purchasePendingFingerprint", fingerprint);
+            }
+            // Open synchronously from the submit gesture so popup blockers allow
+            // the persisted bill route to load after the API request completes.
+            const billWindow = window.open("about:blank", "_blank");
+            const submitButton = purchaseForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            let purchase;
+            try {
+                const response = await window.csrfFetch("/api/purchases", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ...requestData, idempotencyKey })
+                });
+                const result = await response.json().catch (() => ({}));
+                if (!response.ok || result.success === false) {
+                    if (response.status >= 400 && response.status < 500) {
+                        sessionStorage.removeItem("purchasePendingIdempotencyKey");
+                        sessionStorage.removeItem("purchasePendingFingerprint");
+                    }
+                    throw new Error(result.message || "Purchase could not be saved.");
+                }
+                purchase = result.purchase;
+                sessionStorage.removeItem("purchasePendingIdempotencyKey");
+                sessionStorage.removeItem("purchasePendingFingerprint");
+            } catch (error) {
+                if (billWindow && !billWindow.closed) billWindow.close();
+                alert(error.message || "Purchase could not be saved. Please try again.");
+                submitButton.disabled = false;
+                return;
+            }
+
+            const billUrl = `${purchaseUrl}/${Number(purchase.id)}/bill`;
+            if (billWindow) {
+                billWindow.location.replace(billUrl);
+            } else {
+                alert("Purchase saved. Your browser blocked the bill tab; use Reprint in Purchase History.");
+            }
+
+            sessionStorage.removeItem("purchaseSavedId");
+            sessionStorage.removeItem("purchaseEditData");
+            purchaseForm.reset();
+            submitButton.disabled = false;
+            loadPurchaseHistory(1);
+        });
+
+        const purchaseHistoryRows = document.getElementById("purchaseHistoryRows");
+        const purchaseHistoryPager = document.getElementById("purchaseHistoryPager");
+        const purchaseHistoryFilters = document.getElementById("purchaseHistoryFilters");
+        const purchaseSearchInput = document.getElementById("purchaseHistorySearch");
+        let purchaseSuggestionTimer = null;
+        let purchaseSuggestionVersion = 0;
+        if (window.RiceAutocomplete && purchaseSearchInput) window.RiceAutocomplete.attach(purchaseSearchInput, document.getElementById("purchaseHistorySuggestions"), {
+            minChars: 2, debounceMs: 250,
+            fetchItems: async term => {
+                const version = ++purchaseSuggestionVersion;
+                const response = await window.csrfFetch(`/api/purchases?q=${encodeURIComponent(term)}&perPage=12`, { credentials: "same-origin" });
+                const data = await response.json().catch (() => ({}));
+                if (!response.ok) throw new Error(data.message || "Purchase suggestions could not be loaded.");
+                return version === purchaseSuggestionVersion ? (data.purchases || []) : [];
+            },
+            key: row => row.id,
+            label: row => `${row.purchaseNo} · ${row.seller || "Not Provided"} · ${row.variety} ${row.type}`,
+            searchText: row => [row.purchaseNo, row.seller, row.variety, row.type].join(" "),
+            onSelect: row => {
+                purchaseSearchInput.value = row.purchaseNo;
+                loadPurchaseHistory(1);
+            }
+        });
+        const purchaseDetailOverlay = document.getElementById("purchaseDetailOverlay");
+        const purchaseDetailContent = document.getElementById("purchaseDetailContent");
+        let purchaseHistoryPage = 1;
+        const purchaseHistoryPageSize = 5;
+        const canRequestPurchaseCorrection = {{ (session.get('role') == 'employee' and 'Paddy Purchase' in session.get('permissions', {}).get('tabs', []))|tojson }};
+        const correctionOverlay = document.getElementById("purchaseCorrectionOverlay");
+
+        function purchaseMoney(value) {
+            return Number(value || 0).toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function purchaseHistoryState(message, isError = false) {
+            purchaseHistoryRows.innerHTML = `<tr><td colspan="11" class="purchase-history-state" role="status">${escapeHTML(message)}</td></tr>`;
+            purchaseHistoryPager.textContent = "";
+            if (isError) {
+                purchaseHistoryPager.innerHTML = '<button type="button" data-purchase-retry>Retry</button>';
+            }
+        }
+
+        async function loadPurchaseHistory(page = purchaseHistoryPage) {
+            purchaseHistoryPage = page;
+            purchaseHistoryState("Loading purchase history...");
+            const params = new URLSearchParams({ page: String(page), perPage: String(purchaseHistoryPageSize) });
+            const search = document.getElementById("purchaseHistorySearch").value.trim();
+            const dateFrom = document.getElementById("purchaseHistoryDateFrom").value;
+            const dateTo = document.getElementById("purchaseHistoryDateTo").value;
+            if (search) params.set("q", search);
+            if (dateFrom) params.set("dateFrom", dateFrom);
+            if (dateTo) params.set("dateTo", dateTo);
+            try {
+                const response = await window.csrfFetch(`/api/purchases?${params.toString()}`, { credentials: "same-origin" });
+                const data = await response.json().catch (() => ({}));
+                if (!response.ok) throw new Error(data.message || "Purchase history could not be loaded.");
+                const rows = data.purchases || [];
+                if (!rows.length) {
+                    purchaseHistoryState("No purchases found for the selected filters.");
+                } else {
+                    purchaseHistoryRows.innerHTML = rows.map(purchase => `<tr>
+                    <td>${Number(purchase.id)}</td>
+                    <td>${escapeHTML(purchase.purchaseNo)}</td>
+                    <td>${escapeHTML(purchase.date)}</td>
+                    <td>${escapeHTML(purchase.type)}</td>
+                    <td>${escapeHTML(purchase.variety)}</td>
+                    <td>${escapeHTML(purchase.seller || "Not Provided")}</td>
+                    <td class="number">${Number(purchase.quantity || 0).toLocaleString("en-LK", {minimumFractionDigits:3, maximumFractionDigits:3})}</td>
+                    <td class="number">Rs. ${purchaseMoney(purchase.rate)}</td>
+                    <td class="number">Rs. ${purchaseMoney(purchase.total)}</td>
+                    <td>${escapeHTML(purchase.paymentStatus || "Paid")}</td>
+                    <td><div class="purchase-row-actions">
+                        <button type="button" data-purchase-details="${Number(purchase.id)}">View Details</button>
+                        ${purchase.correctionPending ? '<span>Correction pending</span>' : (canRequestPurchaseCorrection ? `<button type="button" data-purchase-correction="${Number(purchase.id)}">Request Correction</button>` : '')}
+                        <a href="${purchaseUrl}/${Number(purchase.id)}/bill" target="_blank" rel="noopener">Reprint Bill</a>
+                    </div></td>
+                </tr>`).join("");
+                }
+                const pagination = data.pagination || { page: 1, pages: 1, total: 0 };
+                window.RicePagination.render(purchaseHistoryPager, pagination, "data-purchase-page");
+            } catch (error) {
+                purchaseHistoryState(error.message || "Purchase history could not be loaded.", true);
+            }
+        }
+
+        async function showPurchaseDetails(purchaseId) {
+            purchaseDetailOverlay.hidden = false;
+            purchaseDetailContent.innerHTML = '<div class="purchase-history-state">Loading purchase details…</div>';
+            document.getElementById("purchaseDetailPrint").href = `${purchaseUrl}/${Number(purchaseId)}/bill`;
+            try {
+                const response = await window.csrfFetch(`/api/purchases/${Number(purchaseId)}`, { credentials: "same-origin" });
+                const data = await response.json().catch (() => ({}));
+                if (!response.ok) throw new Error(data.message || "Purchase details could not be loaded.");
+                const purchase = data.purchase;
+                const fields = [
+                    ["Purchase ID", purchase.id], ["Bill / Reference", purchase.purchaseNo], ["Purchase Date", purchase.date],
+                    ["Seller", purchase.seller || "Not Provided"], ["Paddy Type", purchase.type],
+                    ["Paddy Variety", purchase.variety], ["Quantity", `${purchase.quantity} kg`],
+                    ["Unit Price", `Rs. ${purchaseMoney(purchase.rate)}`],
+                    ["Total Amount", `Rs. ${purchaseMoney(purchase.total)}`],
+                    ["Payment Status", purchase.paymentStatus || "Paid"],
+                    ["Payment Method", purchase.paymentMethod || "Cash"],
+                    ["Notes", purchase.notes || "—"]
+                ];
+                purchaseDetailContent.innerHTML = `<div class="purchase-detail-grid">${fields.map(([label,value]) =>
+                `<div class="purchase-detail-item"><small>${escapeHTML(label)}</small><strong>${escapeHTML(value)}</strong></div>`
+            ).join("")}</div>`;
+            } catch (error) {
+                purchaseDetailContent.innerHTML = `<div class="purchase-history-state" role="alert">${escapeHTML(error.message || "Purchase details could not be loaded.")}</div>`;
+            }
+        }
+
+        purchaseHistoryFilters.addEventListener("submit", function (event) {
+            event.preventDefault();
+            loadPurchaseHistory(1);
+        });
+        document.getElementById("purchaseHistorySearch").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                loadPurchaseHistory(1);
+            }
+        });
+        document.getElementById("purchaseHistory").addEventListener("click", function (event) {
+            const pageButton = event.target.closest("[data-purchase-page]");
+            const detailButton = event.target.closest("[data-purchase-details]");
+            const correctionButton = event.target.closest("[data-purchase-correction]");
+            if (pageButton && !pageButton.disabled) loadPurchaseHistory(Number(pageButton.dataset.purchasePage));
+            if (detailButton) showPurchaseDetails(Number(detailButton.dataset.purchaseDetails));
+            if (correctionButton) openPurchaseCorrection(Number(correctionButton.dataset.purchaseCorrection));
+            if (event.target.closest("[data-purchase-retry]")) loadPurchaseHistory(purchaseHistoryPage);
+        });
+        async function openPurchaseCorrection(purchaseId) {
+            try {
+                const response = await window.csrfFetch(`/api/purchases/${purchaseId}`, { credentials: "same-origin" });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Purchase details could not be loaded.");
+                const p = data.purchase;
+                document.getElementById("correctionPurchaseId").value = String(purchaseId);
+                document.getElementById("correctionType").value = p.type;
+                document.getElementById("correctionVariety").value = p.variety;
+                document.getElementById("correctionSeller").value = p.seller || "Not Provided";
+                document.getElementById("correctionQuantity").value = p.quantity;
+                document.getElementById("correctionPrice").value = p.rate;
+                document.getElementById("correctionDate").value = p.date;
+                document.getElementById("correctionNotes").value = p.notes || "";
+                document.getElementById("correctionReason").value = "";
+                correctionOverlay.hidden = false;
+            } catch (error) {
+                alert(error.message || "Purchase details could not be loaded.");
+            }
+        }
+        document.getElementById("purchaseCorrectionClose")?.addEventListener("click", () => {
+            correctionOverlay.hidden = true;
+        });
+        document.getElementById("purchaseCorrectionForm")?.addEventListener("submit", async event => {
+            event.preventDefault();
+            const purchaseId = Number(document.getElementById("correctionPurchaseId").value);
+            const payload = { idempotencyKey: crypto.randomUUID(), reason: document.getElementById("correctionReason").value.trim(),
+                purchaseType: document.getElementById("correctionType").value, variety: document.getElementById("correctionVariety").value.trim(),
+                sellerName: document.getElementById("correctionSeller").value.trim(), quantity: document.getElementById("correctionQuantity").value,
+                price: document.getElementById("correctionPrice").value, date: document.getElementById("correctionDate").value,
+                notes: document.getElementById("correctionNotes").value };
+            try {
+                const response = await window.csrfFetch(`/api/purchases/${purchaseId}/corrections`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || "Correction request could not be submitted.");
+                correctionOverlay.hidden = true;
+                await loadPurchaseHistory(purchaseHistoryPage);
+                alert("Correction request submitted for Admin review.");
+            } catch (error) {
+                alert(error.message || "Correction request could not be submitted.");
+            }
+        });
+        document.getElementById("purchaseDetailClose").addEventListener("click", () => {
+            purchaseDetailOverlay.hidden = true;
+        });
+        purchaseDetailOverlay.addEventListener("click", event => {
+            if (event.target === purchaseDetailOverlay) purchaseDetailOverlay.hidden = true;
+        });
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape" && !purchaseDetailOverlay.hidden) purchaseDetailOverlay.hidden = true;
+        });
+        // pageshow fires after base.html's csrfFetch helper is installed and also
+        // on back-forward-cache restores, so history refreshes on every revisit.
+        window.addEventListener("pageshow", function () {
+            if (typeof window.csrfFetch === "function") {
+                loadPurchaseHistory(1);
+            } else {
+                purchaseHistoryState("Purchase history could not initialize. Reload this page to retry.", true);
+            }
+        });
+
+        loadPurchasePriceSettings().then(restorePurchaseData);
+
+        if (!new URLSearchParams(window.location.search).has("edit")) {
+            purchaseType.focus();
+        }
+    </script>
+
+{% endblock %}

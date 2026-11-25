@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ document.documentNo }} | Combined Transaction</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --green: #2f6b3c;
+            --deep: #204f2b;
+            --line: #d8e4d7;
+            --soft: #f3f8f1;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: #eef3ec;
+            color: #243128;
+            font: 14px/1.45 Arial, sans-serif;
+        }
+        .sheet {
+            max-width: 940px;
+            margin: 28px auto;
+            padding: 36px;
+            background: #fff;
+            border-top: 7px solid var(--green);
+            box-shadow: 0 8px 28px #15351c1a;
+        }
+        .top {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 20px;
+        }
+        h1 {
+            color: var(--deep);
+            font-size: 25px;
+            margin: 0 0 5px;
+        }
+        h2 {
+            color: var(--deep);
+            font-size: 17px;
+            margin: 26px 0 10px;
+        }
+        .muted {
+            color: #66736a;
+        }
+        .ref {
+            text-align: right;
+            color: var(--deep);
+            font-weight: bold;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+        .fact {
+            background: var(--soft);
+            border: 1px solid var(--line);
+            border-radius: 7px;
+            padding: 11px 13px;
+        }
+        .fact span {
+            display: block;
+            color: #66736a;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 14px;
+        }
+        .table th, .table td {
+            border: 1px solid var(--line);
+            padding: 8px 9px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .table th {
+            background: var(--soft);
+            color: var(--deep);
+        }
+        .number {
+            text-align: right !important;
+            white-space: nowrap;
+        }
+        .totals {
+            margin: 14px 0 0 auto;
+            width: min(100%,390px);
+        }
+        .totals div {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .totals .strong {
+            color: var(--deep);
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .actions {
+            max-width: 940px;
+            margin: 0 auto 28px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        button, a.button {
+            border: 0;
+            border-radius: 6px;
+            background: var(--green);
+            color: white;
+            padding: 10px 16px;
+            text-decoration: none;
+            font: inherit;
+            cursor: pointer;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--soft);
+            border-radius: 10px;
+            color: var(--deep);
+            text-transform: capitalize;
+        }
+        @media (max-width: 650px) {
+            .sheet {
+                margin: 0;
+                padding: 20px;
+            }
+            .top {
+                display: block;
+            }
+            .ref {
+                text-align: left;
+                margin-top: 14px;
+            }
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .actions {
+                padding: 12px;
+            }
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .sheet {
+                margin: 0;
+                max-width: none;
+                padding: 15mm;
+                box-shadow: none;
+            }
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="sheet">
+        <header class="top">
+            <div>
+                <h1>Combined Sale & Return Settlement</h1>
+                <div class="muted">Original invoice and approved return settlement summary</div>
+            </div>
+            <div class="ref">
+                {{ document.documentNo }}
+                {% if document.final %}
+                    <br>
+                    <span class="tag">Final</span>
+                {% else %}
+                    <br>
+                    <span class="tag">Partial settlement</span>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="grid">
+            <div class="fact">
+                <span>Original Invoice</span>
+                <strong>{{ document.originalInvoice.invoiceNo }}</strong>
+            </div>
+            <div class="fact">
+                <span>Invoice Date</span>
+                <strong>{{ document.originalInvoice.date }}</strong>
+            </div>
+            <div class="fact">
+                <span>Customer</span>
+                <strong>{{ document.originalInvoice.customerName }}</strong>
+            </div>
+            <div class="fact">
+                <span>Return Bill</span>
+                <strong>{{ document.returnBill.returnNo }}</strong>
+            </div>
+            <div class="fact">
+                <span>Financial Settlement Status</span>
+                <strong>{{ document.returnBill.financialStatus|replace('_',' ')|title }}</strong>
+            </div>
+            <div class="fact">
+                <span>Inventory Inspection Status</span>
+                <strong>{{ document.returnBill.inventoryStatus }}</strong>
+            </div>
+            {% if document.returnBill.approvedBy %}
+                <div class="fact">
+                    <span>Admin Approval</span>
+                    <strong>{{ document.returnBill.approvalStatus|title }} by {{ document.returnBill.approvedBy }}</strong>
+                    <br>
+                    <small>{{ document.returnBill.approvedAt or '' }}</small>
+                </div>
+            {% endif %}
+            {% if document.settlements|selectattr('exchangeRef')|list %}
+                <div class="fact">
+                    <span>Return Exchange</span>
+                    <strong>{{ document.settlements|selectattr('exchangeRef')|map(attribute='exchangeRef')|join(', ') }}</strong>
+                </div>
+            {% endif %}
+            <div class="fact">
+                <span>Return Date</span>
+                <strong>{{ document.returnBill.date }}</strong>
+            </div>
+            <div class="fact">
+                <span>Original Invoice Total</span>
+                <strong>Rs. {{ document.originalInvoice.total }}</strong>
+            </div>
+            <div class="fact">
+                <span>Invoice Paid / Due</span>
+                <strong>Rs. {{ document.originalInvoice.amountPaid }} / Rs. {{ document.originalInvoice.amountDue }}</strong>
+            </div>
+        </section>
+
+        <h2>Original Invoice Items</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price / kg</th>
+                    <th class="number">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in document.originalInvoice["items"] %}
+                    <tr>
+                        <td>{{ item.product }}{% if item.variety %} · {{ item.variety }}{% endif %}</td>
+                        <td>{{ item.quantity }} {{ item.unit }}{% if item.packageSizeKg %} ({{ item.packageSizeKg }} kg/bag){% endif %}</td>
+                        <td>Rs. {{ item.pricePerKg }}</td>
+                        <td class="number">Rs. {{ item.lineTotal }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Returned Items and Inventory Inspection</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Original Price / kg</th>
+                    <th>Inspection</th>
+                    <th>Inspected At</th>
+                    <th class="number">Return Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in document.returnBill["inspectionItems"] %}
+                    <tr>
+                        <td>{{ item.product }}{% if item.variety %} · {{ item.variety }}{% endif %}</td>
+                        <td>{{ item.quantity }} {{ item.unit }}{% if item.packageSizeKg %} ({{ item.packageSizeKg }} kg/bag){% endif %}</td>
+                        <td>Rs. {{ item.originalPricePerKg }}</td>
+                        <td><span class="tag">{{ item.decision }}</span>{% if item.notes %}<br>{{ item.notes }}{% endif %}</td>
+                        <td>{{ item.inspectedAt or "Pending" }}</td>
+                        <td class="number">Rs. {{ item.returnValue }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="totals">
+            <div>
+                <span>Total return value</span>
+                <strong>Rs. {{ document.returnBill.approvedReturnValue }}</strong>
+            </div>
+        </div>
+
+        {% for settlement in document.settlements %}
+            <h2>Settlement for Return Item {{ settlement.returnItemId }}</h2>
+            <div class="muted">
+                {{ settlement.type|capitalize }}
+                {% if settlement.refundOption %}
+                    · Refund option: {{ settlement.refundOption|replace('_',' ')|title }}
+                {% endif %}
+            </div>
+            {% if settlement.settledAt or settlement.settledBy %}
+                <div class="muted">
+                    Settled {{ settlement.settledAt or "" }}
+                    {% if settlement.settledBy %}
+                        by {{ settlement.settledBy }}
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if settlement.exchangeRef %}
+                <div class="muted">Return Exchange reference: {{ settlement.exchangeRef }}</div>
+            {% endif %}
+            {% if settlement["replacements"] %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Replacement Product</th>
+                            <th>Quantity</th>
+                            <th>Price / kg</th>
+                            <th class="number">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in settlement["replacements"] %}
+                            <tr>
+                                <td>{{ item.product }}{% if item.variety %} · {{ item.variety }}{% endif %}{% if item.manualPriceReason %}<br><small>Admin price reason: {{ item.manualPriceReason }}</small>{% endif %}</td>
+                                <td>{{ item.quantity }} {{ item.unit }}{% if item.packageSizeKg %} ({{ item.packageSizeKg }} kg/bag){% endif %}</td>
+                                <td>Rs. {{ item.pricePerKg }}</td>
+                                <td class="number">Rs. {{ item.lineTotal }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            <div class="totals">
+                <div>
+                    <span>Approved return value</span>
+                    <strong>Rs. {{ settlement.returnValue }}</strong>
+                </div>
+                {% if settlement.replacementValue != "0.00" %}
+                    <div>
+                        <span>Replacement value</span>
+                        <strong>Rs. {{ settlement.replacementValue }}</strong>
+                    </div>
+                {% endif %}
+                {% if settlement.balanceApplied != "0.00" %}
+                    <div>
+                        <span>Applied to original invoice balance</span>
+                        <strong>Rs. {{ settlement.balanceApplied }}</strong>
+                    </div>
+                {% endif %}
+                {% if settlement.cashRefund != "0.00" %}
+                    <div>
+                        <span>Cash refund</span>
+                        <strong>Rs. {{ settlement.cashRefund }}</strong>
+                    </div>
+                {% endif %}
+                {% if settlement.amountCollected != "0.00" %}
+                    <div>
+                        <span>Exchange difference collected</span>
+                        <strong>Rs. {{ settlement.amountCollected }}</strong>
+                    </div>
+                {% endif %}
+                {% if settlement.differenceRefund != "0.00" %}
+                    <div>
+                        <span>Exchange difference refunded</span>
+                        <strong>Rs. {{ settlement.differenceRefund }}</strong>
+                    </div>
+                {% endif %}
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Settlement Financial Entry</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                        <th class="number">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in settlement.financialEntries %}
+                        <tr>
+                            <td>{{ entry.type|replace('_',' ')|title }}</td>
+                            <td>{{ entry.method or "Account adjustment" }}</td>
+                            <td>{{ entry.reference or "—" }}</td>
+                            <td class="number">Rs. {{ entry.amount }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="muted">No separate cash settlement entry.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+
+        <h2>Payment References</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Receipt</th>
+                    <th>Date</th>
+                    <th>Method</th>
+                    <th>Reference</th>
+                    <th class="number">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in document.originalInvoice["payments"] %}
+                    <tr>
+                        <td>{{ payment.receiptNo }}</td>
+                        <td>{{ payment.date }}</td>
+                        <td>{{ payment.method }}</td>
+                        <td>{{ payment.reference or "—" }}</td>
+                        <td class="number">Rs. {{ payment.amount }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="muted">No allocated payments recorded for this invoice.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="totals">
+            <div class="strong">
+                <span>Customer outstanding balance after this settlement</span>
+                <strong>Rs. {{ document.finalCustomerBalance }}</strong>
+            </div>
+        </div>
+    </main>
+    <div class="actions">
+        <a class="button" href="{{ url_for('sales') }}">Return to Sales</a>
+        <button type="button" onclick="window.print()">Print Combined Document</button>
+    </div>
+</body>
+</html>

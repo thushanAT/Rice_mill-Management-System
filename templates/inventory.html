@@ -1,0 +1,1195 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory Management | Rice Mill Management System{% endblock %}
+
+{% block page_subtitle %}
+    Manage rice mill stock, stock movements and returned items
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* =========================================
+           INVENTORY MANAGEMENT
+        ========================================= */
+        .inventory-page {
+            width: 100%;
+            max-width: 1450px;
+            margin: 25px auto;
+            padding: 0 18px 40px;
+            color: #173D20;
+        }
+        .inventory-page * {
+            box-sizing: border-box;
+        }
+        /* Page heading */
+        .inventory-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .inventory-heading h2 {
+            margin: 0 0 6px;
+            font-size: 25px;
+            font-weight: 750;
+            color: #173D20;
+        }
+        .inventory-heading p {
+            margin: 0;
+            color: #66806A;
+            font-size: 14px;
+        }
+        /* Section headings */
+        .inventory-section-heading {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 13px 16px;
+            margin: 28px 0 17px;
+            background: #F1F8E4;
+            border-left: 5px solid #45C936;
+            border-radius: 7px;
+        }
+        .inventory-section-heading h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #173D20;
+        }
+        .inventory-section-heading span {
+            margin-left: auto;
+            color: #66806A;
+            font-size: 12px;
+        }
+        /* Overview cards */
+        .inventory-overview {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 17px;
+        }
+        .stock-card {
+            position: relative;
+            background: #FFFFFF;
+            border: 1px solid #E2EBDD;
+            border-radius: 13px;
+            padding: 20px;
+            min-height: 145px;
+            box-shadow: 0 3px 12px rgba(20, 70, 25, 0.045);
+            overflow: hidden;
+        }
+        .stock-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: #45C936;
+        }
+        .stock-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .stock-card-label {
+            color: #66806A;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .stock-card-icon {
+            width: 39px;
+            height: 39px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #F1F8E4;
+            font-size: 20px;
+        }
+        .stock-card-value {
+            margin-top: 15px;
+            color: #173D20;
+            font-size: 26px;
+            font-weight: 750;
+        }
+        .stock-card-unit {
+            color: #829183;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        .stock-card-note {
+            margin-top: 5px;
+            color: #89978A;
+            font-size: 11px;
+        }
+        /* White content panels */
+        .inventory-panel {
+            background: #FFFFFF;
+            border: 1px solid #E3EDE0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 3px 12px rgba(20, 70, 25, 0.035);
+        }
+        /* Search and filters */
+        .inventory-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 13px;
+            flex-wrap: wrap;
+            margin-bottom: 17px;
+        }
+        .inventory-search {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+            max-width: 370px;
+        }
+        .inventory-search input {
+            width: 100%;
+            height: 42px;
+            padding: 10px 14px 10px 38px;
+            border: 1px solid #DCE8D8;
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+            background: #FFFFFF;
+            color: #173D20;
+        }
+        .inventory-search input:focus {
+            border-color: #45C936;
+            box-shadow: 0 0 0 3px rgba(69, 201, 54, 0.10);
+        }
+        .inventory-search > span:not(.autocomplete-wrapper) {
+            position: absolute;
+            left: 13px;
+            top: 10px;
+            font-size: 16px;
+        }
+        .inventory-filters {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+        .inventory-filter {
+            padding: 9px 13px;
+            border: 1px solid #DCE8D8;
+            border-radius: 7px;
+            background: #FFFFFF;
+            color: #46634A;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .inventory-filter:hover, .inventory-filter.active {
+            background: #E5F6D8;
+            color: #176B20;
+            border-color: #45C936;
+        }
+        /* Tables */
+        .inventory-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .inventory-table {
+            width: 100%;
+            min-width: 750px;
+            border-collapse: collapse;
+        }
+        .inventory-table th {
+            padding: 13px 14px;
+            background: #D9F5A8;
+            color: #173D20;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .inventory-table td {
+            padding: 14px;
+            border-bottom: 1px solid #EDF2E9;
+            color: #405B43;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .inventory-table button {
+            border: 0;
+            border-radius: 5px;
+            padding: 7px 10px;
+            background: #2f6b3c;
+            color: #fff;
+            cursor: pointer;
+        }
+        .inventory-table select, .inventory-table input {
+            max-width: 150px;
+            margin: 3px 4px 3px 0;
+            padding: 6px;
+            border: 1px solid #cbd8cb;
+            border-radius: 4px;
+        }
+        .inventory-table td small {
+            display: block;
+            color: #68766b;
+            margin-top: 3px;
+        }
+        .inventory-table tbody tr:hover {
+            background: #FAFDF7;
+        }
+        .inventory-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .product-name {
+            color: #173D20;
+            font-weight: 650;
+        }
+        .product-subtitle {
+            display: block;
+            margin-top: 3px;
+            color: #91A091;
+            font-size: 11px;
+        }
+        .stock-quantity {
+            font-weight: 700;
+            color: #173D20;
+        }
+        /* Status badges */
+        .inventory-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 650;
+        }
+        .status-available {
+            color: #18732B;
+            background: #E5F7E7;
+        }
+        .status-low {
+            color: #A36A00;
+            background: #FFF4D7;
+        }
+        .status-pending {
+            color: #946000;
+            background: #FFF2CE;
+        }
+        .status-approved {
+            color: #18732B;
+            background: #E5F7E7;
+        }
+        .status-rejected {
+            color: #B52C2C;
+            background: #FCE8E8;
+        }
+        /* Empty state */
+        .inventory-empty {
+            text-align: center;
+            padding: 35px 15px;
+            color: #829183;
+        }
+        .inventory-empty .empty-icon {
+            display: block;
+            font-size: 31px;
+            margin-bottom: 9px;
+        }
+        .inventory-empty h4 {
+            margin: 0 0 6px;
+            color: #46634A;
+            font-size: 14px;
+        }
+        .inventory-empty p {
+            margin: 0;
+            font-size: 12px;
+        }
+        /* Movement type */
+        .movement-in {
+            color: #18823A;
+            font-weight: 700;
+        }
+        .movement-out {
+            color: #C15A32;
+            font-weight: 700;
+        }
+        /* Returned items - STACKED LAYOUT */
+        .inventory-bottom-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+        }
+        .inventory-bottom-grid .inventory-panel {
+            width: 100%;
+        }
+        .inventory-info-title {
+            margin: 0 0 5px;
+            color: #173D20;
+            font-size: 15px;
+            font-weight: 700;
+        }
+        .inventory-info-description {
+            margin: 0 0 17px;
+            color: #829183;
+            font-size: 12px;
+        }
+        .inventory-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+        .inventory-form-panel h4 {
+            margin: 0 0 5px;
+            color: #173D20;
+            font-size: 15px;
+        }
+        .inventory-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .inventory-form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+        }
+        .inventory-form-field[hidden] {
+            display: none;
+        }
+        .inventory-form-field label {
+            color: #46634A;
+            font-size: 12px;
+            font-weight: 650;
+        }
+        .inventory-form-field input, .inventory-form-field select {
+            width: 100%;
+            min-height: 40px;
+            padding: 8px 10px;
+            border: 1px solid #DCE8D8;
+            border-radius: 7px;
+            background: #fff;
+            color: #173D20;
+            font: inherit;
+            font-size: 13px;
+        }
+        .inventory-form-field input:focus, .inventory-form-field select:focus {
+            outline: none;
+            border-color: #45C936;
+            box-shadow: 0 0 0 3px rgba(69,201,54,.10);
+        }
+        .inventory-form-field [aria-invalid="true"] {
+            border-color: #b52c2c;
+        }
+        .inventory-form-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .inventory-submit {
+            min-height: 39px;
+            padding: 9px 15px;
+            border: 0;
+            border-radius: 7px;
+            background: #2f6b3c;
+            color: #fff;
+            font-weight: 650;
+            cursor: pointer;
+        }
+        .inventory-submit:disabled {
+            opacity: .65;
+            cursor: wait;
+        }
+        .inventory-feedback {
+            min-height: 18px;
+            margin: 10px 0 0;
+            font-size: 12px;
+        }
+        .inventory-feedback[data-state="error"] {
+            color: #a42525;
+        }
+        .inventory-feedback[data-state="success"] {
+            color: #18732b;
+        }
+        .inventory-unit-note {
+            color: #829183;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        .inventory-movement-filters {
+            display: flex;
+            align-items: end;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .inventory-movement-filters label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            color: #46634A;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .inventory-movement-filters input {
+            min-height: 36px;
+            border: 1px solid #DCE8D8;
+            border-radius: 6px;
+            padding: 6px 9px;
+            color: #173D20;
+        }
+        .inventory-movement-clear {
+            min-height: 36px;
+            padding: 7px 11px;
+            border: 1px solid #DCE8D8;
+            border-radius: 6px;
+            color: #2f6b3c;
+            background: #fff;
+            cursor: pointer;
+        }
+        .status-empty {
+            color: #738073;
+            background: #f0f2ef;
+        }
+        /* Responsive */
+        @media (max-width: 1050px) {
+            .inventory-overview {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 700px) {
+            .inventory-page {
+                padding: 0 10px 25px;
+                margin-top: 15px;
+            }
+            .inventory-heading h2 {
+                font-size: 21px;
+            }
+            .inventory-overview {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .stock-card {
+                padding: 15px;
+                min-height: 130px;
+            }
+            .stock-card-value {
+                font-size: 21px;
+            }
+            .stock-card-label {
+                font-size: 11px;
+            }
+            .stock-card-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .inventory-panel {
+                padding: 13px;
+            }
+            .inventory-actions-grid {
+                grid-template-columns: 1fr;
+            }
+            .inventory-form-grid {
+                grid-template-columns: 1fr;
+            }
+            .inventory-section-heading h3 {
+                font-size: 15px;
+            }
+        }
+        @media (max-width: 380px) {
+            .inventory-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% set current_permissions = session.get('permissions', {}) %}
+    {% if current_permissions is not mapping %}
+        {% set current_permissions = {} %}
+    {% endif %}
+    {% set inventory_permissions = current_permissions.get('inventory', {}) %}
+    {% if inventory_permissions is not mapping %}
+        {% set inventory_permissions = {} %}
+    {% endif %}
+    {% set inventory_tabs = current_permissions.get('tabs', []) %}
+    {% set can_manage_stock = session.get('role') == 'admin' or ('Inventory Management' in inventory_tabs and inventory_permissions.get('manageOpeningStockAdjustments') == true) %}
+    {% set can_inspect_returns = session.get('role') == 'admin' or ('Inventory Management' in inventory_tabs and inventory_permissions.get('inspectReturnedItems') == true) %}
+    {% set can_approve_returns = session.get('role') == 'admin' %}
+    <div class="inventory-page">
+
+        <!-- PAGE HEADING -->
+
+        <div class="inventory-heading">
+            <div>
+                <h2>📦 Inventory Management</h2>
+                <p>Monitor stock levels, product quantities and inventory movements.</p>
+            </div>
+        </div>
+
+        <!-- 01 STOCK OVERVIEW -->
+
+        <div class="inventory-section-heading">
+            <h3>01. Stock Overview</h3>
+            <span>Current stock summary</span>
+        </div>
+
+        <div class="inventory-overview">
+
+            <div class="stock-card">
+                <div class="stock-card-top">
+                    <span class="stock-card-label">Wet Paddy Stock</span>
+                    <div class="stock-card-icon">🌾</div>
+                </div>
+                <div class="stock-card-value">
+                    <span data-stock-total="wet_paddy">0.000</span>
+                    <span class="stock-card-unit">kg</span>
+                </div>
+                <div class="stock-card-note">Total wet paddy available</div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-card-top">
+                    <span class="stock-card-label">Dry Paddy Stock</span>
+                    <div class="stock-card-icon">🌿</div>
+                </div>
+                <div class="stock-card-value">
+                    <span data-stock-total="dry_paddy">0.000</span>
+                    <span class="stock-card-unit">kg</span>
+                </div>
+                <div class="stock-card-note">Total dry paddy available</div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-card-top">
+                    <span class="stock-card-label">Bulk Rice Stock</span>
+                    <div class="stock-card-icon">🍚</div>
+                </div>
+                <div class="stock-card-value">
+                    <span data-stock-total="rice">0.000</span>
+                    <span class="stock-card-unit">kg</span>
+                </div>
+                <div class="stock-card-note">Total unpackaged rice</div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-card-top">
+                    <span class="stock-card-label">Packed Rice Stock</span>
+                    <div class="stock-card-icon">📦</div>
+                </div>
+                <div class="stock-card-value">
+                    <span data-stock-total="packed">0.000</span>
+                    <span class="stock-card-unit">kg</span>
+                </div>
+                <div class="stock-card-note">
+                    Total packaged rice ·
+                    <span data-stock-bags="packed">0</span>
+                    bags
+                </div>
+            </div>
+
+            <div class="stock-card">
+                <div class="stock-card-top">
+                    <span class="stock-card-label">Other Sellable Products Stock</span>
+                    <div class="stock-card-icon">📦</div>
+                </div>
+                <div class="stock-card-value">
+                    <span data-stock-total="other">0.000</span>
+                    <span class="stock-card-unit">kg</span>
+                </div>
+                <div class="stock-card-note">Includes legacy Bran stock and other sellable products</div>
+            </div>
+
+        </div>
+
+        {% if can_manage_stock %}
+            <div class="inventory-section-heading">
+                <h3>02. Opening Stock & Stock Adjustments</h3>
+                <span>Authorized Admins and Inventory Employees can record stock changes</span>
+            </div>
+
+            <div class="inventory-actions-grid">
+                <section class="inventory-panel inventory-form-panel" aria-labelledby="openingStockTitle">
+                    <h4 id="openingStockTitle">Add Opening Stock</h4>
+                    <p class="inventory-info-description">Add a starting balance without overwriting existing stock.</p>
+                    <form id="openingStockForm" novalidate>
+                        <div class="inventory-form-grid">
+                            <div class="inventory-form-field">
+                                <label for="openingStockType">Stock Category</label>
+                                <select id="openingStockType" name="stockType" required>
+                                    <option value="wet_paddy">Wet Paddy</option>
+                                    <option value="dry_paddy">Dry Paddy</option>
+                                    <option value="rice">Bulk Rice</option>
+                                    <option value="packed">Packed Rice</option>
+                                    <option value="bran">Bran</option>
+                                    <option value="other">Other Sellable</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="openingItem">Product / Item</label>
+                                <input id="openingItem" name="item" type="text" maxlength="80" required autocomplete="off">
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="openingVariety">Variety</label>
+                                <input id="openingVariety" name="variety" type="text" maxlength="80" required autocomplete="off">
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="openingQuantity">Quantity</label>
+                                <input id="openingQuantity" name="quantity" type="number" min="0.001" step="0.001" required>
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="openingUnit">Unit</label>
+                                <select id="openingUnit" name="unit" required>
+                                    <option value="kg">Kilograms (kg)</option>
+                                    <option value="bags">Bags</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field" id="openingPackageField" data-package-field hidden>
+                                <label for="openingPackageSize">Package Size</label>
+                                <select id="openingPackageSize" name="packageSize">
+                                    <option value="">Select package size</option>
+                                    <option value="10">10 kg</option>
+                                    <option value="25">25 kg</option>
+                                    <option value="50">50 kg</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="inventory-form-actions">
+                            <button class="inventory-submit" type="submit">Save Opening Stock</button>
+                        </div>
+                        <p class="inventory-feedback" id="openingStockFeedback" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+
+                <section class="inventory-panel inventory-form-panel" aria-labelledby="stockAdjustmentTitle">
+                    <h4 id="stockAdjustmentTitle">Adjust Stock</h4>
+                    <p class="inventory-info-description">Record a stock increase or removal with an audited reason.</p>
+                    <form id="stockAdjustmentForm" novalidate>
+                        <div class="inventory-form-grid">
+                            <div class="inventory-form-field">
+                                <label for="adjustmentType">Stock Category</label>
+                                <select id="adjustmentType" name="stockType" required>
+                                    <option value="wet_paddy">Wet Paddy</option>
+                                    <option value="dry_paddy">Dry Paddy</option>
+                                    <option value="rice">Bulk Rice</option>
+                                    <option value="packed">Packed Rice</option>
+                                    <option value="bran">Bran</option>
+                                    <option value="other">Other Sellable</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="adjustmentItem">Product / Item</label>
+                                <input id="adjustmentItem" name="item" type="text" maxlength="80" required autocomplete="off">
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="adjustmentVariety">Variety</label>
+                                <input id="adjustmentVariety" name="variety" type="text" maxlength="80" required autocomplete="off">
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="adjustmentDirection">Adjustment</label>
+                                <select id="adjustmentDirection" name="direction" required>
+                                    <option value="add">Add stock</option>
+                                    <option value="remove">Remove stock</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="adjustmentQuantity">Quantity</label>
+                                <input id="adjustmentQuantity" name="quantity" type="number" min="0.001" step="0.001" required>
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="adjustmentUnit">Unit</label>
+                                <select id="adjustmentUnit" name="unit" required>
+                                    <option value="kg">Kilograms (kg)</option>
+                                    <option value="bags">Bags</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field" id="adjustmentPackageField" data-package-field hidden>
+                                <label for="adjustmentPackageSize">Package Size</label>
+                                <select id="adjustmentPackageSize" name="packageSize">
+                                    <option value="">Select package size</option>
+                                    <option value="10">10 kg</option>
+                                    <option value="25">25 kg</option>
+                                    <option value="50">50 kg</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field">
+                                <label for="adjustmentReason">Reason</label>
+                                <select id="adjustmentReason" name="reason" required>
+                                    <option value="">Loading reasons…</option>
+                                </select>
+                            </div>
+                            <div class="inventory-form-field" id="otherReasonField" hidden>
+                                <label for="otherReason">Explain Other</label>
+                                <input id="otherReason" name="otherReason" type="text" maxlength="500" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="inventory-form-actions">
+                            <button class="inventory-submit" type="submit">Save Adjustment</button>
+                        </div>
+                        <p class="inventory-feedback" id="stockAdjustmentFeedback" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+            </div>
+        {% endif %}
+
+        <!-- 02 STOCK DETAILS -->
+
+        <div class="inventory-section-heading">
+            <h3>02. Stock Details</h3>
+            <span>Product-wise stock information</span>
+        </div>
+
+        <div class="inventory-panel">
+
+            <p id="inventoryLoadFeedback" class="inventory-feedback" role="status" aria-live="polite">Loading inventory...</p>
+
+            <div class="inventory-toolbar">
+
+                <div class="inventory-search">
+                    <span>🔍</span>
+                    <input
+                    type="text"
+                    id="inventorySearch"
+                    placeholder="Search product or variety..."
+                    autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                >
+                    <div id="inventorySearchSuggestions" class="autocomplete-list" role="listbox" hidden>
+                    </div>
+                </div>
+
+                <div class="inventory-filters">
+                    <button class="inventory-filter active" data-filter="all">All</button>
+
+                    <button class="inventory-filter" data-filter="wet">Wet Paddy</button>
+
+                    <button class="inventory-filter" data-filter="dry">Dry Paddy</button>
+
+                    <button class="inventory-filter" data-filter="bulk">Bulk Rice</button>
+
+                    <button class="inventory-filter" data-filter="packed">Packed Rice</button>
+
+                    <button class="inventory-filter" data-filter="other">Others</button>
+                </div>
+
+            </div>
+
+            <div class="inventory-table-wrap">
+
+                <table class="inventory-table">
+
+                    <thead>
+                        <tr>
+                            <th>Product / Variety</th>
+                            <th>Category</th>
+                            <th>Package Size</th>
+                            <th>Available Stock</th>
+                            <th>Unit</th>
+                            <th>Stock Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="inventoryTableBody">
+                        <tr>
+                            <td colspan="6">Loading stock balances?</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <div class="inventory-empty" id="noInventoryResults" style="display:none;">
+                    <span class="empty-icon">🔎</span>
+                    <h4>No matching products found</h4>
+                    <p>Try another product name or category.</p>
+                </div>
+                <div class="inventory-empty" id="inventoryEmptyState" hidden>
+                    <span class="empty-icon">Inventory</span>
+                    <h4>No stock balances yet</h4>
+                    <p>Opening Stock, purchases and production will add inventory records here.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- 03 STOCK MOVEMENT HISTORY -->
+
+        <div class="inventory-section-heading">
+            <h3>03. Stock Movement History</h3>
+            <span>Stock In / Stock Out records</span>
+        </div>
+
+        <div class="inventory-panel">
+
+            <h4 class="inventory-info-title">Stock In & Stock Out History</h4>
+
+            <p class="inventory-info-description">
+                Track all stock movements caused by purchases, production,
+                packaging, sales and other inventory activities.
+            </p>
+
+            <div class="inventory-movement-filters">
+                <label for="movementDateFrom">Date From<input id="movementDateFrom" type="date"></label>
+                <label for="movementDateTo">Date To<input id="movementDateTo" type="date"></label>
+                <button class="inventory-submit" id="filterMovements" type="button">Filter</button>
+                <button class="inventory-movement-clear" id="clearMovementFilters" type="button">Clear dates</button>
+            </div>
+            <p id="movementLoadFeedback" class="inventory-feedback" role="status" aria-live="polite"></p>
+
+            <div class="inventory-table-wrap">
+
+                <table class="inventory-table">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Reference No.</th>
+                            <th>Product</th>
+                            <th>Movement Type</th>
+                            <th>Quantity</th>
+                            <th>Reason</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="stockMovementRows">
+                        <tr>
+                            <td colspan="7">Loading stock movements...</td>
+                        </tr>
+                    </tbody>
+
+                </table>
+
+                <div class="inventory-empty" id="movementEmptyState" hidden>
+                    <span class="empty-icon">📋</span>
+                    <h4>No stock movements yet</h4>
+                    <p>Stock In and Stock Out records will appear here.</p>
+                </div>
+                <div class="inventory-pagination" id="movementPagination" aria-live="polite">
+                </div>
+
+            </div>
+
+        </div>
+
+        {% if can_approve_returns %}
+            <div class="inventory-section-heading">
+                <h3>03A. Return Bill Approvals</h3>
+                <span>Admin reviews return requests before any physical item inspection</span>
+            </div>
+            <div class="inventory-panel">
+                <div class="inventory-table-wrap">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Return Bill</th>
+                                <th>Invoice</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Requested</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnApprovalRows">
+                            <tr>
+                                <td colspan="6">Loading return requests…</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="inventory-empty" id="returnApprovalEmpty" hidden>
+                        <span class="empty-icon">✓</span>
+                        <h4>No pending approvals</h4>
+                        <p>New Return Bills awaiting an Admin decision will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if session.get('role') == 'admin' %}
+            <div class="inventory-section-heading">
+                <h3>03B. Purchase Corrections</h3>
+                <span>Review employee requests; approved values remain versioned</span>
+            </div>
+            <div class="inventory-panel">
+                <div class="inventory-table-wrap">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Purchase</th>
+                                <th>Requested by</th>
+                                <th>Reason</th>
+                                <th>Proposed changes</th>
+                                <th>Requested</th>
+                                <th>Decision</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchaseCorrectionApprovalRows">
+                            <tr>
+                                <td colspan="6">Loading purchase corrections...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="inventory-empty" id="purchaseCorrectionApprovalEmpty" hidden>
+                        <h4>No pending purchase corrections</h4>
+                        <p>Employee requests awaiting review will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- 04 RETURNED ITEMS -->
+
+        {% if can_inspect_returns %}
+            <div class="inventory-section-heading">
+                <h3>04. Returned Items</h3>
+                <span>Product inspection and approval</span>
+            </div>
+
+            <div class="inventory-bottom-grid">
+
+                <!-- PENDING INSPECTION - FIRST PANEL -->
+
+                <div class="inventory-panel">
+
+                    <h4 class="inventory-info-title">
+                        ⏳ Pending Inspection
+                    </h4>
+
+                    <p class="inventory-info-description">
+                        Returned products waiting for inspection.
+                    </p>
+
+                    <div class="inventory-table-wrap">
+
+                        <table class="inventory-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="pendingReturnRows">
+                                <tr>
+                                    <td colspan="4">Loading returned items…</td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                        <div class="inventory-empty" id="pendingReturnEmpty" hidden>
+                            <span class="empty-icon">📦</span>
+                            <h4>No pending items</h4>
+                            <p>Returned items will appear here for inspection.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- INSPECTION RESULTS - BELOW PENDING INSPECTION -->
+
+                <div class="inventory-panel">
+
+                    <h4 class="inventory-info-title">
+                        ✔ Inspection Results
+                    </h4>
+
+                    <p class="inventory-info-description">
+                        Approved and rejected returned products.
+                    </p>
+
+                    <div class="inventory-table-wrap">
+
+                        <table class="inventory-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Decision</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="returnInspectionHistoryRows">
+                                <tr>
+                                    <td colspan="4">Loading inspection history…</td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                        <div class="inventory-empty" id="returnInspectionHistoryEmpty" hidden>
+                            <span class="empty-icon">🔍</span>
+                            <h4>No inspection results</h4>
+                            <p>Approved and rejected items will appear here.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        {% endif %}
+
+    </div>
+
+    <script src="{{ url_for('static', filename='inventory.js', v='page-size-5-v1') }}"></script>
+
+    <!-- FRONTEND SEARCH AND FILTER -->
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+            const approvalRows = document.getElementById("returnApprovalRows");
+            const pendingRows = document.getElementById("pendingReturnRows");
+            const historyRows = document.getElementById("returnInspectionHistoryRows");
+            const correctionApprovalRows = document.getElementById("purchaseCorrectionApprovalRows");
+            const showEmpty = (id, show) => {
+                const el = document.getElementById(id);
+                if (el) el.hidden = !show;
+            };
+
+            async function loadReturnAdminApprovals() {
+                if (!approvalRows) return;
+                try {
+                    const response = await window.csrfFetch("/api/returns/approvals/pending");
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Return approvals could not be loaded.");
+                    approvalRows.innerHTML = "";
+                    const returns = data.returns || [];
+                    returns.forEach(ret => {
+                        (ret.items || []).forEach(item => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `<td>${esc(ret.returnNo)}</td><td>${esc(ret.invoiceNo)}</td><td>${esc(window.RiceCustomerDisplay.format(ret))}</td><td>${esc(item.product)} · ${esc(item.quantity)} ${esc(item.unit)}</td><td>${esc(ret.date)}</td><td><button type="button" class="inventory-action-btn" data-return-approval="approve" data-return-id="${Number(ret.id)}">Approve</button> <button type="button" class="inventory-action-btn" data-return-approval="reject" data-return-id="${Number(ret.id)}">Reject</button> <button type="button" class="inventory-action-btn" data-return-approval="cancel" data-return-id="${Number(ret.id)}">Cancel</button></td>`;
+                            approvalRows.appendChild(row);
+                        });
+                    });
+                    showEmpty("returnApprovalEmpty", returns.length === 0);
+                    if (!returns.length) approvalRows.innerHTML = "";
+                } catch (error) {
+                    approvalRows.innerHTML = `<tr><td colspan="6">${esc(error.message)}</td></tr>`;
+                }
+            }
+
+            async function loadReturnInspectionRows() {
+                if (!pendingRows || !historyRows) return;
+                try {
+                    const[pendingResponse, historyResponse] = await Promise.all([
+                        window.csrfFetch("/api/inventory/returns/pending"),
+                        window.csrfFetch("/api/inventory/returns/history")
+                    ]);
+                    const pendingData = await pendingResponse.json(), historyData = await historyResponse.json();
+                    if (!pendingResponse.ok) throw new Error(pendingData.message || "Pending inspections could not be loaded.");
+                    if (!historyResponse.ok) throw new Error(historyData.message || "Inspection results could not be loaded.");
+                    pendingRows.innerHTML = "";
+                    historyRows.innerHTML = "";
+                    let pendingCount = 0, historyCount = 0;
+                    (pendingData.returns || []).forEach(ret => (ret.items || []).filter(item => item.decision === "pending").forEach(item => {
+                        pendingCount++;
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td>${esc(item.product)} · ${esc(item.variety||"")}<small>${esc(ret.returnNo)} / ${esc(ret.invoiceNo)} · ${esc(window.RiceCustomerDisplay.format(ret))}</small></td><td>${esc(item.quantity)} ${esc(item.unit)}</td><td><select data-inspection-decision="${Number(item.id)}"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select><input data-inspection-note="${Number(item.id)}" type="text" maxlength="2000" placeholder="Inspection note"></td><td><button type="button" class="inventory-action-btn" data-inspect-return-item="${Number(ret.id)}" data-item-id="${Number(item.id)}">Save decision</button></td>`;
+                        pendingRows.appendChild(row);
+                    }));
+                    (historyData.returns || []).forEach(ret => (ret.items || []).forEach(item => {
+                        historyCount++;
+                        const row = document.createElement("tr");
+                        row.innerHTML = `<td>${esc(item.product)} · ${esc(item.variety||"")}<small>${esc(ret.returnNo)} / ${esc(ret.invoiceNo)} · ${esc(window.RiceCustomerDisplay.format(ret))}</small></td><td>${esc(item.quantity)} ${esc(item.unit)}</td><td>${esc(item.decision)}${item.inspectionNotes?`<small>${esc(item.inspectionNotes)}</small>`:""}</td><td>${esc(item.inspectedAt||"—")}</td>`;
+                        historyRows.appendChild(row);
+                    }));
+                    showEmpty("pendingReturnEmpty", pendingCount === 0);
+                    showEmpty("returnInspectionHistoryEmpty", historyCount === 0);
+                    if (!pendingCount) pendingRows.innerHTML = "";
+                    if (!historyCount) historyRows.innerHTML = "";
+                } catch (error) {
+                    pendingRows.innerHTML = `<tr><td colspan="4">${esc(error.message)}</td></tr>`;
+                }
+            }
+
+            async function loadPurchaseCorrectionApprovals() {
+                if (!correctionApprovalRows) return;
+                try {
+                    const response = await window.csrfFetch("/api/purchases/corrections/pending");
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Purchase corrections could not be loaded.");
+                    const requests = data.corrections || [];
+                    correctionApprovalRows.innerHTML = requests.map(c => {
+                        const changes = Object.keys(c.proposed || {}).filter(key => c.proposed[key] !== c.before?.[key])
+                            .map(key => `${key}: ${c.before?.[key]??"(empty)"} → ${c.proposed[key]??"(empty)"}`).join("; ");
+                        return `<tr><td>${esc(c.purchaseNo)}</td><td>${esc(c.requester)}</td><td>${esc(c.reason)}</td><td>${esc(changes)}</td><td>${esc(c.createdAt)}</td><td><button type="button" class="inventory-action-btn" data-purchase-correction-decision="approve" data-correction-id="${Number(c.id)}">Approve</button> <button type="button" class="inventory-action-btn" data-purchase-correction-decision="reject" data-correction-id="${Number(c.id)}">Reject</button></td></tr>`;
+                    }).join("");
+                    showEmpty("purchaseCorrectionApprovalEmpty", requests.length === 0);
+                } catch (error) {
+                    correctionApprovalRows.innerHTML = `<tr><td colspan="6">${esc(error.message)}</td></tr>`;
+                }
+            }
+
+            if (approvalRows) approvalRows.addEventListener("click", async event => {
+                const button = event.target.closest("[data-return-approval]");
+                if (!button) return;
+                const action = button.dataset.returnApproval;
+                const verb = action === "approve" ? "Approve" : action === "reject" ? "Reject" : "Cancel";
+                let notes = "";
+                if (action === "reject") {
+                    const supplied = prompt("Enter a reason for rejecting this Return Bill (required):");
+                    if (supplied === null) return;
+                    notes = supplied.trim();
+                    if (!notes) {
+                        alert("A rejection reason is required.");
+                        return;
+                    }
+                }
+                if (!confirm(`${verb} this Return Bill?`)) return;
+                try {
+                    const response = await window.csrfFetch(`/api/returns/${button.dataset.returnId}/approval`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, ...(action === "reject" ? { notes } : {}) }) });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Decision could not be saved.");
+                    await loadReturnAdminApprovals();
+                    await loadReturnInspectionRows();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+            correctionApprovalRows?.addEventListener("click", async event => {
+                const button = event.target.closest("[data-purchase-correction-decision]");
+                if (!button) return;
+                const action = button.dataset.purchaseCorrectionDecision;
+                if (!confirm(`${action==='approve'?'Approve':'Reject'} this purchase correction?`)) return;
+                try {
+                    const response = await window.csrfFetch(`/api/purchases/corrections/${Number(button.dataset.correctionId)}/decision`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Decision could not be saved.");
+                    await loadPurchaseCorrectionApprovals();
+                } catch (error) {
+                    alert(error.message || "Decision could not be saved.");
+                }
+            });
+            pendingRows?.addEventListener("click", async event => {
+                const button = event.target.closest("[data-inspect-return-item]");
+                if (!button) return;
+                const itemId = button.dataset.itemId;
+                const decision = pendingRows.querySelector(`[data-inspection-decision="${itemId}"]`)?.value;
+                const notes = pendingRows.querySelector(`[data-inspection-note="${itemId}"]`)?.value || "";
+                if (!confirm(`Save ${decision} inspection decision?`)) return;
+                try {
+                    const response = await window.csrfFetch(`/api/returns/${button.dataset.inspectReturnItem}/inspect`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items: [{ id: Number(itemId), decision, notes }] }) });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message || "Inspection decision could not be saved.");
+                    await loadReturnInspectionRows();
+                } catch (error) {
+                    alert(error.message);
+                }
+            });
+            loadReturnAdminApprovals();
+            loadReturnInspectionRows();
+            loadPurchaseCorrectionApprovals();
+        });
+    </script>
+
+{% endblock %}

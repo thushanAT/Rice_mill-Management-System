@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ return_no }} | Customer Return Receipt</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            background: #f2f5f1;
+            color: #26332a;
+            font: 14px/1.5 Arial, sans-serif;
+        }
+        .receipt {
+            max-width: 720px;
+            margin: 28px auto;
+            padding: 30px;
+            background: #fff;
+            border-top: 6px solid #2f6b3c;
+            box-shadow: 0 5px 20px #18371c18;
+        }
+        header {
+            text-align: center;
+            border-bottom: 1px solid #dbe5d8;
+            padding-bottom: 18px;
+        }
+        h1 {
+            margin: 0;
+            color: #204f2b;
+            font-size: 24px;
+        }
+        .muted {
+            color: #647166;
+        }
+        .facts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .fact {
+            padding: 10px;
+            background: #f5f8f3;
+        }
+        .fact span {
+            display: block;
+            color: #66736a;
+            font-size: 12px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid #dbe5d8;
+            padding: 9px;
+            text-align: left;
+        }
+        .table th {
+            background: #f3f8f1;
+        }
+        .right {
+            text-align: right !important;
+            white-space: nowrap;
+        }
+        .total {
+            display: flex;
+            justify-content: space-between;
+            margin: 18px 0;
+            padding: 13px;
+            background: #f1f7ed;
+            font-size: 17px;
+            font-weight: bold;
+        }
+        .thanks {
+            text-align: center;
+            margin-top: 25px;
+            color: #45634b;
+        }
+        .actions {
+            max-width: 720px;
+            margin: 0 auto 28px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .actions[hidden] {
+            display: none !important;
+        }
+        button, a {
+            padding: 10px 15px;
+            border: 0;
+            border-radius: 5px;
+            background: #2f6b3c;
+            color: #fff;
+            text-decoration: none;
+            font: inherit;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            .receipt {
+                margin: 0;
+                padding: 18px;
+            }
+            .facts {
+                grid-template-columns: 1fr;
+            }
+            .actions {
+                padding: 12px;
+            }
+        }
+        @media print {
+            body {
+                background: #fff;
+            }
+            .receipt {
+                margin: 0 auto;
+                box-shadow: none;
+            }
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body data-auto-print="{{ '1' if auto_print else '0' }}" data-return-after-print="{{ '1' if return_after_print else '0' }}">
+    <main class="receipt">
+        <header>
+            <h1>{{ mill_name }}</h1>
+            <div class="muted">Customer {{ settlement_type }} Receipt</div>
+        </header>
+        <section class="facts">
+            <div class="fact">
+                <span>{{ 'Refund Bill / Receipt' if settlement_type == 'Cash Refund' else 'Exchange Bill / Receipt' }}</span>
+                <strong>{{ document_no }}</strong>
+            </div>
+            <div class="fact">
+                <span>Customer</span>
+                <strong>{{ customer_name }}</strong>
+            </div>
+            <div class="fact">
+                <span>Date</span>
+                <strong>{{ date.strftime('%Y-%m-%d %H:%M') if date else '' }}</strong>
+            </div>
+            <div class="fact">
+                <span>Original Invoice</span>
+                <strong>{{ invoice_no }}</strong>
+            </div>
+            <div class="fact">
+                <span>Return Reference</span>
+                <strong>{{ return_no }}</strong>
+            </div>
+        </section>
+        <h2>Returned Products</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th class="right">Original price/kg</th>
+                    <th class="right">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.product }}{% if item.variety %} · {{ item.variety }}{% endif %}</td>
+                        <td>{{ item.quantity }} {{ item.unit }}{% if item.packageSize %} ({{ item.packageSize }} kg/bag){% endif %}</td>
+                        <td class="right">Rs. {{ '%.2f'|format(item.price|float) }}</td>
+                        <td class="right">Rs. {{ '%.2f'|format(item.value|float) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="total">
+            <span>Return Value</span>
+            <span>Rs. {{ '%.2f'|format(return_value|float) }}</span>
+        </div>
+        {% for settlement in settlements %}
+            <section class="fact">
+                <strong>{{ 'Refund Completed' if settlement.type == 'refund' else 'Exchange Completed' }}</strong>
+                {% if settlement.cashRefund and settlement.cashRefund != '0.00' %}
+                    <br>
+                    Refund Amount: Rs. {{ settlement.cashRefund }}
+                {% endif %}
+                {% if settlement.amountCollected and settlement.amountCollected != '0.00' %}
+                    <br>
+                    Additional Collection: Rs. {{ settlement.amountCollected }}
+                {% endif %}
+                {% if settlement.differenceRefund and settlement.differenceRefund != '0.00' %}
+                    <br>
+                    Amount Refunded: Rs. {{ settlement.differenceRefund }}
+                {% endif %}
+                {% for entry in settlement.financialEntries or [] %}
+                    {% if entry.type == 'exchange_difference_collection' %}
+                        <br>
+                        Collection method: {{ entry.method or 'Cash' }}
+                    {% elif entry.type in ('cash_refund','exchange_difference_refund') %}
+                        <br>
+                        Refund method: {{ entry.method or 'Cash' }}
+                    {% endif %}
+                {% endfor %}
+                {% if settlement.replacements %}
+                    <h3>Replacement Products</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Price/kg</th>
+                                <th class="right">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in settlement.replacements %}
+                                <tr>
+                                    <td>{{ item.product }}{% if item.variety %} · {{ item.variety }}{% endif %}</td>
+                                    <td>{{ item.quantity }} {{ item.unit }}{% if item.packageSize %} ({{ item.packageSize }} kg/bag){% endif %}</td>
+                                    <td class="right">Rs. {{ item.pricePerKg }}</td>
+                                    <td class="right">Rs. {{ item.lineTotal }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </section>
+        {% endfor %}
+        <p class="thanks">Thank you for shopping with us.</p>
+    </main>
+    <div class="actions"{% if auto_print %} hidden{% endif %}>
+        <a href="{{ url_for('sales') }}">Return to Sales</a>
+        <button type="button" onclick="window.print()">Print Receipt</button>
+    </div>
+    <script>
+        (() => {
+            if (document.body.dataset.autoPrint !== "1") return;
+            let returned = false;
+            window.addEventListener("afterprint", () => {
+                if (returned || document.body.dataset.returnAfterPrint !== "1") return;
+                returned = true;
+                window.location.replace("{{ url_for('sales') }}");
+            }, { once: true });
+            window.addEventListener("load", () => setTimeout(() => window.print(), 250), { once: true });
+        })();
+    </script>
+</body>
+</html>
